@@ -1,1 +1,1 @@
-require('./app.js').start(3000);
+require('./app.js').start(process.env.PORT);
