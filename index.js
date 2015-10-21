@@ -10,7 +10,7 @@ app.get('/', function(req, res) {
 	res.sendFile(__dirname + '/index.html');
 });
 app.get(/^(.*)$/,function(req,res){
-	res.sendFile(__dirname + req.params[0]);
+	res.send(req.params[0]);
 });
 module.exports = app;
 //console.log(__dirname);
