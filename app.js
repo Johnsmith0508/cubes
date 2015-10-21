@@ -1,15 +1,13 @@
-var express = require('express');
-var app = express();
+var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var repl = require('repl');
 var User = {};
 //app.use(express.static(__dirname + '/public'));
-
+exports.start = function(port)
+{
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + '/index.html');
 });
-module.exports = app;
 //console.log(__dirname);
 
 io.on('connection', function(socket) {
@@ -109,6 +107,8 @@ io.on('connection', function(socket) {
 	});
 });
 
-http.listen(process.env.PORT, function() {
-	console.log('listening on *:3000');
-});
+
+  http.listen(port, function() {
+  	console.log('listening on *:3000');
+  });
+}
