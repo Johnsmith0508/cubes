@@ -4,14 +4,12 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var repl = require('repl');
 var User = {};
-//app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/'));
 
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + '/index.html');
 });
-app.get(/^(.*)$/,function(req,res){
-	res.send(req.params[0]);
-});
+
 module.exports = app;
 //console.log(__dirname);
 
