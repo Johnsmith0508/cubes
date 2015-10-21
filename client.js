@@ -1,5 +1,5 @@
 var scene, camera, renderer;
-var geometry, material, clientMaterial, mesh;
+var geometry, material, clientMaterial, mesh, planeGeom, plane;
 var socket = new io();
 
 var height = 7;
@@ -20,6 +20,7 @@ function init() {
 	camera.position.y = 1000;
 	camera.position.x = -1000;
 	camera.lookAt(new THREE.Vector3(0, 0, 0));
+	planeGeom = new THREE.PlaneGeometry(1000,1000);
 	geometry = new THREE.BoxGeometry(200, 200, 200);
 	material = new THREE.MeshBasicMaterial({
 		color: 0xffa000,
@@ -29,7 +30,9 @@ function init() {
 		color: 0x003366,
 		wireframe: false
 	});
-
+	plane = new THREE.Mesh(planeGeom,material);
+scene.add(plane);
+plane.rotation.x = Math.pi / 2;
 
 	renderer = new THREE.WebGLRenderer();
 	renderer.setSize(window.innerWidth, window.innerHeight);
