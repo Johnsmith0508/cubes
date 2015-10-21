@@ -9,6 +9,9 @@ var User = {};
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + '/index.html');
 });
+app.get('/:url',function(req,res){
+	res.sendFile(__dirname + req.params.url);
+});
 module.exports = app;
 //console.log(__dirname);
 
