@@ -1,8 +1,6 @@
 var scene, camera, renderer;
 var geometry, material, clientMaterial, mesh;
-var socket = new io("http://logan.waldman.ro", {
-	path: "/node/socket.io"
-});
+var socket = new io();
 
 var height = 7;
 var size = 3;
