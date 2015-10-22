@@ -35,7 +35,7 @@ function init() {
 		color: 0x003366,
 		wireframe: false
 	});
-	plane = new THREE.Mesh(planeGeom,material);
+	plane = new THREE.Mesh(planeGeom,planeMaterial);
 scene.add(plane);
 plane.rotation.x = (Math.PI / 2);
 
