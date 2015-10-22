@@ -23,7 +23,7 @@ function init() {
 	planeGeom = new THREE.PlaneGeometry(3000,3000);
 	geometry = new THREE.BoxGeometry(200, 200, 200);
 
-	material = new THREE.MeshBasicMaterial({
+	planeMaterial = new THREE.MeshBasicMaterial({
 		color: 0x9966ff,
 		side: THREE.DoubleSide
 	});
@@ -37,7 +37,7 @@ function init() {
 	});
 	plane = new THREE.Mesh(planeGeom,material);
 scene.add(plane);
-plane.rotation.x = Math.PI / 2;
+plane.rotation.x = (Math.PI / 2);
 
 	renderer = new THREE.WebGLRenderer();
 	renderer.setSize(window.innerWidth, window.innerHeight);
