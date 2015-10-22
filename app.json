@@ -1,0 +1,7 @@
+{
+  "name":"Cubes",
+  "description":"A simple game of cubes, I guess",
+  "repository":"https://github.com/johnsmith0508/cubes",
+  "logo":"https://avatars0.githubusercontent.com/u/7605426?v=3",
+  "keywords":["node","express","socket.io","three.js"]
+}
