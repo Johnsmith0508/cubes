@@ -33,7 +33,7 @@ function init() {
 	});
 	plane = new THREE.Mesh(planeGeom,material);
 scene.add(plane);
-plane.rotation.x = Math.pi / 2;
+//plane.rotation.x = Math.pi / 2;
 
 	renderer = new THREE.WebGLRenderer();
 	renderer.setSize(window.innerWidth, window.innerHeight);
