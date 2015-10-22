@@ -24,7 +24,8 @@ function init() {
 	geometry = new THREE.BoxGeometry(200, 200, 200);
 	material = new THREE.MeshBasicMaterial({
 		color: 0xffa000,
-		wireframe: false
+		wireframe: false,
+		side: THREE.DoubleSide
 	});
 	clientMaterial = new THREE.MeshBasicMaterial({
 		color: 0x003366,
