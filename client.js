@@ -29,15 +29,15 @@ function init() {
 	});
 	material = new THREE.MeshBasicMaterial({
 		color: 0xffa000,
-		wireframe: false,
+		wireframe: false
 	});
 	clientMaterial = new THREE.MeshBasicMaterial({
 		color: 0x003366,
 		wireframe: false
 	});
 	plane = new THREE.Mesh(planeGeom,planeMaterial);
-scene.add(plane);
-plane.rotation.x = (Math.PI / 2);
+	scene.add(plane);
+	plane.rotation.x = (Math.PI / 2);
 
 	renderer = new THREE.WebGLRenderer();
 	renderer.setSize(window.innerWidth, window.innerHeight);
@@ -56,66 +56,7 @@ function animate() {
 	renderer.render(scene, camera);
 
 }
-$("#submit").one('click', function(e) {
-	if ($("#name").val().length > 0) {
-		socket.emit('user', $("#name").val());
-		userName = $("#name").val();
-		$(document).on('keyup keydown', function(e) {
-			if (e.shiftKey) {
-				user[userName].translateY(-10);
-				socket.emit('translate', {
-					posX: user[userName].position.x,
-					posY: user[userName].position.y,
-					posZ: user[userName].position.z
-				});
-			}
-		});
-		$(document).on('keypress', function(event) {
-			switch (event.which) {
-				case 119:
-					user[userName].translateX(10);
-					//socket.emit('keypress', 'w');
-					break;
-				case 115:
-					user[userName].translateX(-10);
-					//socket.emit('keypress', 's');
-					break;
-				case 97:
-					user[userName].translateZ(-10);
-					//socket.emit('keypress', 'a');
-					break;
-				case 100:
-					user[userName].translateZ(10);
-					//socket.emit('keypress', 'd');
-					break;
-					//113 101
-				case 113:
-					socket.emit('keypress', 'q');
-					break;
-				case 101:
-					socket.emit('keypress', 'e');
-					break;
-				case 32:
-					//socket.emit('keypress', 'space');
-					user[userName].translateY(10);
-					break;
-				default:
-					console.log(event.which);
-			}
-			if (event.shiftKey) {
-				user[userName].translateY(-10);
-				//socket.emit('keypress', 'shift');
-			}
-			socket.emit('translate', {
-				posX: user[userName].position.x,
-				posY: user[userName].position.y,
-				posZ: user[userName].position.z
-			});
-		});
-	} else {
-		console.log("name is empty");
-	}
-});
+$("#submit").one('click',submitHandler);
 
 socket.on('move', function(info) {
 	//console.log(info);
@@ -204,4 +145,74 @@ function createTextAtPosition(text, parentObj) {
 	parentObj.add(textMesh1);
 
 
+}
+
+var keypressHandler = function(event)
+{
+	switch (event.which) {
+		case 119:
+			user[userName].translateX(10);
+			//socket.emit('keypress', 'w');
+			break;
+		case 115:
+			user[userName].translateX(-10);
+			//socket.emit('keypress', 's');
+			break;
+		case 97:
+			user[userName].translateZ(-10);
+			//socket.emit('keypress', 'a');
+			break;
+		case 100:
+			user[userName].translateZ(10);
+			//socket.emit('keypress', 'd');
+			break;
+			//113 101
+		case 113:
+			socket.emit('keypress', 'q');
+			break;
+		case 101:
+			socket.emit('keypress', 'e');
+			break;
+		case 32:
+			//socket.emit('keypress', 'space');
+			user[userName].translateY(10);
+			break;
+		default:
+			console.log(event.which);
+	}
+	if (event.shiftKey) {
+		user[userName].translateY(-10);
+		//socket.emit('keypress', 'shift');
+	}
+	socket.emit('translate', {
+		posX: user[userName].position.x,
+		posY: user[userName].position.y,
+		posZ: user[userName].position.z
+	});
+
+}
+var shiftHandler = function(e)
+{
+		if (e.shiftKey) {
+			user[userName].translateY(-10);
+			socket.emit('translate', {
+				posX: user[userName].position.x,
+				posY: user[userName].position.y,
+				posZ: user[userName].position.z
+			});
+		}
+}
+
+var submitHandler = function(e)
+{
+	if ($("#name").val().length > 0)
+	{
+		socket.emit('user', $("#name").val());
+		userName = $("#name").val();
+		$(document).on('keyup keydown',shiftHandler);
+		$(document).on('keypress',keypressHandler);
+	} else
+	{
+		console.log("name is empty");
+	}
 }
