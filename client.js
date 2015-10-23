@@ -11,7 +11,8 @@ var usernamePlates = {};
 init();
 animate();
 
-function init() {
+function init()
+{
 
 	scene = new THREE.Scene();
 
@@ -43,10 +44,11 @@ function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 
 	document.body.appendChild(renderer.domElement);
-
+	registerSubmitButton();
 }
 
-function animate() {
+function animate()
+{
 
 	requestAnimationFrame(animate);
 
@@ -56,7 +58,7 @@ function animate() {
 	renderer.render(scene, camera);
 
 }
-$("#submit").one('click',submitHandler);
+
 
 socket.on('move', function(info) {
 	//console.log(info);
@@ -82,7 +84,8 @@ socket.on('move', function(info) {
 });
 
 
-function createTextAtPosition(text, parentObj) {
+function createTextAtPosition(text, parentObj)
+{
 	var name = new THREE.TextGeometry(text, {
 		size: 70,
 		height: 20,
@@ -214,5 +217,11 @@ var submitHandler = function(e)
 	} else
 	{
 		console.log("name is empty");
+		registerSubmitButton();
 	}
+}
+
+var registerSubmitButton = function()
+{
+	$("#submit").one('click',submitHandler);
 }
