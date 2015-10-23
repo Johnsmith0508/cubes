@@ -15,6 +15,11 @@ app.get('/', function(req, res) {
 io.on('connection', function(socket) {
 	var userName = "";
 	//console.log("connect");
+	socket.on('chat message',function(msg)
+	{
+		io.emit('chat message',msg);
+	});
+
 	socket.on('disconect', function() {
 		delete User[userName];
 	});

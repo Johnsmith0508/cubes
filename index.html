@@ -42,6 +42,11 @@
 		#messages li: nth-child(odd) {
 			background: #eee;
 		}
+		div.chat {
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
 	</style>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r72/three.min.js"></script>
@@ -54,13 +59,13 @@
 	<input id="name" type="text" defaultValue="name"></input>
 	<input id="submit" type="submit"></input>
 	<script src="/client.js"></script>
-	<!--ul id="messages"></ul>
+	<div class="chat">
+	<ul id="messages"></ul>
     <form action="">
       <input id="m" autocomplete="off" /><button>Send</button>
     </form>
 
     <script>
-      var socket = io("http://logan.waldman.ro",{path:'/node/socket.io'});
       $('form').submit(function(){
         socket.emit('chat message', $('#m').val());
         $('#m').val('');
@@ -69,7 +74,8 @@
       socket.on('chat message', function(msg){
         $('#messages').append($('<li>').text(msg));
       });
-    </script-->
+    </script>
+		</div>
 </body>
 
 </html>
