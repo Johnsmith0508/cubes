@@ -8,8 +8,6 @@ var userName;
 var isShifted;
 var user = {};
 var usernamePlates = {};
-init();
-animate();
 
 function init()
 {
@@ -227,3 +225,6 @@ var registerSubmitButton = function()
 	console.log("reg sub");
   $("#submit").one('click',submitHandler);
 }
+
+init();
+animate();
