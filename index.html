@@ -4,52 +4,46 @@
 <head>
 	<title>Cubes</title>
 	<style>
-		* {
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-		}
-		body {
-			font: 13px Helvetica, Arial;
-		}
-		form {
-			background: #000;
-			padding: 3px;
-			position: fixed;
-			bottom: 0;
-			width: 100%;
-		}
-		form input {
-			border: 0;
-			padding: 10px;
-			width: 90%;
-			margin-right: .5%;
-		}
-		form button {
-			width: 9%;
-			background: rgb(130, 224, 255);
-			border: none;
-			padding: 10px;
-		}
 		#messages {
 			list-style-type: none;
 			margin: 0;
 			padding: 0;
 		}
 		#messages li {
+			opacity: .75;
 			padding: 5px 10px;
 		}
-		#messages li: nth-child(odd) {
-			background: #eee;
+		#messages li:nth-child(odd) {
+			background-color: #4c4c4c;
+		}
+		#messages li:nth-child(even) {
+			background-color: #707070;
 		}
 		div.chat {
 			position: absolute;
 			top: 0;
-			left: 0;
+			right: 0px;
+			width: 350px;
+			height: 500px;
+		}
+		ul#messages {
+			overflow: auto;
+			height: 95%;
+		}
+		input#msgIn {
+			position: absolute;
+			bottom: 0px;
+			width: 66.66%;
+		}
+		button#send {
+			position: absolute;
+			bottom: 0px;
+			right: 0px;
+			width: 33.33%;
 		}
 	</style>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r72/three.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/three.js/r72/three.min.js"></script>
 	<script src="/fonts/helvetiker_regular.typface.js"></script>
 	<script src="/fonts/helvetiker_bold.typeface.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
@@ -60,22 +54,27 @@
 	<input id="submit" type="submit"></input>
 	<script src="/client.js"></script>
 	<div class="chat">
-	<ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
+		<ul id="messages"></ul>
+  	<input id="msgIn" autocomplete="off"/>
+		<button id="send">Send</button>
 
     <script>
-      $('form').submit(function(){
-        socket.emit('chat message', $('#m').val());
-        $('#m').val('');
+      $('#send').on('click',function(){
+        socket.emit('chat message', $('#msgIn').val());
+        $('#msgIn').val('');
         return false;
       });
+			$('#msgIn').on('keyup',function(e)
+		{
+			if(e.keyCode == 13) {
+				$('#send').trigger('click');
+			}
+		});
       socket.on('chat message', function(msg){
         $('#messages').append($('<li>').text(msg));
       });
     </script>
-		</div>
+	</div>
 </body>
 
 </html>
