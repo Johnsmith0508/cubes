@@ -110,8 +110,12 @@ io.on('connection', function(socket) {
 			rotZ: User[userName].rotZ
 		});
 	});
+
+	socket.on('chat message',function(msg) {
+		socket.broadcast.emit('chat message',{'msg':msg,'name':userName});
+	});
 });
 
 http.listen(process.env.PORT, function() {
-	console.log('listening on *:3000');
+	console.log('listening on' + process.env.PORT);
 });
