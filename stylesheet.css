@@ -1,0 +1,43 @@
+div.chat {
+position: absolute;
+right: 0px;
+top: 0px;
+
+}
+#messages {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+#messages li {
+	opacity: .5;
+	padding: 5px 10px;
+}
+#messages li:nth-child(odd) {
+	background-color: #4c4c4c;
+}
+#messages li:nth-child(even) {
+	background-color: #707070;
+}
+div.chat {
+	position: absolute;
+	top: 0;
+	right: 0px;
+	width: 350px;
+	height: 500px;
+}
+ul#messages {
+	overflow: auto;
+	height: 95%;
+}
+input#msgIn {
+	position: absolute;
+	bottom: 0px;
+	width: 66.66%;
+}
+button#send {
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
+	width: 33.33%;
+}
