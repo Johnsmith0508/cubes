@@ -1,4 +1,4 @@
-var scene, camera, renderer;
+var scene, camera, renderer, container;
 var geometry, material, clientMaterial, mesh, planeGeom, planeMaterial;
 var socket = new io();
 
@@ -11,7 +11,8 @@ var usernamePlates = {};
 
 function init()
 {
-
+    container = document.getElementById('threeJsRenderWindow');
+    document.body.appendChild(container);
   scene = new THREE.Scene();
 
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
@@ -41,7 +42,6 @@ function init()
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
 
-  document.body.appendChild(renderer.domElement);
   registerSubmitButton();
 }
 
@@ -211,7 +211,7 @@ var submitHandler = function(e)
   {
       $('#login').hide();
       $('#main_window').show();
-      init();
+      container.appendChild(renderer.domElement);
     socket.emit('user', $("#name").val());
     userName = $("#name").val();
     $(document).on('keyup keydown',shiftHandler);
@@ -235,4 +235,5 @@ var registerSubmitButton = function()
     });
 }
 
+init();
 animate();
