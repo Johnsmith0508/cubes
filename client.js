@@ -211,6 +211,7 @@ var submitHandler = function(e)
   {
       $('#login').hide();
       $('#main_window').show();
+      init();
     socket.emit('user', $("#name").val());
     userName = $("#name").val();
     $(document).on('keyup keydown',shiftHandler);
@@ -234,5 +235,4 @@ var registerSubmitButton = function()
     });
 }
 
-init();
 animate();
