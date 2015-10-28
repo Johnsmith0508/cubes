@@ -206,24 +206,32 @@ var shiftHandler = function(e)
 
 var submitHandler = function(e)
 {
-	console.log("submited");
+	//console.log("submited");
   if ($("#name").val().length > 0)
   {
+      $('#login').hide();
+      $('#main_window').show();
     socket.emit('user', $("#name").val());
     userName = $("#name").val();
     $(document).on('keyup keydown',shiftHandler);
     $(document).on('keypress',keypressHandler);
   } else
   {
-    console.log("name is empty");
+    //console.log("name is empty");
     registerSubmitButton();
   }
 }
 
 var registerSubmitButton = function()
 {
-	console.log("reg sub");
-  $("#submit").one('click',submitHandler);
+	//console.log("reg sub");
+    $("#sendName").one('click', submitHandler);
+    $('#name').one('keyup', function (e) {
+        if(e.keyCode == 13)
+        {
+            $('#sendName').trigger('click');
+        }
+    });
 }
 
 init();

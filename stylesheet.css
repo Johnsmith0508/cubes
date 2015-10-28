@@ -41,3 +41,25 @@ button#send {
 	right: 0px;
 	width: 33.33%;
 }
+#login {
+    width: 50%;
+    height: 300px;
+    position: absolute;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    margin: auto;
+    border-style: groove;
+    text-align: center;
+}
+#name {
+    position: absolute;
+    margin: auto;
+    bottom: 50%;
+}
+#sendName {
+    position: absolute;
+    margin: auto;
+    bottom: 40%;
+}
