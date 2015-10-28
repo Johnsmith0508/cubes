@@ -1,13 +1,10 @@
 {
-  "name": "socket-chat-example",
-  "version": "0.0.1",
-  "description": "my first socket.io app",
-  "dependencies": {
-    "express": "^4.13.3",
-    "pact": "^0.1.2",
-    "socket.io": "^1.3.7"
-  },
-  "devDependencies": {
-    "zombie": "^4.1.0"
+  "name": "test",
+  "version": "0.0.0",
+  "description": "test",
+  "main": "server.js",
+  "author": {
+    "name": "2480425",
+    "email": ""
   }
 }

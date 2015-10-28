@@ -213,8 +213,10 @@ var submitHandler = function(e)
       document.body.appendChild(renderer.domElement);
     socket.emit('user', $("#name").val());
     userName = $("#name").val();
-    $(document).on('keyup keydown',shiftHandler);
-    $(document).on('keypress',keypressHandler);
+    $(document).on('keydown', function (e) { buttonHandler(e, true) });
+    $(document).on('keyup', function (e) { buttonHandler(e, false) });
+      //$(document).on('keyup keydown',shiftHandler);
+    //$(document).on('keypress',keypressHandler);
   } else
   {
     //console.log("name is empty");
@@ -236,3 +238,4 @@ var registerSubmitButton = function()
 
 init();
 animate();
+var loop = setInterval(mainLoop,1000/60);
