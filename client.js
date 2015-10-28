@@ -1,7 +1,7 @@
 var scene, camera, renderer, container;
 var geometry, material, clientMaterial, mesh, planeGeom, planeMaterial;
 var socket = new io();
-
+var key = {};
 var height = 7;
 var size = 3;
 var userName;
@@ -58,7 +58,8 @@ function animate()
 }
 
 
-socket.on('move', function(info) {
+socket.on('move', function(info)
+{
   //console.log(info);
   if (typeof user[info.name] == "undefined") {
     if (info.name == userName) {
@@ -148,49 +149,47 @@ function createTextAtPosition(text, parentObj)
 
 }
 
-var keypressHandler = function(event)
+var buttonHandler = function(keyPressed,status)
 {
-  switch (event.which) {
+  key.numPressed = (status ? key.numPressed +1 : key.numPressed -1);
+  switch (keyPressed)
+  {
     case 119:
-      user[userName].translateX(10);
-      //socket.emit('keypress', 'w');
+      key.w = status;
       break;
     case 115:
-      user[userName].translateX(-10);
-      //socket.emit('keypress', 's');
+      key.s = status;
       break;
     case 97:
-      user[userName].translateZ(-10);
-      //socket.emit('keypress', 'a');
+      key.a = status;
       break;
     case 100:
-      user[userName].translateZ(10);
-      //socket.emit('keypress', 'd');
+      key.d = status;
       break;
-      //113 101
     case 113:
-      socket.emit('keypress', 'q');
+      key.q = status;
       break;
     case 101:
-      socket.emit('keypress', 'e');
+      key.e = status;
       break;
     case 32:
-      //socket.emit('keypress', 'space');
-      user[userName].translateY(10);
+      key.space = status;
       break;
-    default:
-      console.log(event.which);
   }
-  if (event.shiftKey) {
-    user[userName].translateY(-10);
-    //socket.emit('keypress', 'shift');
-  }
-  socket.emit('translate', {
+}
+var mainLoop = function()
+{
+  if(key.w) user[userName].translateX(10);
+  if(key.s) user[userName].translateX(-10);
+  if(key.a) user[userName].translateZ(-10);
+  if(key.d) user[userName].translateZ(10);
+  if(key.q) socket.emit('keypress','q');
+  if(key.e) socket.emit('keypress','e');
+  if(key.numPressed > 0) socket.emit('translate', {
     posX: user[userName].position.x,
     posY: user[userName].position.y,
     posZ: user[userName].position.z
   });
-
 }
 var shiftHandler = function(e)
 {
