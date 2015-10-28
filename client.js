@@ -11,7 +11,7 @@ var usernamePlates = {};
 
 function init()
 {
-    container = document.getElementById('threeJsRenderWindow');
+    //container = document.getElementById('threeJsRenderWindow');
     //document.body.appendChild(container);
   scene = new THREE.Scene();
 
@@ -211,7 +211,7 @@ var submitHandler = function(e)
   {
       $('#login').hide();
       $('#main_window').show();
-      container.appendChild(renderer.domElement);
+      document.body.appendChild(renderer.domElement);
     socket.emit('user', $("#name").val());
     userName = $("#name").val();
     $(document).on('keyup keydown',shiftHandler);
