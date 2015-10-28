@@ -12,7 +12,7 @@ var usernamePlates = {};
 function init()
 {
     container = document.getElementById('threeJsRenderWindow');
-    document.body.appendChild(container);
+    //document.body.appendChild(container);
   scene = new THREE.Scene();
 
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
