@@ -52,7 +52,7 @@ function init()
 function animate()
 {
   stats.begin();
-  mainLoop();
+  mainLoop(); //TODO: ask about this
   stats.end();
   requestAnimationFrame(animate);
 
@@ -157,6 +157,7 @@ function createTextAtPosition(text, parentObj)
 
 var buttonHandler = function(keyPressed,status)
 {
+  console.log("key was pressed");
   key.numPressed = (status ? key.numPressed +1 : key.numPressed -1);
   switch (keyPressed)
   {
@@ -215,13 +216,14 @@ var submitHandler = function(e)
 	//console.log("submited");
   if ($("#name").val().length > 0)
   {
-      $('#login').hide();
-      $('#main_window').show();
-      document.body.appendChild(renderer.domElement);
+    $('#login').hide();
+    $('#main_window').show();
+    document.body.appendChild(renderer.domElement);
     socket.emit('user', $("#name").val());
     userName = $("#name").val();
     $(document).on('keydown', function (e) { buttonHandler(e.key, true) });
     $(document).on('keyup', function (e) { buttonHandler(e.key, false) });
+    console.log("registered key handlers");
       //$(document).on('keyup keydown',shiftHandler);
     //$(document).on('keypress',keypressHandler);
   } else
