@@ -1,7 +1,7 @@
 var scene, camera, renderer, container;
 var geometry, material, clientMaterial, mesh, planeGeom, planeMaterial;
 var socket = new io();
-var key = {};
+var key = {w:false,a:false,s:false,d:false,q:false,e:false,space:false};
 var height = 7;
 var size = 3;
 var userName;
