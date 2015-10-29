@@ -221,8 +221,8 @@ var submitHandler = function(e)
     document.body.appendChild(renderer.domElement);
     socket.emit('user', $("#name").val());
     userName = $("#name").val();
-    $(document).on('keydown', function (e) { buttonHandler(e.keyCode, true) });
-    $(document).on('keyup', function (e) { buttonHandler(e.key, false) });
+    $(document).on('keydown', function (e) { buttonHandler(e.which, true) });
+    $(document).on('keyup', function (e) { buttonHandler(e.which, false) });
     console.log("registered key handlers");
       //$(document).on('keyup keydown',shiftHandler);
     //$(document).on('keypress',keypressHandler);
