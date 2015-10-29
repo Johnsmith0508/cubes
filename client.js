@@ -157,7 +157,7 @@ function createTextAtPosition(text, parentObj)
 
 var buttonHandler = function(keyPressed,status)
 {
-  console.log("key was pressed");
+  console.log("key was pressed"+ keyPressed);
   key.numPressed = (status ? key.numPressed +1 : key.numPressed -1);
   switch (keyPressed)
   {
