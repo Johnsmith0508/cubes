@@ -222,7 +222,7 @@ var submitHandler = function(e)
     socket.emit('user', $("#name").val());
     userName = $("#name").val();
     $(document).on('keydown', function (e) { buttonHandler(e.keyCode, true) });
-    $(document).on('keyup', function (e) { buttonHandler(e.key, false) });
+    $(document).on('keyup', function (e) { buttonHandler(e.keyCode, false) });
     console.log("registered key handlers");
       //$(document).on('keyup keydown',shiftHandler);
     //$(document).on('keypress',keypressHandler);
