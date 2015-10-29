@@ -17,8 +17,8 @@ function init()
   scene = new THREE.Scene();
   stats.setMode(0);
   stats.domElement.style.position = 'absolute';
-stats.domElement.style.left = '0px';
-stats.domElement.style.top = '0px';
+  stats.domElement.style.left = '0px';
+  stats.domElement.style.top = '0px';
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
   //camera.position.z = -1000;
   camera.position.y = 1000;
@@ -220,8 +220,8 @@ var submitHandler = function(e)
       document.body.appendChild(renderer.domElement);
     socket.emit('user', $("#name").val());
     userName = $("#name").val();
-    $(document).on('keydown', function (e) { buttonHandler(e, true) });
-    $(document).on('keyup', function (e) { buttonHandler(e, false) });
+    $(document).on('keydown', function (e) { buttonHandler(e.key, true) });
+    $(document).on('keyup', function (e) { buttonHandler(e.key, false) });
       //$(document).on('keyup keydown',shiftHandler);
     //$(document).on('keypress',keypressHandler);
   } else
