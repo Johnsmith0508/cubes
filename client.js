@@ -161,22 +161,22 @@ var buttonHandler = function(keyPressed,status)
   key.numPressed = (status ? key.numPressed +1 : key.numPressed -1);
   switch (keyPressed)
   {
-    case 119:
+    case 87:
       key.w = status;
       break;
-    case 115:
+    case 83:
       key.s = status;
       break;
-    case 97:
+    case 65:
       key.a = status;
       break;
-    case 100:
+    case 68:
       key.d = status;
       break;
-    case 113:
+    case 81:
       key.q = status;
       break;
-    case 101:
+    case 69:
       key.e = status;
       break;
     case 32:
