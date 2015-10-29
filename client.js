@@ -21,11 +21,11 @@ function init()
   stats.domElement.style.top = '0px';
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
   //camera.position.z = -1000;
-  camera.position.y = 1000;
-  camera.position.x = -1000;
+  camera.position.y = 10;
+  camera.position.x = -10;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
-  planeGeom = new THREE.PlaneGeometry(3000,3000);
-  geometry = new THREE.BoxGeometry(200, 200, 200);
+  planeGeom = new THREE.PlaneGeometry(30,30);
+  geometry = new THREE.BoxGeometry(2, 2, 2);
 
   planeMaterial = new THREE.MeshBasicMaterial({
     color: 0x9966ff,
@@ -92,8 +92,8 @@ socket.on('move', function(info)
 function createTextAtPosition(text, parentObj)
 {
   var name = new THREE.TextGeometry(text, {
-    size: 70,
-    height: 20,
+    size: .7,
+    height: .2,
     curveSegments: 4,
     font: "helvetiker", //TODO: finish this http://threejs.org/examples/webgl_geometry_text.html
     weight: "normal",
@@ -144,7 +144,7 @@ function createTextAtPosition(text, parentObj)
   textMesh1 = new THREE.Mesh(name, material);
 
   textMesh1.position.x = centerOffset;
-  textMesh1.position.y = 200;
+  textMesh1.position.y = 2;
   textMesh1.position.z = 0;
 
   textMesh1.rotation.x = 0;
@@ -186,10 +186,10 @@ var buttonHandler = function(keyPressed,status)
 var mainLoop = function()
 {
   //console.log(key.w);
-  if(key.w) user[userName].translateX(10);
-  if(key.s) user[userName].translateX(-10);
-  if(key.a) user[userName].translateZ(-10);
-  if(key.d) user[userName].translateZ(10);
+  if(key.w) user[userName].translateX(.1);
+  if(key.s) user[userName].translateX(-.1);
+  if(key.a) user[userName].translateZ(-.1);
+  if(key.d) user[userName].translateZ(.1);
   if(key.q) socket.emit('keypress','q');
   if(key.e) socket.emit('keypress','e');
   if(key.numPressed > 0) socket.emit('translate', {
