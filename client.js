@@ -1,6 +1,7 @@
 var scene, camera, renderer, container;
 var geometry, material, clientMaterial, mesh, planeGeom, planeMaterial;
 var socket = new io();
+var stats = new Stats();
 var key = {w:false,a:false,s:false,d:false,q:false,e:false,space:false};
 var height = 7;
 var size = 3;
@@ -14,7 +15,10 @@ function init()
     //container = document.getElementById('threeJsRenderWindow');
     //document.body.appendChild(container);
   scene = new THREE.Scene();
-
+  stats.setMode(0);
+  stats.domElement.style.position = 'absolute';
+stats.domElement.style.left = '0px';
+stats.domElement.style.top = '0px';
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
   //camera.position.z = -1000;
   camera.position.y = 1000;
@@ -41,13 +45,15 @@ function init()
 
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
-
+  document.body.appendChild( stats.domElement );
   registerSubmitButton();
 }
 
 function animate()
 {
-
+  stats.begin();
+  mainLoop();
+  stats.end();
   requestAnimationFrame(animate);
 
   //mesh.rotation.x += 0.01;
@@ -239,4 +245,4 @@ var registerSubmitButton = function()
 
 init();
 animate();
-var loop = setInterval(mainLoop,1000/60);
+//var loop = setInterval(mainLoop,1000/60);
