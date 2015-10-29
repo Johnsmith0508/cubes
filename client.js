@@ -185,7 +185,7 @@ var buttonHandler = function(keyPressed,status)
 }
 var mainLoop = function()
 {
-  console.log(key.w);
+  //console.log(key.w);
   if(key.w) user[userName].translateX(10);
   if(key.s) user[userName].translateX(-10);
   if(key.a) user[userName].translateZ(-10);
