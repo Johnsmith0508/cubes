@@ -198,6 +198,7 @@ var mainLoop = function()
   if(key.q) socket.emit('keypress','q');
   if(key.e) socket.emit('keypress','e');
   if(key.space) user[userName].translateY(.1);
+  if(key.shift) user[userName].translateY(-.1);
 
   if(key.w || key.a || key.s || key.d || key.q || key.q || key.e || key.space || key.shift) {
     socket.emit('translate', {
@@ -237,7 +238,7 @@ var registerSubmitButton = function()
 	//console.log("reg sub");
     $("#sendName").one('click', submitHandler);
     $('#name').one('keyup', function (e) {
-        if(e.keyCode == 32)
+        if(e.keyCode == 13)
         {
             $('#sendName').trigger('click');
         }
