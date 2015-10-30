@@ -44,9 +44,6 @@ function init()
   scene.add(plane);
   plane.rotation.x = (Math.PI / 2);
 
-  user[info.name] = new THREE.Mesh(geometry, clientMaterial);
-  user[userName].add(camera);
-
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild( stats.domElement );
@@ -218,7 +215,7 @@ var mainLoop = function()
 
 var submitHandler = function(e)
 {
-	//`console.log("submited");
+	//console.log("submited");
   $('#name').off('keyup');
   if ($("#name").val().length > 0)
   {
@@ -229,7 +226,8 @@ var submitHandler = function(e)
     document.body.appendChild(renderer.domElement);
     $(document).on('keydown', function (e) { buttonHandler(e, true) });
     $(document).on('keyup', function (e) { buttonHandler(e, false) });
-
+    user[userName] = new THREE.Mesh(geometry, clientMaterial);
+    user[userName].add(camera);
     //console.log("registered key handlers");
       //$(document).on('keyup keydown',shiftHandler);
     //$(document).on('keypress',keypressHandler);
