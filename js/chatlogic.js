@@ -22,5 +22,6 @@ $(document).on('keyup',function(e)
   if(e.which == 84)
   {
     $(".chat").show();
+    $("#sendName").focus();
   }
 });
