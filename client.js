@@ -224,8 +224,8 @@ var submitHandler = function(e)
     $('#login').hide();
     $('#main_window').show();
     document.body.appendChild(renderer.domElement);
-    $(document).on('keydown', function (e) { buttonHandler(e, true) });
-    $(document).on('keyup', function (e) { buttonHandler(e, false) });
+    $(document).not(".chat").on('keydown', function (e) { buttonHandler(e, true) });
+    $(document).not(".chat").on('keyup', function (e) { buttonHandler(e, false) });
     user[userName] = new THREE.Mesh(geometry, clientMaterial);
     user[userName].add(camera);
     scene.add(user[userName]);

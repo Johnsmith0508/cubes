@@ -1,4 +1,6 @@
+var hasChatOpen = false;
 $(document.body).on('click','#send',function(){
+  hasChatOpen = false;
   console.log("send button clicked");
   if($('#msgIn').val().length > 0){
     socket.emit('chat message', $('#msgIn').val());
@@ -15,9 +17,10 @@ if(e.keyCode == 13) {
 socket.on('chat message', function(payload){
   $('#messages').append($('<li>').text(payload.name + ': ' + payload.msg));
   $(".chat").show();
-  setTimeout(function(){
+  if(!hasChatOpen){
+    setTimeout(function(){
     $(".chat").hide();
-  },5000);
+  },5000);}
 });
 
 $(document).on('keyup',function(e)
@@ -26,6 +29,7 @@ $(document).on('keyup',function(e)
   {
     $(".chat").show();
     $("#msgIn").focus();
+    hasChatOpen = true;
   }
   if(e.which == 13) {
     $("#send").trigger('click');
