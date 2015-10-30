@@ -159,11 +159,6 @@ function createTextAtPosition(text, parentObj)
 var buttonHandler = function(keyPressed,status)
 {
   //console.log("key was pressed"+ keyPressed);
-  if (status) {
-    key.keyPressed++;
-  } else {
-    key.keyPressed--;
-  }
   switch (keyPressed.which)
   {
     case 87:
@@ -204,7 +199,7 @@ var mainLoop = function()
   if(key.e) socket.emit('keypress','e');
   if(key.space) user[userName].translateY(.1);
 
-  if(key.numPressed > 0) {
+  if(key.w || key.a || key.s || key.d || key.q || key.q || key.e || key.space || key.shift) {
     socket.emit('translate', {
     posX: user[userName].position.x,
     posY: user[userName].position.y,
