@@ -1,8 +1,9 @@
+var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
 var scene, camera, renderer, container;
 var geometry, material, clientMaterial, mesh, planeGeom, planeMaterial;
 var socket = new io();
 var stats = new Stats();
-var key = {w:false,a:false,s:false,d:false,q:false,e:false,space:false};
+var key = {w:false,a:false,s:false,d:false,q:false,e:false,space:false,shift: false,keyPressed:0};
 var height = 7;
 var size = 3;
 var userName;
@@ -157,9 +158,9 @@ function createTextAtPosition(text, parentObj)
 
 var buttonHandler = function(keyPressed,status)
 {
-  console.log("key was pressed"+ keyPressed);
+  //console.log("key was pressed"+ keyPressed);
   key.numPressed = (status ? key.numPressed +1 : key.numPressed -1);
-  switch (keyPressed)
+  switch (keyPressed.which)
   {
     case 87:
       key.w = status;
@@ -183,6 +184,10 @@ var buttonHandler = function(keyPressed,status)
       key.space = status;
       break;
   }
+  if (keyPressed.shiftKey)
+  {
+    key.shift = status;
+  }
 }
 var mainLoop = function()
 {
@@ -193,6 +198,8 @@ var mainLoop = function()
   if(key.d) user[userName].translateZ(.1);
   if(key.q) socket.emit('keypress','q');
   if(key.e) socket.emit('keypress','e');
+  if(key.space) user[userName].translateY(.1);
+
   if(key.numPressed > 0) {
     socket.emit('translate', {
     posX: user[userName].position.x,
@@ -201,17 +208,7 @@ var mainLoop = function()
   });
 }
 }
-var shiftHandler = function(e)
-{
-    if (e.shiftKey) {
-      user[userName].translateY(-10);
-      socket.emit('translate', {
-        posX: user[userName].position.x,
-        posY: user[userName].position.y,
-        posZ: user[userName].position.z
-      });
-    }
-}
+
 
 var submitHandler = function(e)
 {
@@ -223,10 +220,10 @@ var submitHandler = function(e)
     document.body.appendChild(renderer.domElement);
     socket.emit('user', $("#name").val());
     userName = $("#name").val();
-    $(document).on('keydown', function (e) { buttonHandler(e.which, true) });
-    $(document).on('keyup', function (e) { buttonHandler(e.which, false) });
+    $(document).on('keydown', function (e) { buttonHandler(e, true) });
+    $(document).on('keyup', function (e) { buttonHandler(e, false) });
 
-    console.log("registered key handlers");
+    //console.log("registered key handlers");
       //$(document).on('keyup keydown',shiftHandler);
     //$(document).on('keypress',keypressHandler);
   } else
@@ -241,7 +238,7 @@ var registerSubmitButton = function()
 	//console.log("reg sub");
     $("#sendName").one('click', submitHandler);
     $('#name').one('keyup', function (e) {
-        if(e.keyCode == 13)
+        if(e.keyCode == 32)
         {
             $('#sendName').trigger('click');
         }
