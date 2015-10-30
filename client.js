@@ -228,6 +228,7 @@ var submitHandler = function(e)
     $(document).on('keyup', function (e) { buttonHandler(e, false) });
     user[userName] = new THREE.Mesh(geometry, clientMaterial);
     user[userName].add(camera);
+    scene.add(user[userName]);
     //console.log("registered key handlers");
       //$(document).on('keyup keydown',shiftHandler);
     //$(document).on('keypress',keypressHandler);
