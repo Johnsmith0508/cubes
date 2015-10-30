@@ -1,4 +1,4 @@
-$('#send').on('click',function(){
+$(document.body).on('click','#send',function(){
   console.log("send button clicked");
   if($('#msgIn').val().length > 0){
     socket.emit('chat message', $('#msgIn').val());
