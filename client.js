@@ -193,11 +193,13 @@ var mainLoop = function()
   if(key.d) user[userName].translateZ(.1);
   if(key.q) socket.emit('keypress','q');
   if(key.e) socket.emit('keypress','e');
-  if(key.numPressed > 0) socket.emit('translate', {
+  if(key.numPressed > 0) {
+    socket.emit('translate', {
     posX: user[userName].position.x,
     posY: user[userName].position.y,
     posZ: user[userName].position.z
   });
+}
 }
 var shiftHandler = function(e)
 {
