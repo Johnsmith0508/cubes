@@ -199,7 +199,7 @@ var mainLoop = function()
   if(key.a) user[userName].translateZ(-.1);
   if(key.d) user[userName].translateZ(.1);
   if(key.q) {socket.emit('keypress','q');user[userName].rotation.y += 0.1;}
-  if(key.e) {socket.emit('keypress','e');user[userName].rotation,y -= 0.1;}
+  if(key.e) {socket.emit('keypress','e');user[userName].rotation.y -= 0.1;}
   if(key.space) user[userName].translateY(.1);
   if(key.shift) user[userName].translateY(-.1);
 
