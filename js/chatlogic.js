@@ -1,4 +1,5 @@
 $('#send').on('click',function(){
+  console.log("send button clicked");
   if($('#msgIn').val().length > 0){
     socket.emit('chat message', $('#msgIn').val());
     $('#msgIn').val('');
@@ -24,7 +25,7 @@ $(document).on('keyup',function(e)
   if(e.which == 84)
   {
     $(".chat").show();
-    $("#sendName").focus();
+    $("#msgIn").focus();
   }
   if(e.which == 13) {
     $("#send").trigger('click');
