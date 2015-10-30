@@ -1,7 +1,9 @@
 $('#send').on('click',function(){
-  socket.emit('chat message', $('#msgIn').val());
-  $('#msgIn').val('');
-  $(".chat").hide();
+  if($('#msgIn').val().length > 0){
+    socket.emit('chat message', $('#msgIn').val());
+    $('#msgIn').val('');
+    $(".chat").hide();
+  }
 });
 $('#msgIn').on('keyup',function(e)
 {
@@ -23,5 +25,8 @@ $(document).on('keyup',function(e)
   {
     $(".chat").show();
     $("#sendName").focus();
+  }
+  if(e.which == 13) {
+    $("#send").trigger('click');
   }
 });

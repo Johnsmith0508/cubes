@@ -15,6 +15,12 @@ function init()
 {
     //container = document.getElementById('threeJsRenderWindow');
     //document.body.appendChild(container);
+    $('#name').on('keyup', function (e) {
+        if(e.keyCode == 13)
+        {
+            $('#sendName').trigger('click');
+        }
+    });
   scene = new THREE.Scene();
   stats.setMode(0);
   stats.domElement.style.position = 'absolute';
@@ -240,12 +246,12 @@ var registerSubmitButton = function()
 {
 	//console.log("reg sub");
     $("#sendName").one('click', submitHandler);
-    $('#name').one('keyup', function (e) {
-        if(e.keyCode == 13)
-        {
-            $('#sendName').trigger('click');
-        }
-    });
+    // $('#name').on('keyup', function (e) {
+    //     if(e.keyCode == 13)
+    //     {
+    //         $('#sendName').trigger('click');
+    //     }
+    // });
 }
 
 init();
