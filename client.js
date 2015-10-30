@@ -185,8 +185,8 @@ var buttonHandler = function(keyPressed,status)
   }
   if (keyPressed.shiftKey)
   {
-    key.shift = status;
-  }
+    key.shift = true;
+  }else{key.shift = false;}
 }
 var mainLoop = function()
 {
