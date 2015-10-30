@@ -20,28 +20,12 @@
 	</div>
 	<div id="main_window" hidden>
 		<script src="/client.js"></script>
+		<script src="/js/chatlogic.js"></script>
         <div id="threeJsRenderWindow"></div>
-		<div class="chat">
+		<div class="chat" hidden>
 			<ul id="messages"></ul>
 	  	<input id="msgIn" autocomplete="off"/>
 			<button id="send">Send</button>
-
-	    <script>
-	      $('#send').on('click',function(){
-	        socket.emit('chat message', $('#msgIn').val());
-	        $('#msgIn').val('');
-	        return false;
-	      });
-				$('#msgIn').on('keyup',function(e)
-			{
-				if(e.keyCode == 13) {
-					$('#send').trigger('click');
-				}
-			});
-	      socket.on('chat message', function(payload){
-	        $('#messages').append($('<li>').text(payload.name + ': ' + payload.msg));
-	      });
-	    </script>
 		</div>
 	</div>
 </body>

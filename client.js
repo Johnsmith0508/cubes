@@ -3,7 +3,7 @@ var scene, camera, renderer, container;
 var geometry, material, clientMaterial, mesh, planeGeom, planeMaterial;
 var socket = new io();
 var stats = new Stats();
-var key = {w:false,a:false,s:false,d:false,q:false,e:false,space:false,shift: false,keyPressed:0};
+var key = {w:false,a:false,s:false,d:false,q:false,e:false,t:false,space:false,shift: false,keyPressed:0};
 var height = 7;
 var size = 3;
 var userName;
@@ -181,6 +181,9 @@ var buttonHandler = function(keyPressed,status)
       break;
     case 32:
       key.space = status;
+      break;
+    case 84:
+      key.t = status;
       break;
   }
   if (keyPressed.shiftKey)
