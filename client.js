@@ -44,6 +44,9 @@ function init()
   scene.add(plane);
   plane.rotation.x = (Math.PI / 2);
 
+  user[info.name] = new THREE.Mesh(geometry, clientMaterial);
+  user[userName].add(camera);
+
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild( stats.domElement );
@@ -215,15 +218,15 @@ var mainLoop = function()
 
 var submitHandler = function(e)
 {
-	//console.log("submited");
+	//`console.log("submited");
   $('#name').off('keyup');
   if ($("#name").val().length > 0)
   {
+    socket.emit('user', $("#name").val());
+    userName = $("#name").val();
     $('#login').hide();
     $('#main_window').show();
     document.body.appendChild(renderer.domElement);
-    socket.emit('user', $("#name").val());
-    userName = $("#name").val();
     $(document).on('keydown', function (e) { buttonHandler(e, true) });
     $(document).on('keyup', function (e) { buttonHandler(e, false) });
 
