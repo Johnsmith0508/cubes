@@ -158,7 +158,7 @@ function createTextAtPosition(text, parentObj)
 
 var buttonHandler = function(keyPressed,status)
 {
-  if (e.target == $(".chat")) return;
+  if (keyPressed.target == $(".chat")) return;
   //console.log("key was pressed"+ keyPressed);
   switch (keyPressed.which)
   {
