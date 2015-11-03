@@ -1,5 +1,5 @@
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
-var scene, camera, renderer, container;
+var scene, camera, renderer, container,jsonLoader;
 var geometry, material, clientMaterial, mesh, planeGeom, planeMaterial;
 var socket = new io();
 var stats = new Stats();
@@ -27,7 +27,8 @@ function init()
   camera.lookAt(new THREE.Vector3(0, 0, 0));
   planeGeom = new THREE.PlaneGeometry(30,30);
   geometry = new THREE.BoxGeometry(2, 2, 2);
-
+  jsonLoader = new THREE.JSONLoader();
+  jsonLoader.load('/light.js',);
   planeMaterial = new THREE.MeshBasicMaterial({
     color: 0x9966ff,
     side: THREE.DoubleSide
