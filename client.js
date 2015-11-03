@@ -28,7 +28,11 @@ function init()
   planeGeom = new THREE.PlaneGeometry(30,30);
   geometry = new THREE.BoxGeometry(2, 2, 2);
   jsonLoader = new THREE.JSONLoader();
-  jsonLoader.load('/light.js',);
+  jsonLoader.load('/light.js',function(geometry,material) {
+    var materials = new THREE.MeshFaceMaterial(material);
+    var obj = new THREE.Mesh(geometry);
+    scene.add(obj);
+  });
   planeMaterial = new THREE.MeshBasicMaterial({
     color: 0x9966ff,
     side: THREE.DoubleSide
