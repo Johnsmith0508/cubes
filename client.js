@@ -1,5 +1,5 @@
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
-var scene, camera, renderer, container,jsonLoader;
+var scene, camera, renderer, container,jsonLoader,light;
 var geometry, material, clientMaterial, mesh, planeGeom, planeMaterial;
 var socket = new io();
 var stats = new Stats();
@@ -30,7 +30,7 @@ function init()
   jsonLoader = new THREE.JSONLoader();
   jsonLoader.load('/light.js',function(geometry,material) {
     var materials = new THREE.MeshFaceMaterial(material);
-    var obj = new THREE.Mesh(geometry);
+    light = new THREE.Mesh(geometry);
     scene.add(obj);
   });
   planeMaterial = new THREE.MeshBasicMaterial({
