@@ -30,10 +30,10 @@ function init()
   jsonLoader = new THREE.JSONLoader();
   jsonLoader.load('/light.js',function(geometry,material) {
     var materials = new THREE.MeshFaceMaterial(material);
-    light = new THREE.Mesh(geometry);
-    light.scale.x = .3;
-    light.scale.y = .3;
-    light.scale.z = .3;
+    light = new THREE.Mesh(geometry, materials);
+    light.scale.x = .15;
+    light.scale.y = .15;
+    light.scale.z = .15;
     light.rotation.x = (Math.PI / -2);
     light.position.y += 10;
     scene.add(light);
