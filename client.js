@@ -31,7 +31,12 @@ function init()
   jsonLoader.load('/light.js',function(geometry,material) {
     var materials = new THREE.MeshFaceMaterial(material);
     light = new THREE.Mesh(geometry);
-    scene.add(obj);
+    light.scale.x = .1;
+    light.scale.y = .1;
+    light.scale.z = .1;
+    light.rotation.x = Math.PI / 2;
+    light.position.y += 2;
+    scene.add(light);
   });
   planeMaterial = new THREE.MeshBasicMaterial({
     color: 0x9966ff,
