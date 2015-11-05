@@ -27,10 +27,12 @@ function init()
   camera.lookAt(new THREE.Vector3(0, 0, 0));
   planeGeom = new THREE.PlaneGeometry(30,30);
   geometry = new THREE.BoxGeometry(2, 2, 2);
+
   objMtlLoader = new THREE.OBJMTLLoader();
-  objMtlLoader.load('/Car.obj','/Car.mtl',function(loadedCar) {
+  /*objMtlLoader.load('/Car.obj','/Car.mtl',function(loadedCar) {
     scene.add(loadedCar);
-  });
+  });*/
+
   planeMaterial = new THREE.MeshBasicMaterial({
     color: 0x9966ff,
     side: THREE.DoubleSide
