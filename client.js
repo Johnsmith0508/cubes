@@ -28,13 +28,13 @@ function init()
   planeGeom = new THREE.PlaneGeometry(30,30);
   geometry = new THREE.BoxGeometry(2, 2, 2);
   jsonLoader = new THREE.JSONLoader();
-  jsonLoader.load('/light.js',function(geometry,material) {
+  jsonLoader.load('/Car.js',function(geometry,material) {
     var materials = new THREE.MeshFaceMaterial(material);
     light = new THREE.Mesh(geometry, materials);
-    light.scale.x = .15;
+    /*light.scale.x = .15;
     light.scale.y = .15;
     light.scale.z = .15;
-    light.rotation.x = (Math.PI / -2);
+    light.rotation.x = (Math.PI / -2);*/
     light.position.y += 10;
     scene.add(light);
   });
