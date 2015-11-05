@@ -1,5 +1,5 @@
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
-var scene, camera, renderer, container,jsonLoader,light;
+var scene, camera, renderer, container,objMtlLoader,light;
 var geometry, material, clientMaterial, mesh, planeGeom, planeMaterial;
 var socket = new io();
 var stats = new Stats();
@@ -27,16 +27,9 @@ function init()
   camera.lookAt(new THREE.Vector3(0, 0, 0));
   planeGeom = new THREE.PlaneGeometry(30,30);
   geometry = new THREE.BoxGeometry(2, 2, 2);
-  jsonLoader = new THREE.JSONLoader();
-  jsonLoader.load('/Car.js',function(geometry,material) {
-    var materials = new THREE.MeshFaceMaterial(material);
-    light = new THREE.Mesh(geometry, materials);
-    /*light.scale.x = .15;
-    light.scale.y = .15;
-    light.scale.z = .15;
-    light.rotation.x = (Math.PI / -2);*/
-    light.position.y += 10;
-    scene.add(light);
+  objMtlLoader = new THREE.OBJMTLLoader();
+  objMtlLoader.load('/Car.obj','/Car.mtl',function(loadedCar) {
+    scene.add(loadedCar);
   });
   planeMaterial = new THREE.MeshBasicMaterial({
     color: 0x9966ff,
