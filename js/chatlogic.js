@@ -20,7 +20,7 @@ socket.on('chat message', function(payload){
   if(!hasChatOpen){
     setTimeout(function(){
     $(".chat").hide();
-  },5000);}
+  },chatHideDelay*1000);}
 });
 
 $(document).on('keyup',function(e)

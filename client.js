@@ -1,7 +1,9 @@
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
-var scene, camera, renderer, container,objMtlLoader,light;
+var scene, camera, renderer, container,objMtlLoader,light,chatHideDelay;
 var geometry, material, clientMaterial, mesh, planeGeom, planeMaterial;
-var socket = new io();
+
+var socket = (window.location.hostname.indexOf("logan")> -1 ? new io('http://logan.waldman.ro',{path:'/node/socket.io'}) : new io() );
+
 var stats = new Stats();
 var key = {w:false,a:false,s:false,d:false,q:false,e:false,t:false,space:false,shift: false,keyPressed:0};
 var height = 7;
@@ -29,9 +31,10 @@ function init()
   geometry = new THREE.BoxGeometry(2, 2, 2);
 
   objMtlLoader = new THREE.OBJMTLLoader();
-  /*objMtlLoader.load('/Car.obj','/Car.mtl',function(loadedCar) {
+  objMtlLoader.load('/node/Car.obj','/node/Car.mtl',function(loadedCar) {
     scene.add(loadedCar);
-  });*/
+		loadedCar.position.y = 10;
+  });
 
   planeMaterial = new THREE.MeshBasicMaterial({
     color: 0x9966ff,
@@ -200,14 +203,14 @@ var buttonHandler = function(keyPressed,status)
 var mainLoop = function()
 {
   //console.log(key.w);
-  if(key.w) user[userName].translateX(.1);
-  if(key.s) user[userName].translateX(-.1);
-  if(key.a) user[userName].translateZ(-.1);
-  if(key.d) user[userName].translateZ(.1);
+  if(key.w) user[userName].translateX(0.1);
+  if(key.s) user[userName].translateX(-0.1);
+  if(key.a) user[userName].translateZ(-0.1);
+  if(key.d) user[userName].translateZ(0.1);
   if(key.q) {socket.emit('keypress','q');user[userName].rotation.y += 0.1;}
   if(key.e) {socket.emit('keypress','e');user[userName].rotation.y -= 0.1;}
-  if(key.space) user[userName].translateY(.1);
-  if(key.shift) user[userName].translateY(-.1);
+  if(key.space) user[userName].translateY(0.1);
+  if(key.shift) user[userName].translateY(-0.1);
 
   if(key.w || key.a || key.s || key.d || key.q || key.q || key.e || key.space || key.shift) {
     socket.emit('translate', {
@@ -229,6 +232,7 @@ var submitHandler = function(e)
     userName = $("#name").val();
     $('#login').hide();
     $('#main_window').show();
+		chatHideDelay = $("#chatDelay").val();
     document.body.appendChild(renderer.domElement);
     $(document).on('keydown', function (e) { buttonHandler(e, true) });
     $(document).on('keyup', function (e) { buttonHandler(e, false) });
@@ -260,3 +264,8 @@ var registerSubmitButton = function()
 init();
 animate();
 //var loop = setInterval(mainLoop,1000/60);
+$(function(){
+	$("#opts").on('click',function(){
+		$("#options").toggle();
+	});
+});

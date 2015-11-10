@@ -63,3 +63,14 @@ button#send {
     margin: auto;
     bottom: 40%;
 }
+#opts {
+	position: absolute;
+	bottom: 25%;
+	margin: auto;
+}
+#options {
+	border-style: groove;
+	position: absolute;
+	bottom: 5%;
+	left: 5%;
+}

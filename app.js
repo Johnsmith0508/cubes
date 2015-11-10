@@ -8,6 +8,7 @@ exports.start = function(port)
 app.use(express.static(__dirname + '/'));
 
 app.get('/', function(req, res) {
+	console.log(req);
 	res.sendFile(__dirname + '/index.html');
 });
 //console.log(__dirname);
@@ -116,6 +117,6 @@ io.on('connection', function(socket) {
 
 
   http.listen(port, function() {
-  	console.log('listening on *:3000');
+  	console.log('listening on '+ port);
   });
 }
