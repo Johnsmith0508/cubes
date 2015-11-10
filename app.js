@@ -65,10 +65,10 @@ io.on('connection', function(socket) {
 		});
 	});
 
-	socket.on('user', function(name) {
-		console.log(name + " connected");
-		userName = name.toString();
-		User[name] = {
+	socket.on('user', function(user) {
+		console.log(user.name + " connected");
+		userName = user.name.toString();
+		User[user.name] = {
 			posX: 0,
 			posY: 0,
 			posZ: 0,
@@ -76,23 +76,24 @@ io.on('connection', function(socket) {
 			rotY: 0,
 			rotZ: 0
 		};
+		socket.emit('userJoined',{model:user.model,name:user.name});
 		socket.broadcast.emit('move', {
 			name: userName,
-			posX: User[name].posX,
-			posY: User[name].posY,
-			posZ: User[name].posZ,
-			rotX: User[name].rotX,
-			rotY: User[name].rotY,
-			rotZ: User[name].rotZ
+			posX: User[user.name].posX,
+			posY: User[user.name].posY,
+			posZ: User[user.name].posZ,
+			rotX: User[user.name].rotX,
+			rotY: User[user.name].rotY,
+			rotZ: User[user.name].rotZ
 		});
 		socket.emit('move', {
 			name: userName,
-			posX: User[name].posX,
-			posY: User[name].posY,
-			posZ: User[name].posZ,
-			rotX: User[name].rotX,
-			rotY: User[name].rotY,
-			rotZ: User[name].rotZ
+			posX: User[user.name].posX,
+			posY: User[user.name].posY,
+			posZ: User[user.name].posZ,
+			rotX: User[user.name].rotX,
+			rotY: User[user.name].rotY,
+			rotZ: User[user.name].rotZ
 		});
 	});
 

@@ -1,6 +1,6 @@
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
 var scene, camera, renderer, container,objMtlLoader,light,chatHideDelay;
-var geometry, material, clientMaterial, mesh, planeGeom, planeMaterial;
+var geometry, material, clientMaterial, mesh, planeGeom, planeMaterial,modelType;
 
 var socket = (window.location.hostname.indexOf("logan")> -1 ? new io('http://logan.waldman.ro',{path:'/node/socket.io'}) : new io() );
 
@@ -228,7 +228,7 @@ var submitHandler = function(e)
   $('#name').off('keyup');
   if ($("#name").val().length > 0)
   {
-    socket.emit('user', $("#name").val());
+    socket.emit('user', {name:$("#name").val(),model:modelType});
     userName = $("#name").val();
     $('#login').hide();
     $('#main_window').show();
