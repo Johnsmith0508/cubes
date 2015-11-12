@@ -102,17 +102,6 @@ socket.on('userJoined',function(data)
 socket.on('move', function(info)
 {
   //console.log(info);
-  if (typeof user[info.name] == "undefined") {
-    if (info.name == userName) {
-      user[info.name] = new THREE.Mesh(geometry, clientMaterial);
-      user[userName].add(camera);
-    } else {
-      user[info.name] = new THREE.Mesh(geometry, material);
-      createTextAtPosition(info.name, user[info.name]);
-    }
-    scene.add(user[info.name]);
-
-  }
   user[info.name].position.x = info.posX;
   user[info.name].position.y = info.posY;
   user[info.name].position.z = info.posZ;

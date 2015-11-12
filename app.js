@@ -3,6 +3,13 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var User = {};
+Object.size = function(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
 exports.start = function(port)
 {
 app.use(express.static(__dirname + '/'));
@@ -24,8 +31,9 @@ io.on('connection', function(socket) {
 		io.emit('chat message',{msg:msg,name:userName});
 	});
 
-	socket.on('disconect', function() {
+	socket.on('disconnect', function() {
 		delete User[userName];
+		console.log(userName + " has left");
 	});
 	socket.on('keypress', function(key) {
 		//console.log(key,userName);
@@ -67,7 +75,10 @@ io.on('connection', function(socket) {
 			rotZ: User[userName].rotZ
 		});
 	});
-
+	socket.on('imaCar',function(){
+		User[userName].rotX = -Math.PI / 2;
+		User[userName].rotY = -Math.PI / 2;
+	});
 	socket.on('user', function(user) {
 		console.log(user.name + " connected sid: " + socket.id+" and wants model: "+ user.model);
 		userName = user.name.toString();
@@ -82,18 +93,19 @@ io.on('connection', function(socket) {
 			model: user.model
 		};
 		socket.broadcast.emit('userJoined',{model:user.model,name:user.name});
+		console.log(Object.size(User)+" users online");
 		for( var i in User)
 		{
 			console.log("sending the user " + i + ", who is a " + User[i].model + " to " + User[userName].sid);
-			socket.broadcast.to(User[userName].sid).emit('userJoined',{
+			socket.emit('userJoined',{
 			name: i,
 			model: User[i].model,
-			posX: User[i].posX,
+			/*posX: User[i].posX,
 			posY: User[i].posY,
 			posZ: User[i].posZ,
 			rotX: User[i].rotX,
 			rotY: User[i].rotY,
-			rotZ: User[i].rotZ
+			rotZ: User[i].rotZ*/
 			});
 		}
 // 		socket.broadcast.emit('move', {
