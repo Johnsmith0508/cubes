@@ -30,12 +30,21 @@ function init()
   planeGeom = new THREE.PlaneGeometry(30,30);
   geometry = new THREE.BoxGeometry(2, 2, 2);
 
-  objMtlLoader = new THREE.OBJMTLLoader();
-  objMtlLoader.load('/node/Car.obj','/node/Car.mtl',function(loadedCar) {
-    scene.add(loadedCar);
+  objMtlLoader = new THREE.JSONLoader();
+  objMtlLoader.load('/node/car.AnExtention',function(loadedCar) {
+		var carMaterial = new THREE.MeshLambertMaterial();
+		var car = new THREE.Mesh(loadedCar,carMaterial);
+		car.position.y += 10;
+		car.rotateX(-Math.PI/2);
+		car.scale.set(0.6,0.6,0.6);
+    scene.add(car);
 		loadedCar.position.y = 10;
   });
-
+	var light = new THREE.PointLight(0xffffff,1,100);
+	scene.add(light);
+	light.position.y = 15;
+	light.position.z = 5;
+	light.position.x = 5;
   planeMaterial = new THREE.MeshBasicMaterial({
     color: 0x9966ff,
     side: THREE.DoubleSide
@@ -72,6 +81,15 @@ function animate()
 
 }
 
+socket.on('userJoined',function(data)
+{
+	if (typeof user[data.name] == "undefined") {
+      user[data.name] = new THREE.Mesh(geometry, material);
+      createTextAtPosition(info.name, user[info.name]);
+    scene.add(user[info.name]);
+
+  }
+});
 
 socket.on('move', function(info)
 {

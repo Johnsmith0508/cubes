@@ -74,3 +74,10 @@ button#send {
 	bottom: 5%;
 	left: 5%;
 }
+
+#ErrorMsg {
+	position: fixed;
+	margin: auto;
+	text-color: #ff0000;
+	
+}
