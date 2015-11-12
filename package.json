@@ -1,6 +1,6 @@
 {
   "name": "cubes",
-  "version": "1.5.1",
+  "version": "1.2.95",
   "description": "a cube 'game' in javascript",
   "dependencies": {
     "express": "^4.13.3",
