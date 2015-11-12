@@ -64,7 +64,6 @@ function init()
 
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild( stats.domElement );
   registerSubmitButton();
 }
 
@@ -250,6 +249,10 @@ var submitHandler = function(e)
     $('#main_window').show();
 		chatHideDelay = $("#chatDelay").val();
     document.body.appendChild(renderer.domElement);
+		if($("#fpsShow").is(":checked"))
+			{
+				  document.body.appendChild( stats.domElement );
+			}
     $(document).on('keydown', function (e) { buttonHandler(e, true) });
     $(document).on('keyup', function (e) { buttonHandler(e, false) });
 		if(modelType == "car")
