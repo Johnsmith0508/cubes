@@ -6,7 +6,10 @@ var User = {};
 exports.start = function(port)
 {
 app.use(express.static(__dirname + '/'));
-
+	
+process.env.CUBESERVERPID = process.pid;
+console.log(process.pid);	
+	
 app.get('/', function(req, res) {
 	console.log(req);
 	res.sendFile(__dirname + '/index.html');
@@ -45,15 +48,15 @@ io.on('connection', function(socket) {
 			case 'e':
 				User[userName].rotY -= 0.1;
 		}
-		socket.broadcast.emit('move', {
-			name: userName,
-			posX: User[userName].posX,
-			posY: User[userName].posY,
-			posZ: User[userName].posZ,
-			rotX: User[userName].rotX,
-			rotY: User[userName].rotY,
-			rotZ: User[userName].rotZ
-		});
+// 		socket.broadcast.emit('move', {
+// 			name: userName,
+// 			posX: User[userName].posX,
+// 			posY: User[userName].posY,
+// 			posZ: User[userName].posZ,
+// 			rotX: User[userName].rotX,
+// 			rotY: User[userName].rotY,
+// 			rotZ: User[userName].rotZ
+// 		});
 		socket.emit('move', {
 			name: userName,
 			posX: User[userName].posX,
@@ -66,7 +69,7 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('user', function(user) {
-		console.log(user.name + " connected");
+		console.log(user.name + " connected sid: " + socket.id+" and wants model: "+ user.model);
 		userName = user.name.toString();
 		User[user.name] = {
 			posX: 0,
@@ -74,18 +77,34 @@ io.on('connection', function(socket) {
 			posZ: 0,
 			rotX: 0,
 			rotY: 0,
-			rotZ: 0
+			rotZ: 0,
+			sid: socket.id,
+			model: user.model
 		};
-		socket.emit('userJoined',{model:user.model,name:user.name});
-		socket.broadcast.emit('move', {
-			name: userName,
-			posX: User[user.name].posX,
-			posY: User[user.name].posY,
-			posZ: User[user.name].posZ,
-			rotX: User[user.name].rotX,
-			rotY: User[user.name].rotY,
-			rotZ: User[user.name].rotZ
-		});
+		socket.broadcast.emit('userJoined',{model:user.model,name:user.name});
+		for( var i in User)
+		{
+			console.log("sending the user " + i + ", who is a " + User[i].model + " to " + User[userName].sid);
+			socket.broadcast.to(User[userName].sid).emit('userJoined',{
+			name: i,
+			model: User[i].model,
+			posX: User[i].posX,
+			posY: User[i].posY,
+			posZ: User[i].posZ,
+			rotX: User[i].rotX,
+			rotY: User[i].rotY,
+			rotZ: User[i].rotZ
+			});
+		}
+// 		socket.broadcast.emit('move', {
+// 			name: userName,
+// 			posX: User[user.name].posX,
+// 			posY: User[user.name].posY,
+// 			posZ: User[user.name].posZ,
+// 			rotX: User[user.name].rotX,
+// 			rotY: User[user.name].rotY,
+// 			rotZ: User[user.name].rotZ
+// 		});
 		socket.emit('move', {
 			name: userName,
 			posX: User[user.name].posX,

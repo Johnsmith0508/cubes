@@ -1,5 +1,5 @@
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
-var scene, camera, renderer, container,objMtlLoader,light,chatHideDelay;
+var scene, camera, renderer, container,objMtlLoader,light,chatHideDelay,carMaterial,carMesh;
 var geometry, material, clientMaterial, mesh, planeGeom, planeMaterial,modelType;
 
 var socket = (window.location.hostname.indexOf("logan")> -1 ? new io('http://logan.waldman.ro',{path:'/node/socket.io'}) : new io() );
@@ -30,15 +30,16 @@ function init()
   planeGeom = new THREE.PlaneGeometry(30,30);
   geometry = new THREE.BoxGeometry(2, 2, 2);
 
-  objMtlLoader = new THREE.JSONLoader();
-  objMtlLoader.load('/node/car.AnExtention',function(loadedCar) {
-		var carMaterial = new THREE.MeshLambertMaterial();
-		var car = new THREE.Mesh(loadedCar,carMaterial);
-		car.position.y += 10;
-		car.rotateX(-Math.PI/2);
-		car.scale.set(0.6,0.6,0.6);
-    scene.add(car);
-		loadedCar.position.y = 10;
+	
+	carMaterial = new THREE.MeshPhongMaterial();
+	carMaterial.shading = THREE.FlatShading;
+  JsonLoader = new THREE.JSONLoader();
+  JsonLoader.load('/node/car.AnExtention',function(loadedCar) {
+		carMesh = loadedCar;
+		//car.rotateX(-Math.PI/2);
+		//car.scale.set(0.6,0.6,0.6);
+		//var car = new THREE.Mesh(carMesh,carMaterial);
+    //scene.add(car);
   });
 	var light = new THREE.PointLight(0xffffff,1,100);
 	scene.add(light);
@@ -83,12 +84,19 @@ function animate()
 
 socket.on('userJoined',function(data)
 {
+	console.log("receved info about" + data.name + ", who is a " + data.model);
 	if (typeof user[data.name] == "undefined") {
-      user[data.name] = new THREE.Mesh(geometry, material);
-      createTextAtPosition(info.name, user[info.name]);
-    scene.add(user[info.name]);
-
-  }
+		if(data.model=="car")
+			{
+				user[data.name] = new THREE.Mesh(carMesh,carMaterial);
+				user[data.name].rotateX(-Math.PI/2);
+				user[data.name].scale.set(0.6,0.6,0.6);
+			}else{
+				user[data.name] = new THREE.Mesh(geometry, material);
+			}
+			createTextAtPosition(data.name, user[data.name]);
+			scene.add(user[data.name]);
+	}
 });
 
 socket.on('move', function(info)
@@ -246,6 +254,7 @@ var submitHandler = function(e)
   $('#name').off('keyup');
   if ($("#name").val().length > 0)
   {
+		modelType = $(".model:checked").val();
     socket.emit('user', {name:$("#name").val(),model:modelType});
     userName = $("#name").val();
     $('#login').hide();
@@ -254,7 +263,14 @@ var submitHandler = function(e)
     document.body.appendChild(renderer.domElement);
     $(document).on('keydown', function (e) { buttonHandler(e, true) });
     $(document).on('keyup', function (e) { buttonHandler(e, false) });
-    user[userName] = new THREE.Mesh(geometry, clientMaterial);
+		if(modelType == "car")
+			{
+				user[userName] = new THREE.Mesh(carMesh,carMaterial);
+				user[userName].scale.set(0.6,0.6,0.6);
+				user[userName].rotateX(-Math.PI/2);
+			}else{
+				user[userName] = new THREE.Mesh(geometry, clientMaterial);
+			}
     user[userName].add(camera);
     scene.add(user[userName]);
     //console.log("registered key handlers");
