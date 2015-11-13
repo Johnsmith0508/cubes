@@ -75,9 +75,9 @@ io.on('connection', function(socket) {
 			rotZ: User[userName].rotZ
 		});
 	});
-	socket.on('imaCar',function(){
+	socket.on('iamacar',function(){
 		User[userName].rotX = -Math.PI / 2;
-		User[userName].rotY = -Math.PI / 2;
+		//User[userName].rotY = -Math.PI / 2;
 	});
 	socket.on('user', function(user) {
 		console.log(user.name + " connected sid: " + socket.id+" and wants model: "+ user.model);

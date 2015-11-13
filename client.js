@@ -260,6 +260,7 @@ var submitHandler = function(e)
 				user[userName] = new THREE.Mesh(carMesh,carMaterial);
 				user[userName].scale.set(0.6,0.6,0.6);
 				user[userName].rotateX(-Math.PI/2);
+				//socket.emit('iamacar',true);
 			}else{
 				user[userName] = new THREE.Mesh(geometry, clientMaterial);
 			}
