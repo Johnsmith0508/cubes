@@ -83,7 +83,7 @@ function animate()
 
 socket.on('userJoined',function(data)
 {
-	console.log("receved info about" + data.name + ", who is a " + data.model);
+	//console.log("receved info about" + data.name + ", who is a " + data.model);
 	if (typeof user[data.name] == "undefined") {
 		if(data.model=="car")
 			{

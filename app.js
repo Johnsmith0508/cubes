@@ -15,10 +15,10 @@ exports.start = function(port)
 app.use(express.static(__dirname + '/'));
 	
 process.env.CUBESERVERPID = process.pid;
-console.log(process.pid);	
+//console.log(process.pid);	
 	
 app.get('/', function(req, res) {
-	console.log(req);
+	//console.log(req);
 	res.sendFile(__dirname + '/index.html');
 });
 //console.log(__dirname);
@@ -93,10 +93,10 @@ io.on('connection', function(socket) {
 			model: user.model
 		};
 		socket.broadcast.emit('userJoined',{model:user.model,name:user.name});
-		console.log(Object.size(User)+" users online");
+		//console.log(Object.size(User)+" users online");
 		for( var i in User)
 		{
-			console.log("sending the user " + i + ", who is a " + User[i].model + " to " + User[userName].sid);
+			//console.log("sending the user " + i + ", who is a " + User[i].model + " to " + User[userName].sid);
 			socket.emit('userJoined',{
 			name: i,
 			model: User[i].model,
