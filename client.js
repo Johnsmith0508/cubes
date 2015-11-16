@@ -95,6 +95,7 @@ socket.on('userJoined',function(data)
 			}
 			createTextAtPosition(data.name, user[data.name]);
 			scene.add(user[data.name]);
+			user[data.name].position.set(data.posX,data.posY,data.posZ);
 	}
 });
 
