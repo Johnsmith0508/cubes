@@ -16,14 +16,11 @@ exports.start = function(port)
 app.use(express.static(__dirname + '/'));
 	
 process.env.CUBESERVERPID = process.pid;
-//console.log(process.pid);	
 	
 app.get('/', function(req, res) {
-	//console.log(req);
 	res.sendFile(__dirname + '/index.html');
 });
-//console.log(__dirname);
-
+	
 io.on('connection', function(socket) {
 	var userName = "";
 	socket.on('create user',function(user){
@@ -37,16 +34,17 @@ io.on('connection', function(socket) {
 				socket.emit('user joined',{
 					name: i,
 					model: User[i].model,
-					position: User[i].position,
-					rotation: User[i].rotation
+					position: User[i].position.toArray(),
+					rotation: User[i].rotation.toArray()
 				});
 			}
 		socket.broadcast.emit('user joined',{
 			name: user.name,
 			model: user.model,
-			position: User[user.name].position,
-			rotation: User[user.name].rotation
+			position: User[user.name].position.toArray(),
+			rotation: User[user.name].rotation.toArray()
 		});
+		socket.broadcast.emit('chat message',user.name +" Joined!");
 	});
 	socket.on('keys pressed',function(keys){
 		if (typeof User[userName] !== "undefined")
@@ -90,6 +88,7 @@ io.on('connection', function(socket) {
 	socket.on('disconnect',function(){
 		delete User[userName];
 		socket.broadcast.emit('user left',userName);
+		socket.broadcast.emit('chat message',userName + " left");
 		console.log(userName + " left");
 	});
 });
