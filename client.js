@@ -1,26 +1,20 @@
+//house keeping var; not used in code
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
-
 //define renderer vars
 var scene, camera, renderer, objMtlLoader, JsonLoader;
-
 //define app spesific vars
 var chatHideDelay, userName, isShifted;
-
 //define client model vars
 var cubeGeometry, cubeMaterial, clientCubeMaterial;
 var carGeometry, carMaterial;
-
 //define vars for enviroment
 var floorMaterial, wallsMaterial, light;
-
 //create socket.io connection to server
 var socket = new io('//dynalogic.org', {
 	path: '/node/socket.io'
 });
-
 //initiate stats.js
 var stats = new Stats();
-
 //object that tracks keys
 var key = {
 	w: false,
@@ -34,26 +28,18 @@ var key = {
 	shift: false,
 	keyPressed: 0
 };
-
-//vars for function that draws names
-var height = 7;
-var size = 3;
-
 //object of all users
 var user = {};
-
-//unused
-var usernamePlates = {};
-
+//vars for drawing names
 var canvas = document.createElement('canvas'), canvasContext = canvas.getContext('2d');
-
+//draws names above players
 var addText = function(text, parentObject)
   {
     var textWidth = canvasContext.measureText(text).width * 10;
-
+		//console.log(canvasContext.measureText(text).width);
     canvas.width = textWidth;
     canvas.height = 100;
-    canvasContext.font = "bold 100px Arial";
+    canvasContext.font = "normal 100px Arial";
     canvasContext.textAlign = "center";
     canvasContext.textBaseline = "middle";
     canvasContext.fillStyle = "#996000";
@@ -69,7 +55,6 @@ var addText = function(text, parentObject)
 		parentObject.add(sprite);
 		sprite.position.y += 1.5;
   }
-
 //initilise all required variables
 function init() {
 	//create three.js scene / init loaders
@@ -139,7 +124,6 @@ function init() {
 	registerSubmitButton();
 
 }
-
 //called every frame
 function animate() {
 	stats.begin();
@@ -149,34 +133,34 @@ function animate() {
 	requestAnimationFrame(animate);
 	renderer.render(scene, camera);
 }
-
 //called when a user joins the server
 socket.on('user joined', function(data) {
-	console.log(data.name + " joined");
+	//console.log(data.name + " joined");
 	if (typeof user[data.name] == "undefined" && typeof userName != "undefined") {
-		console.log("creating object" + data.model + data.position.x);
+		//console.log("creating object" + data.model + data.position.x);
 		if (data.model == "car") {
 			user[data.name] = new THREE.Mesh(carGeometry, carMaterial);
 		} else {
 			user[data.name] = new THREE.Mesh(cubeGeometry, cubeMaterial);
 		}
-		user[data.name].position = data.position;
-		user[data.name].rotation = data.rotation;
+		user[data.name].position.fromArray(data.position);
+		user[data.name].rotation.fromArray(data.rotation);
 		user[data.name].castShadow = true;
 		scene.add(user[data.name]);
 		addText(data.name,user[data.name]);
 	}
 });
+//sent to update the position of other players
 socket.on('position changed', function(data) {
-	console.log(data.position);
-	console.log(data.name);
+	//console.log(data.position);
+	//console.log(data.name);
 	if (typeof user[data.name] != "undefined") {
 		user[data.name].position.fromArray(data.position);
 		user[data.name].rotation.fromArray(data.rotation);
-		console.log('moved');
+		//console.log('moved');
 	}
 });
-
+//handles the sending of keys to the server
 var buttonHandler = function(keyPressed, status) {
 	if (keyPressed.target == $(".chat")) return;
 	//console.log("key was pressed"+ keyPressed);
@@ -212,6 +196,7 @@ var buttonHandler = function(keyPressed, status) {
 		key.shift = false;
 	}
 }
+//function that contains all logic for various things
 var mainLoop = function() {
 	//console.log(key.w);
 	if (key.w) user[userName].translateX(0.1);
@@ -228,6 +213,7 @@ var mainLoop = function() {
 		socket.emit('keys pressed', key);
 	}
 }
+//handles thr logic behind the submit button on the login screen
 var submitHandler = function(e) {
 	//console.log("submited");
 	$('#name').off('keyup');
@@ -238,7 +224,7 @@ var submitHandler = function(e) {
 			model: modelType
 		});
 		userName = $("#name").val();
-		console.log("user name is " + userName);
+		//console.log("user name is " + userName);
 		$('#login').hide();
 		$('#main_window').show();
 		chatHideDelay = $("#chatDelay").val();
@@ -270,8 +256,8 @@ var submitHandler = function(e) {
 		registerSubmitButton();
 	}
 }
+//call to enable the submit button on the main page
 var registerSubmitButton = function() {
-	//console.log("reg sub");
 	$("#sendName").one('click', submitHandler);
 	$('#name').on('keyup', function(e) {
 		if (e.keyCode == 13) {
@@ -279,16 +265,17 @@ var registerSubmitButton = function() {
 		}
 	});
 }
-
+//run init
 init();
+//begin rendering
 animate();
-//var loop = setInterval(mainLoop,1000/60);
+//toggles hiding/showing options pannel
 $(function() {
 	$("#opts").on('click', function() {
 		$("#options").toggle();
 	});
 });
-
+//handle window changing size
 function onWindowResize() {
 	windowHalfX = window.innerWidth / 2;
 	windowHalfY = window.innerHeight / 2;
@@ -296,4 +283,5 @@ function onWindowResize() {
 	camera.updateProjectionMatrix();
 	renderer.setSize(window.innerWidth, window.innerHeight);
 }
+//register previous function
 window.addEventListener('resize', onWindowResize, false);
