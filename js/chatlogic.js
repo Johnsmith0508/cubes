@@ -15,7 +15,7 @@ if(e.keyCode == 13) {
 }
 });
 socket.on('chat message', function(payload){
-  $('#messages').append($('<li>').text(payload.name + ': ' + payload.msg));
+  $('#messages').append($('<li>').text(payload));
   $(".chat").show();
   if(!hasChatOpen){
     setTimeout(function(){
