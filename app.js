@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var THREE = require('three');
 var User = {};
 Object.size = function(obj) {
     var size = 0, key;
@@ -25,125 +26,71 @@ app.get('/', function(req, res) {
 
 io.on('connection', function(socket) {
 	var userName = "";
-	//console.log("connect");
-	socket.on('chat message',function(msg)
-	{
-		io.emit('chat message',{msg:msg,name:userName});
-	});
-
-	socket.on('disconnect', function() {
-		delete User[userName];
-		console.log(userName + " has left");
-	});
-	socket.on('keypress', function(key) {
-		//console.log(key,userName);
-		switch (key) {
-			case 'w':
-				User[userName].posX += 10;
-				break;
-			case 's':
-				User[userName].posX -= 10;
-				break;
-			case 'a':
-				User[userName].posZ -= 10;
-				break;
-			case 'd':
-				User[userName].posZ += 10;
-				break;
-			case 'q':
-				User[userName].rotY += 0.1;
-				break;
-			case 'e':
-				User[userName].rotY -= 0.1;
-		}
-// 		socket.broadcast.emit('move', {
-// 			name: userName,
-// 			posX: User[userName].posX,
-// 			posY: User[userName].posY,
-// 			posZ: User[userName].posZ,
-// 			rotX: User[userName].rotX,
-// 			rotY: User[userName].rotY,
-// 			rotZ: User[userName].rotZ
-// 		});
-		socket.emit('move', {
-			name: userName,
-			posX: User[userName].posX,
-			posY: User[userName].posY,
-			posZ: User[userName].posZ,
-			rotX: User[userName].rotX,
-			rotY: User[userName].rotY,
-			rotZ: User[userName].rotZ
+	socket.on('create user',function(user){
+		console.log(user.name+" joined");
+		userName = user.name;
+		User[user.name] = new THREE.Object3D();
+		User[user.name].sid = socket.id;
+		User[user.name].model = user.model;
+		for(var i in User)
+			{
+				socket.emit('user joined',{
+					name: i,
+					model: User[i].model,
+					position: User[i].position,
+					rotation: User[i].rotation
+				});
+			}
+		socket.broadcast.emit('user joined',{
+			name: user.name,
+			model: user.model,
+			position: User[user.name].position,
+			rotation: User[user.name].rotation
 		});
 	});
-	socket.on('iamacar',function(){
-		User[userName].rotX = -Math.PI / 2;
-		//User[userName].rotY = -Math.PI / 2;
-	});
-	socket.on('user', function(user) {
-		console.log(user.name + " connected sid: " + socket.id+" and wants model: "+ user.model);
-		userName = user.name.toString();
-		User[user.name] = {
-			posX: 0,
-			posY: 0,
-			posZ: 0,
-			rotX: 0,
-			rotY: 0,
-			rotZ: 0,
-			sid: socket.id,
-			model: user.model
-		};
-		socket.broadcast.emit('userJoined',{model:user.model,name:user.name});
-		//console.log(Object.size(User)+" users online");
-		for( var i in User)
+	socket.on('keys pressed',function(keys){
+		if (typeof User[userName] !== "undefined")
 		{
-			//console.log("sending the user " + i + ", who is a " + User[i].model + " to " + User[userName].sid);
-			socket.emit('userJoined',{
-			name: i,
-			model: User[i].model,
-			/*posX: User[i].posX,
-			posY: User[i].posY,
-			posZ: User[i].posZ,
-			rotX: User[i].rotX,
-			rotY: User[i].rotY,
-			rotZ: User[i].rotZ*/
+			if(keys.w) User[userName].translateX(0.1);
+			if(keys.s) User[userName].translateX(-0.1);
+
+			if(keys.d) User[userName].translateZ(0.1);
+			if(keys.a) User[userName].translateZ(-0.1);
+
+			if(keys.space) User[userName].translateY(0.1);
+			if(keys.shift) User[userName].translateY(-0.1);
+
+			if(keys.q) User[userName].rotateY(0.1);
+			if(keys.e) User[userName].rotateY(-0.1);
+			socket.broadcast.emit('position changed',{
+				name : userName,
+				position : User[userName].position.toArray(),
+				rotation : User[userName].rotation.toArray()
 			});
 		}
-// 		socket.broadcast.emit('move', {
-// 			name: userName,
-// 			posX: User[user.name].posX,
-// 			posY: User[user.name].posY,
-// 			posZ: User[user.name].posZ,
-// 			rotX: User[user.name].rotX,
-// 			rotY: User[user.name].rotY,
-// 			rotZ: User[user.name].rotZ
-// 		});
-		socket.emit('move', {
-			name: userName,
-			posX: User[user.name].posX,
-			posY: User[user.name].posY,
-			posZ: User[user.name].posZ,
-			rotX: User[user.name].rotX,
-			rotY: User[user.name].rotY,
-			rotZ: User[user.name].rotZ
-		});
 	});
-
-	socket.on('translate', function(object) {
-		User[userName].posX = object.posX;
-		User[userName].posY = object.posY;
-		User[userName].posZ = object.posZ;
-
-		socket.broadcast.emit('move', {
-			name: userName,
-
-			posX: object.posX,
-			posY: object.posY,
-			posZ: object.posZ,
-
-			rotX: User[userName].rotX,
-			rotY: User[userName].rotY,
-			rotZ: User[userName].rotZ
-		});
+	socket.on('chat message',function(message){
+		if(message.substring(0,1) == "/")
+			{
+				if(message.substring(1,10)=="debug_rot")
+					{
+						console.log(User[userName].rotation);
+					}
+				if(message.substring(1,10)=="debug_pos")
+					{
+						console.log(User[userName].position);
+						//return;
+					}
+				return;
+			}
+		console.log("(chat) " + userName + " : "  + message);
+		socket.broadcast.emit('chat message',userName + " : " + message);
+		socket.emit('chat message',userName + " : " + message);
+	});
+	socket.on('disconnect',function(){
+		delete User[userName];
+		socket.broadcast.emit('user left',userName);
+		console.log(userName + " left");
 	});
 });
 
