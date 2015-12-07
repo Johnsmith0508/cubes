@@ -5,6 +5,7 @@
       <?php 
       $out = `systemctl status cubeserver`;
       echo $out;
+      echo `journalctl -u cubeserver 2>&1`;
       ?>
     </pre>
     </body>

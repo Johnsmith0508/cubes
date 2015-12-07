@@ -30,31 +30,48 @@ var key = {
 };
 //object of all users
 var user = {};
-//vars for drawing names
-var canvas = document.createElement('canvas'), canvasContext = canvas.getContext('2d');
 //draws names above players
 var addText = function(text, parentObject)
   {
-    var textWidth = canvasContext.measureText(text).width * 10;
-		//console.log(canvasContext.measureText(text).width);
-    canvas.width = textWidth;
-    canvas.height = 100;
-    canvasContext.font = "normal 100px Arial";
-    canvasContext.textAlign = "center";
-    canvasContext.textBaseline = "middle";
-    canvasContext.fillStyle = "#996000";
-    canvasContext.fillText(text, textWidth / 2, 50);
-
+		var canvas = document.createElement('canvas'),
+				canvasContext = canvas.getContext('2d');
+		canvas.style.border = '3px solid #000';
+		canvas.style.borderRadius = '15px';
+		canvas.height = 105;
+		canvasContext.font = "100px Arial";
+		var textWidth = canvasContext.measureText(text).width;
+		canvas.width = textWidth;
+		canvasContext.font = "normal 100px Arial";
+		canvasContext.fillStyle = "#fff";
+		roundRect(canvasContext, 1, 1, (textWidth - 2), 100, 8);
+		canvasContext.fillStyle = "#000";
+		canvasContext.fillText(text,0, 85);
     var texture = new THREE.Texture(canvas);
     texture.needsUpdate = true;
     var material = new THREE.SpriteMaterial({
       map: texture
     });
     var sprite = new THREE.Sprite(material);
-    //sprite.scale.set(textWidth / 10 * actualFontSize, actualFontSize, 1);
+    //sprite.scale.set(textWidth / 10 * actualFontSize, actualFontSize, 1);\
+		sprite.scale.set(textWidth / 100, 1, 1);
 		parentObject.add(sprite);
 		sprite.position.y += 1.5;
   }
+	function roundRect(ctx, x, y, w, h, r) {
+		ctx.beginPath();
+		ctx.moveTo(x + r, y);
+		ctx.lineTo(x + w - r, y);
+		ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+		ctx.lineTo(x + w, y + h - r);
+		ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+		ctx.lineTo(x + r, y + h);
+		ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+		ctx.lineTo(x, y + r);
+		ctx.quadraticCurveTo(x, y, x + r, y);
+		ctx.closePath();
+		ctx.fill();
+		ctx.stroke();
+	}
 //initilise all required variables
 function init() {
 	//create three.js scene / init loaders
@@ -139,9 +156,15 @@ socket.on('user joined', function(data) {
 	if (typeof user[data.name] == "undefined" && typeof userName != "undefined") {
 		//console.log("creating object" + data.model + data.position.x);
 		if (data.model == "car") {
-			user[data.name] = new THREE.Mesh(carGeometry, carMaterial);
+			user[data.name] = new THREE.Object3D();
+			user[data.name].model = new THREE.Mesh(carGeometry, carMaterial);
+			user[data.name].model.rotateX(-Math.PI/2);
+			user[data.name].model.rotateZ(Math.PI);
+			user[data.name].model.scale.set(0.6,0.6,0.6);
+			user[data.name].add(user[data.name].model);
 		} else {
 			user[data.name] = new THREE.Mesh(cubeGeometry, cubeMaterial);
+			user[data.name].up.set(0,0,1);
 		}
 		user[data.name].position.fromArray(data.position);
 		user[data.name].rotation.fromArray(data.rotation);
@@ -149,6 +172,11 @@ socket.on('user joined', function(data) {
 		scene.add(user[data.name]);
 		addText(data.name,user[data.name]);
 	}
+});
+//sent when a user leaves
+socket.on('user left',function(name)
+{
+	scene.remove(user[name]);
 });
 //sent to update the position of other players
 socket.on('position changed', function(data) {
@@ -239,14 +267,19 @@ var submitHandler = function(e) {
 			buttonHandler(e, false)
 		});
 		if (modelType == "car") {
-			user[userName] = new THREE.Mesh(carMesh, carMaterial);
-			user[userName].scale.set(0.6, 0.6, 0.6);
-			user[userName].rotateX(-Math.PI / 2);
-			//socket.emit('iamacar',true);
+			scene.add(camera);
+			user[userName] = new THREE.Object3D();
+			user[userName].model = new THREE.Mesh(carGeometry, carMaterial);
+			user[userName].model.scale.set(0.6, 0.6, 0.6);
+			user[userName].model.rotateX(-Math.PI / 2);
+			user[userName].model.rotateZ(Math.PI);
+			user[userName].updateMatrixWorld();
+			user[userName].add(user[userName].model);
+			THREE.SceneUtils.attach(camera,scene,user[userName]);
 		} else {
 			user[userName] = new THREE.Mesh(cubeGeometry, clientMaterial);
-		}
 		user[userName].add(camera);
+		}
 		scene.add(user[userName]);
 		//console.log("registered key handlers");
 		//$(document).on('keyup keydown',shiftHandler);
