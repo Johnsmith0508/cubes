@@ -14,6 +14,7 @@ if(e.keyCode == 13) {
   $('#send').trigger('click');
 }
 });
+var registerChatSocket = function(){
 socket.on('chat message', function(payload){
   $('#messages').append($('<li>').text(payload));
   $(".chat").show();
@@ -22,7 +23,7 @@ socket.on('chat message', function(payload){
     $(".chat").hide();
   },chatHideDelay*1000);}
 });
-
+}
 $(document).on('keyup',function(e)
 {
   if(e.which == 84)

@@ -71,7 +71,7 @@ button#send {
 #options {
 	border-style: groove;
 	position: absolute;
-	bottom: 5%;
+	top: -130px;
 	left: 5%;
 }
 
