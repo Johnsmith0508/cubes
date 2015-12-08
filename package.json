@@ -3,6 +3,7 @@
   "version": "1.2.95",
   "description": "a cube 'game' in javascript",
   "dependencies": {
+    "cannon": "^0.6.2",
     "express": "^4.13.3",
     "pact": "^0.1.2",
     "redis": "^2.4.2",
