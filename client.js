@@ -369,6 +369,7 @@ init();
 animate();
 //toggles hiding/showing options pannel
 $(function() {
+	$("#server").val(defaultServer);
 	$("#opts").on('click', function() {
 		$("#options").toggle();
 	});
