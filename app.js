@@ -23,6 +23,7 @@ app.get('/', function(req, res) {
 	
 io.on('connection', function(socket) {
 	var userName = "";
+	socket.emit('user count',Object.size(User));
 	socket.on('create user',function(user){
 		console.log(user.name+" joined");
 		userName = user.name;
