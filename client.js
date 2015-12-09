@@ -65,9 +65,9 @@ var carGeometry, carMaterial;
 //define vars for enviroment
 var floorMaterial, wallsMaterial, light;
 //create socket.io connection to server
-var socket /*= new io('//dynalogic.org', {
+var socket = new io('//dynalogic.org', {
 	path: '/node/socket.io'
-})*/;
+});
 //initiate stats.js
 var stats = new Stats();
 //object that tracks keys
@@ -207,6 +207,12 @@ function animate() {
 	requestAnimationFrame(animate);
 	renderer.render(scene, camera);
 }
+
+//does the 'players online' bit
+socket.on('user count',function(users) {
+	console.log(users);
+	$("#usersOnline").text(users+" online currently");
+});
 var registerEvents = function() {
 //called when a user joins the server
 socket.on('user joined', function(data) {
@@ -246,8 +252,8 @@ socket.on('position changed', function(data) {
 		//console.log('moved');
 	}
 });
-//handles the sending of keys to the server
 }
+//handles the sending of keys to the server
 var buttonHandler = function(keyPressed, status) {
 	if (keyPressed.target == $(".chat")) return;
 	//console.log("key was pressed"+ keyPressed);
@@ -303,14 +309,10 @@ var mainLoop = function() {
 //handles the logic behind the submit button on the login screen
 var submitHandler = function(e) {
 	//console.log("submited");
-	var path = $("#server").val().substring($("#server").val().indexOf("/",3),$("#server").val().length);
-	var server = $("#server").val().substring(0,$("#server").val().indexOf("/",3));
-	socket = new io(server,{path:path+"/socket.io"});
 	$('#name').off('keyup');
 	registerEvents();
 	registerChatSocket();
 	if ($("#name").val().length > 0) {
-		socket = new io()
 		modelType = $(".model:checked").val();
 		socket.emit('create user', {
 			name: $("#name").val(),
@@ -369,6 +371,7 @@ init();
 animate();
 //toggles hiding/showing options pannel
 $(function() {
+	$("#server").val(defaultServer);
 	$("#opts").on('click', function() {
 		$("#options").toggle();
 	});
