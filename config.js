@@ -1,0 +1,1 @@
+var defaultServer = "//dynalogic.org/node";

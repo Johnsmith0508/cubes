@@ -3,19 +3,19 @@
 
 <head>
 	<title>Cubes</title>
-	<link rel="stylesheet" type="text/css" href="stylesheet.css" />
+	<link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/three.js/r72/three.min.js"></script>
 	<script src="//rawgit.com/mrdoob/stats.js/master/build/stats.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
 	<script src="/node/fonts/helvetiker_regular.typface.js"></script>
-	<script src="/nodde/fonts/helvetiker_bold.typeface.js"></script>
 	<script src="./config.js"></script>
+	<script src="./js/renderHelper.js"></script>
+	<script src="./js/clientPhysics.js"></script>
 	<script src="/node/socket.io/socket.io.js"></script>
 	<script src="/js/MTLLoader.js"></script>
 	<script src="/js/OBJLoader.js"></script>
 	<script src="/js/OBJMTLLoader.js"></script>
-	<script src="./js/cannon.js"></script>
 </head>
 
 <body>
@@ -38,8 +38,7 @@
 		</div>
 	</div>
 	<div id="main_window" hidden>
-		<script src="/node/drawNames.js"></script>
-		<script src="/node/client.js"></script>
+		<script src="/node/js/client.js"></script>
 		<script src="/node/js/chatlogic.js"></script>
 		<div id="threeJsRenderWindow"></div>
 		<div class="chat" hidden>
