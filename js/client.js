@@ -3,7 +3,7 @@ var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
 //define renderer vars
 var scene, camera, renderer, objMtlLoader, JsonLoader;
 //define app spesific vars
-var chatHideDelay, userName, isShifted;
+var chatHideDelay, userName, isShifted,blendMesh;
 //define client model vars
 var cubeGeometry, cubeMaterial, clientCubeMaterial;
 var carGeometry, carMaterial;
@@ -37,7 +37,7 @@ function init() {
 	//create three.js scene / init loaders
 	scene = new THREE.Scene();
 	JsonLoader = new THREE.JSONLoader();
-
+	blendMesh = new THREE.BlendCharacter();
 
 	//configure stats
 	stats.setMode(0);
@@ -61,6 +61,7 @@ function init() {
 	light.position.z = 5;
 	light.position.x = -7;
 	scene.add(light);
+	//scene.add(new THREE.AmbientLight( 0xaaaaaa ));
 
 	//init materials
 	carMaterial = new THREE.MeshPhongMaterial();
@@ -89,6 +90,10 @@ function init() {
 	//load externals
 	JsonLoader.load('/node/model/car.AnExtention', function(loadedCar) {
 		carGeometry = loadedCar;
+	});
+	blendMesh.load('model/marine_anims.js',function(){
+		blendMesh.scale.set(0.01,0.01,0.01);
+		scene.add(blendMesh);
 	});
 	
 	initThree(scene);
@@ -223,20 +228,29 @@ var submitHandler = function(e) {
 			$(document).on('keyup', function(e) {
 				buttonHandler(e, false);
 			});
-			if (modelType == "car") {
-				scene.add(camera);
-				user[userName] = new THREE.Object3D();
-				user[userName].model = new THREE.Mesh(carGeometry, carMaterial);
-				user[userName].model.scale.set(0.6, 0.6, 0.6);
-				user[userName].model.rotateX(-Math.PI / 2);
-				user[userName].model.rotateZ(Math.PI);
-				user[userName].updateMatrixWorld();
-				user[userName].add(user[userName].model);
-				THREE.SceneUtils.attach(camera, scene, user[userName]);
-			} else {
-				user[userName] = new THREE.Mesh(cubeGeometry, clientMaterial);
-				user[userName].add(camera);
-			}
+			switch(modelType)
+				{
+					case "car":
+						scene.add(camera);
+						user[userName] = new THREE.Object3D();
+						user[userName].model = new THREE.Mesh(carGeometry, carMaterial);
+						user[userName].model.scale.set(0.6, 0.6, 0.6);
+						user[userName].model.rotateX(-Math.PI / 2);
+						user[userName].model.rotateZ(Math.PI);
+						user[userName].updateMatrixWorld();
+						user[userName].add(user[userName].model);
+						THREE.SceneUtils.attach(camera, scene, user[userName]);
+						break;
+					case "person":
+						user[userName] = new THREE.Mesh(blendMesh.geometry,blendMesh.material);
+						user[userName].scale.set(0.01,0.01,0.01);
+						scene.add(user[userName]);
+						user[userName].add(camera);
+						break;
+					default:	
+						user[userName] = new THREE.Mesh(cubeGeometry, clientMaterial);
+						user[userName].add(camera);
+				}
 			scene.add(user[userName]);
 		} else {
 			registerSubmitButton();
