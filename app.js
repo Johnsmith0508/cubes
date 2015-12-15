@@ -1,4 +1,4 @@
-var physics = require('js/serverPhis');
+var physics = require('./server/serverPhis.js');
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
@@ -42,6 +42,7 @@ io.on('connection', function(socket) {
 				});
 			}
 		physics.addPhisCube(User[userName]);
+		physics.world.addBody(User[userName].phisObj);
 		socket.broadcast.emit('user joined',{
 			name: user.name,
 			model: user.model,
@@ -53,11 +54,11 @@ io.on('connection', function(socket) {
 	socket.on('keys pressed',function(keys){
 		if (typeof User[userName] !== "undefined")
 		{
-			if(keys.w) User[userName].translateX(0.1);
-			if(keys.s) User[userName].translateX(-0.1);
-
-			if(keys.d) User[userName].translateZ(0.1);
-			if(keys.a) User[userName].translateZ(-0.1);
+			if (keys.w) User[userName].phisObj.applyImpulse(physics.force.forward,User[userName].phisObj.position);
+			if (keys.s) User[userName].phisObj.applyImpulse(physics.force.back,User[userName].phisObj.position);
+			
+			if (keys.a) User[userName].phisObj.applyImpulse(physics.force.left,User[userName].phisObj.position);
+			if (keys.d) User[userName].phisObj.applyImpulse(physics.force.right,User[userName].phisObj.position);
 
 			if(keys.space) User[userName].translateY(0.1);
 			if(keys.shift) User[userName].translateY(-0.1);
@@ -67,7 +68,7 @@ io.on('connection', function(socket) {
 			socket.broadcast.emit('position changed',{
 				name : userName,
 				position : User[userName].position.toArray(),
-				rotation : User[userName].rotation.toArray()
+				quaternion : User[userName].quaternion.toArray()
 			});
 		}
 	});
@@ -101,4 +102,9 @@ io.on('connection', function(socket) {
   http.listen(port, function() {
   	console.log('listening on '+ port);
   });
+	
+	var mainLoop = function() {
+		physics.updatePhysics();
+	}
+	var interval = setInterval(mainLoop,1000/60);
 }

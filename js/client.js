@@ -123,15 +123,15 @@ var registerEvents = function() {
 		//called when a user joins the server
 		socket.on('user joined', function(data) {
 			if (typeof user[data.name] == "undefined" && typeof userName != "undefined") {
+				user[data.name] = new THREE.Object3D();
 				if (data.model == "car") {
-					user[data.name] = new THREE.Object3D();
 					user[data.name].model = new THREE.Mesh(carGeometry, carMaterial);
 					user[data.name].model.rotateX(-Math.PI / 2);
 					user[data.name].model.rotateZ(Math.PI);
 					user[data.name].model.scale.set(0.6, 0.6, 0.6);
 					user[data.name].add(user[data.name].model);
 				} else {
-					user[data.name] = new THREE.Mesh(cubeGeometry, cubeMaterial);
+					user[data.name].model = new THREE.Mesh(cubeGeometry, cubeMaterial);
 					user[data.name].up.set(0, 0, 1);
 				}
 				user[data.name].position.fromArray(data.position);
@@ -151,8 +151,8 @@ var registerEvents = function() {
 		//sent to update the position of other players
 		socket.on('position changed', function(data) {
 			if (typeof user[data.name] != "undefined") {
-				user[data.name].position.fromArray(data.position);
-				user[data.name].rotation.fromArray(data.rotation);
+				user[data.name].phisObj.position.fromArray(data.position);
+				user[data.name].phisObj.quaternion.fromArray(data.qua);
 			}
 		});
 	}
