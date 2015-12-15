@@ -1,3 +1,4 @@
+var physics = require('js/serverPhis');
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
@@ -13,6 +14,7 @@ Object.size = function(obj) {
 };
 exports.start = function(port)
 {
+	physics.initCannon();
 app.use(express.static(__dirname + '/'));
 	
 process.env.CUBESERVERPID = process.pid;
@@ -39,6 +41,7 @@ io.on('connection', function(socket) {
 					rotation: User[i].rotation.toArray()
 				});
 			}
+		physics.addPhisCube(User[userName]);
 		socket.broadcast.emit('user joined',{
 			name: user.name,
 			model: user.model,

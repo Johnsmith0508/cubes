@@ -3,7 +3,7 @@ var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
 //define renderer vars
 var scene, camera, renderer, objMtlLoader, JsonLoader;
 //define app spesific vars
-var chatHideDelay, userName, isShifted,blendMesh;
+var chatHideDelay, userName = "", isShifted,blendMesh;
 //define client model vars
 var cubeGeometry, cubeMaterial, clientCubeMaterial;
 var carGeometry, carMaterial;
@@ -85,7 +85,7 @@ function init() {
 	plane = new THREE.Mesh(planeGeom, planeMaterial);
 	plane.rotation.x = (Math.PI / 2);
 	plane.reciveShadow = true;
-	scene.add(plane);
+	//scene.add(plane);
 
 	//load externals
 	JsonLoader.load('/node/model/car.AnExtention', function(loadedCar) {
@@ -93,7 +93,7 @@ function init() {
 	});
 	blendMesh.load('model/marine_anims.js',function(){
 		blendMesh.scale.set(0.01,0.01,0.01);
-		scene.add(blendMesh);
+		//scene.add(blendMesh);
 	});
 	
 	initThree(scene);
@@ -137,6 +137,9 @@ var registerEvents = function() {
 				user[data.name].position.fromArray(data.position);
 				user[data.name].rotation.fromArray(data.rotation);
 				user[data.name].castShadow = true;
+				addPhysicsCube(user[data.name]);
+				world.addBody(user[data.name].phisObj);
+				scene.add(user[data.name].phisMesh);
 				scene.add(user[data.name]);
 				addText(data.name, user[data.name]);
 			}
@@ -190,17 +193,21 @@ var buttonHandler = function(keyPressed, status) {
 	}
 	//function that contains all logic for various things
 var mainLoop = function() {
-		if (key.w) user[userName].translateX(0.1);
-		if (key.s) user[userName].translateX(-0.1);
-		if (key.a) user[userName].translateZ(-0.1);
-		if (key.d) user[userName].translateZ(0.1);
+		if (key.w) user[userName].phisObj.applyImpulse(force.forward,user[userName].phisObj.position);
+		if (key.s) user[userName].phisObj.applyImpulse(force.back,user[userName].phisObj.position);
+		if (key.a) user[userName].phisObj.applyImpulse(force.left,user[userName].phisObj.position);
+		if (key.d) user[userName].phisObj.applyImpulse(force.right,user[userName].phisObj.position);
 		if (key.q) user[userName].rotation.y += 0.1;
 		if (key.e) user[userName].rotation.y -= 0.1;
 		if (key.space) user[userName].translateY(0.1);
 		if (key.shift) user[userName].translateY(-0.1);
 
-		if (key.w || key.a || key.s || key.d || key.q || key.q || key.e || key.space || key.shift) {
+		if (key.w || key.a || key.s || key.d || key.q || key.e || key.space || key.shift) {
 			socket.emit('keys pressed', key);
+		} else if(userName.length > 0){
+			user[userName].phisObj.angularVelocity.x *= 0.75;
+			user[userName].phisObj.angularVelocity.y *= 0.75;
+			user[userName].phisObj.angularVelocity.z *= 0.75;
 		}
 	}
 	//handles the logic behind the submit button on the login screen
@@ -218,10 +225,6 @@ var submitHandler = function(e) {
 			$('#login').hide();
 			$('#main_window').show();
 			chatHideDelay = $("#chatDelay").val();
-			document.body.appendChild(renderer.domElement);
-			if ($("#fpsShow").is(":checked")) {
-				document.body.appendChild(stats.domElement);
-			}
 			$(document).on('keydown', function(e) {
 				buttonHandler(e, true);
 			});
@@ -247,11 +250,21 @@ var submitHandler = function(e) {
 						scene.add(user[userName]);
 						user[userName].add(camera);
 						break;
-					default:	
-						user[userName] = new THREE.Mesh(cubeGeometry, clientMaterial);
+					default:
+						
+						user[userName] = new THREE.Object3D();
+						user[userName].model = new THREE.Mesh(cubeGeometry, clientMaterial);
+						//user[userName].add(user[userName].model);
 						user[userName].add(camera);
 				}
 			scene.add(user[userName]);
+			addPhysicsCube(user[userName]);
+			world.addBody(user[userName].phisObj);
+			scene.add(user[userName].phisMesh);
+			document.body.appendChild(renderer.domElement);
+			if ($("#fpsShow").is(":checked")) {
+				document.body.appendChild(stats.domElement);
+			}
 		} else {
 			registerSubmitButton();
 		}

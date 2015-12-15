@@ -1,2 +1,4 @@
 node_modules/*
 *.py
+js/three.js
+js/three.min.js
