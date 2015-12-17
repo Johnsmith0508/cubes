@@ -36,7 +36,9 @@ exports.start = function(port) {
 			User[user.name] = new THREE.Object3D();
 			User[user.name].sid = socket.id;
 			User[user.name].model = user.model;
+			User[userName].key = {w:false,a:false,s:false,d:false,q:false,e:false,shift:false,space:false}
 			for (var i in User) {
+				if(typeof User[i].position === "undefined") continue;
 				socket.emit('user joined', {
 					name: i,
 					model: User[i].model,
@@ -57,24 +59,31 @@ exports.start = function(port) {
 		socket.on('keys pressed', function(keys) {
 			if (typeof User[userName] !== "undefined") {
 				User[userName].keysBeingPressed = true;
-				if (keys.w) User[userName].phisObj.applyImpulse(physics.force.forward, User[userName].phisObj.position);
-				if (keys.s) User[userName].phisObj.applyImpulse(physics.force.back, User[userName].phisObj.position);
-
-				if (keys.a) User[userName].phisObj.applyImpulse(physics.force.left, User[userName].phisObj.position);
-				if (keys.d) User[userName].phisObj.applyImpulse(physics.force.right, User[userName].phisObj.position);
-
-				if (keys.space) User[userName].phisObj.applyImpulse(physics.force.up, User[userName].phisObj.position);
-				if (keys.shift) User[userName].phisObj.applyImpulse(physics.force.down, User[userName].phisObj.position);
-
-				if (keys.q) User[userName].rotateY(0.1);
-				if (keys.e) User[userName].rotateY(-0.1);
-				if (keys.allFalse()) {
-					User[userName].keysBeingPressed = false;
-				}
-				socketProxy.sendPhisUpdate(socket, userName, User[userName].phisObj.position.toArray(), User[userName].phisObj.velocity.toArray(), User[userName].phisObj.quaternion.toArray);
+				User[userName].key = keys;
+				//if (keys.q) User[userName].rotateY(0.1);
+				//if (keys.e) User[userName].rotateY(-0.1);
+				User[userName].keysBeingPressed = keys.allFalse();
+				//socketProxy.sendPhisUpdate(socket, userName, User[userName].phisObj.position.toArray(), User[userName].phisObj.velocity.toArray(), User[userName].phisObj.quaternion.toArray);
 			}
 		});
-		socket.on('chat message', socketProxy.chatCallback());
+		socket.on('chat message', function(message) {
+  if (message.substring(0, 1) == "/") {
+    if (message.substring(1, 10) == "debug_rot") {
+      console.log(User[userName].rotation);
+    }
+    if (message.substring(1, 10) == "debug_pos") {
+      console.log(User[userName].position);
+      //return;
+    }
+		if(message.substring(1, 5) == "kick"){
+				
+			}
+    return;
+  }
+  console.log("(chat) " + userName + " : " + message);
+  socket.broadcast.emit('chat message', userName + " : " + message);
+  socket.emit('chat message', userName + " : " + message);
+});
 		socket.on('disconnect', function() {
 			delete User[userName];
 			socket.broadcast.emit('user left', userName);
@@ -82,20 +91,31 @@ exports.start = function(port) {
 			console.log(userName + " left");
 		});
 	});
-
-
 	http.listen(port, function() {
 		console.log('listening on ' + port);
 	});
 
 	var mainLoop = function() {
 		physics.updatePhysics();
-// 		for (var i in User) {
-// 			if (!User[i].keysBeingPressed) {
-// 				User[i].phisObj.angularVelocity.x *= 0.75;
-// 				User[i].phisObj.angularVelocity.z *= 0.75;
-// 			}
-// 		}
+		for (var i in User) {
+			if(typeof User[i].phisObj === "undefined") continue;
+			if (User[i].keysBeingPressed) {
+				User[i].phisObj.angularVelocity.x *= 0.75;
+				User[i].phisObj.angularVelocity.z *= 0.75;
+			} else {
+				if (User[i].key.w) {
+					User[i].phisObj.applyImpulse(physics.force.forward, User[i].phisObj.position);
+				}
+				if (User[i].key.s) User[i].phisObj.applyImpulse(physics.force.back, User[i].phisObj.position);
+
+				if (User[i].key.a) User[i].phisObj.applyImpulse(physics.force.left, User[i].phisObj.position);
+				if (User[i].key.d) User[i].phisObj.applyImpulse(physics.force.right, User[i].phisObj.position);
+
+				if (User[i].key.space) User[i].phisObj.applyImpulse(physics.force.up, User[i].phisObj.position);
+				if (User[i].key.shift) User[i].phisObj.applyImpulse(physics.force.down, User[i].phisObj.position);
+			}
+			socketProxy.sendSyncPhisUpdate(io,i,User[i].phisObj.position.toArray(),User[i].phisObj.velocity.toArray(),User[i].phisObj.quaternion.toArray());
+		}
 	}
 	var interval = setInterval(mainLoop, 1000 / 60);
 }

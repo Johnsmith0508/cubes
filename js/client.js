@@ -151,10 +151,10 @@ var registerEvents = function() {
 		//meh
 		socket.on('physics change',function(data){
 			if(typeof user[userName] != "undefined"){
-				console.log(data);
+				//console.log(data);
 				user[data.name].phisObj.position.set(data.position.x,data.position.y,data.position.z);
 				user[data.name].phisObj.velocity.set(data.velocity.x,data.velocity.y,data.velocity.z);
-				user[data.name].phisObj.quaternion.set(data.quaternion.x,data.quaternion.y,data.quaternion.z);
+				user[data.name].phisObj.quaternion.set(data.quaternion.x,data.quaternion.y,data.quaternion.z,data.quaternion.w);
 			}
 		});
 		//sent to update the position of other players

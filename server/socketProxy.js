@@ -1,5 +1,8 @@
 exports.sendPhisUpdate = function(socket, name, position, velocity, quaternion) {
-  socket.broadcast.emit('physics change', {
+  exports.sendSyncPhisUpdate(socket.broadcast, name, position, velocity, quaternion);
+}
+exports.sendSyncPhisUpdate = function(io, name, position, velocity, quaternion) {
+  io.emit('physics change', {
     name: name,
     position: {
       x: position[0],
@@ -18,20 +21,4 @@ exports.sendPhisUpdate = function(socket, name, position, velocity, quaternion) 
       w: quaternion[3]
     }
   });
-}
-
-exports.chatCallback = function(message) {
-  if (message.substring(0, 1) == "/") {
-    if (message.substring(1, 10) == "debug_rot") {
-      console.log(User[userName].rotation);
-    }
-    if (message.substring(1, 10) == "debug_pos") {
-      console.log(User[userName].position);
-      //return;
-    }
-    return;
-  }
-  console.log("(chat) " + userName + " : " + message);
-  socket.broadcast.emit('chat message', userName + " : " + message);
-  socket.emit('chat message', userName + " : " + message);
 }

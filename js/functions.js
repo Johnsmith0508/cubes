@@ -1,3 +1,4 @@
+var sendUpdateNoKey = false;
 //call to enable the submit button on the main page
 var registerSubmitButton = function() {
     $("#sendName").one('click', submitHandler);
@@ -110,6 +111,7 @@ var mainLoop = function() {
   if (key.e) user[userName].rotation.y -= 0.1;
   if (key.space) user[userName].phisObj.applyImpulse(force.up, user[userName].phisObj.position);
   if (key.shift) user[userName].phisObj.applyImpulse(force.down, user[userName].phisObj.position);
+  
   if (key.w || key.a || key.s || key.d || key.q || key.e || key.space || key.shift) {
     sendUpdateNoKey = true;
     socket.emit('keys pressed', key);
