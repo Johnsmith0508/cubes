@@ -113,6 +113,7 @@ var mainLoop = function() {
   if (key.s) directonalForce.set(Math.sin(controls.getAzimuthalAngle()),0,Math.cos(controls.getAzimuthalAngle()));
   if (key.a) directonalForce.set(-Math.sin(controls.getAzimuthalAngle() + (Math.PI / 2)),0,-Math.cos(controls.getAzimuthalAngle() + (Math.PI / 2)));
   if (key.d) directonalForce.set(Math.sin(controls.getAzimuthalAngle() + (Math.PI / 2)),0,Math.cos(controls.getAzimuthalAngle() + (Math.PI / 2)));
+  if (key.q || key.e || key.space || key.shift) directonalForce.set(0,0,0);
   //if (key.q) user[userName].rotation.y += 0.1;
   //if (key.e) user[userName].rotation.y -= 0.1;
   if (key.space) user[userName].phisObj.applyImpulse(force.up, user[userName].phisObj.position);

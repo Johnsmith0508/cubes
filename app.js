@@ -107,6 +107,7 @@ exports.start = function(port) {
 				if (User[i].key.s) User[i].directionalForce.set(Math.sin(User[i].key.angle),0,Math.cos(User[i].key.angle));
 				if (User[i].key.a) User[i].directionalForce.set(-Math.sin(User[i].key.angle + (Math.PI / 2)),0,-Math.cos(User[i].key.angle + (Math.PI / 2)));
 				if (User[i].key.d) User[i].directionalForce.set(Math.sin(User[i].key.angle + (Math.PI / 2)),0,Math.cos(User[i].key.angle + (Math.PI / 2)));
+				if (User[i].key.q || User[i].key.e || User[i].key.space || User[i].key.shift) User[i].directionalForce.set(0,0,0);
 				User[i].phisObj.applyImpulse(User[i].directionalForce,User[i].phisObj.position);
 			}
 			socketProxy.sendSyncPhisUpdate(io,i,User[i].phisObj.position.toArray(),User[i].phisObj.velocity.toArray(),User[i].phisObj.quaternion.toArray());
