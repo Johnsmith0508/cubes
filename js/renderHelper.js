@@ -18,10 +18,10 @@ var addText = function(text, parentObject) {
 		map: texture
 	});
 	var sprite = new THREE.Sprite(material);
-	//sprite.scale.set(textWidth / 10 * actualFontSize, actualFontSize, 1);\
 	sprite.scale.set(textWidth / 100, 1, 1);
 	parentObject.add(sprite);
 	sprite.position.y += 1.5;
+	return sprite;
 }
 
 function roundRect(ctx, x, y, w, h, r) {

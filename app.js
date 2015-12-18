@@ -5,6 +5,7 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var THREE = require('three');
+var CANNON = require('cannon');
 var User = {};
 Object.prototype.size = function() {
 	var size = 0,
@@ -36,7 +37,8 @@ exports.start = function(port) {
 			User[user.name] = new THREE.Object3D();
 			User[user.name].sid = socket.id;
 			User[user.name].model = user.model;
-			User[userName].key = {w:false,a:false,s:false,d:false,q:false,e:false,shift:false,space:false}
+			User[user.name].directionalForce = new CANNON.Vec3(0,0,0);
+			User[userName].key = {w:false,a:false,s:false,d:false,q:false,e:false,shift:false,space:false,angle:0}
 			for (var i in User) {
 				if(typeof User[i].position === "undefined") continue;
 				socket.emit('user joined', {
@@ -63,7 +65,6 @@ exports.start = function(port) {
 				//if (keys.q) User[userName].rotateY(0.1);
 				//if (keys.e) User[userName].rotateY(-0.1);
 				User[userName].keysBeingPressed = keys.allFalse();
-				//socketProxy.sendPhisUpdate(socket, userName, User[userName].phisObj.position.toArray(), User[userName].phisObj.velocity.toArray(), User[userName].phisObj.quaternion.toArray);
 			}
 		});
 		socket.on('chat message', function(message) {
@@ -73,7 +74,6 @@ exports.start = function(port) {
     }
     if (message.substring(1, 10) == "debug_pos") {
       console.log(User[userName].position);
-      //return;
     }
 		if(message.substring(1, 5) == "kick"){
 				
@@ -103,16 +103,11 @@ exports.start = function(port) {
 				User[i].phisObj.angularVelocity.x *= 0.75;
 				User[i].phisObj.angularVelocity.z *= 0.75;
 			} else {
-				if (User[i].key.w) {
-					User[i].phisObj.applyImpulse(physics.force.forward, User[i].phisObj.position);
-				}
-				if (User[i].key.s) User[i].phisObj.applyImpulse(physics.force.back, User[i].phisObj.position);
-
-				if (User[i].key.a) User[i].phisObj.applyImpulse(physics.force.left, User[i].phisObj.position);
-				if (User[i].key.d) User[i].phisObj.applyImpulse(physics.force.right, User[i].phisObj.position);
-
-				if (User[i].key.space) User[i].phisObj.applyImpulse(physics.force.up, User[i].phisObj.position);
-				if (User[i].key.shift) User[i].phisObj.applyImpulse(physics.force.down, User[i].phisObj.position);
+				if (User[i].key.w) User[i].directionalForce.set(-Math.sin(User[i].key.angle),0,-Math.cos(User[i].key.angle));
+				if (User[i].key.s) User[i].directionalForce.set(Math.sin(User[i].key.angle),0,Math.cos(User[i].key.angle));
+				if (User[i].key.a) User[i].directionalForce.set(-Math.sin(User[i].key.angle + (Math.PI / 2)),0,-Math.cos(User[i].key.angle + (Math.PI / 2)));
+				if (User[i].key.d) User[i].directionalForce.set(Math.sin(User[i].key.angle + (Math.PI / 2)),0,Math.cos(User[i].key.angle + (Math.PI / 2)));
+				User[i].phisObj.applyImpulse(User[i].directionalForce,User[i].phisObj.position);
 			}
 			socketProxy.sendSyncPhisUpdate(io,i,User[i].phisObj.position.toArray(),User[i].phisObj.velocity.toArray(),User[i].phisObj.quaternion.toArray());
 		}

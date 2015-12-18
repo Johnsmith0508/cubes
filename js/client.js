@@ -6,7 +6,7 @@ var scene, camera, renderer, objMtlLoader, JsonLoader;
 var chatHideDelay, userName = "", isShifted,blendMesh;
 //define client model vars
 var cubeGeometry, cubeMaterial, clientCubeMaterial;
-var carGeometry, carMaterial;
+var carGeometry, carMaterial,controls;
 //define vars for enviroment
 var floorMaterial, wallsMaterial, light;
 //create socket.io connection to server
@@ -26,7 +26,8 @@ var key = {
 	t: false,
 	space: false,
 	shift: false,
-	keyPressed: 0
+	keyPressed: 0,
+	angle: 0
 };
 //object of all users
 var user = {};
@@ -101,6 +102,11 @@ function init() {
 	//init renderer
 	renderer = new THREE.WebGLRenderer();
 	renderer.setSize(window.innerWidth, window.innerHeight);
+	controls = new THREE.OrbitControls( camera, renderer.domElement );
+	//controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
+	controls.enableDamping = true;
+	controls.dampingFactor = 0.25;
+	controls.enablePan = false;
 	registerSubmitButton();
 
 }
@@ -109,6 +115,7 @@ function animate() {
 	stats.begin();
 	mainLoop();
 	upadtePhysics();
+	controls.update();
 	stats.end();
 
 	requestAnimationFrame(animate);
@@ -150,18 +157,11 @@ var registerEvents = function() {
 		});
 		//meh
 		socket.on('physics change',function(data){
-			if(typeof user[userName] != "undefined"){
+			if(typeof user[userName] !== "undefined"){
 				//console.log(data);
 				user[data.name].phisObj.position.set(data.position.x,data.position.y,data.position.z);
 				user[data.name].phisObj.velocity.set(data.velocity.x,data.velocity.y,data.velocity.z);
 				user[data.name].phisObj.quaternion.set(data.quaternion.x,data.quaternion.y,data.quaternion.z,data.quaternion.w);
-			}
-		});
-		//sent to update the position of other players
-		socket.on('position changed', function(data) {
-			if (typeof user[data.name] != "undefined") {
-				//user[data.name].phisObj.position.fromArray(data.position);
-				//user[data.name].phisObj.quaternion.fromArray(data.qua);
 			}
 		});
 	}

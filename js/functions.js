@@ -36,6 +36,9 @@ var buttonHandler = function(keyPressed, status) {
       case 84:
         key.t = status;
         break;
+      case 82:
+        controls.reset();
+        break;
     }
     if (keyPressed.shiftKey) {
       key.shift = true;
@@ -58,6 +61,7 @@ var submitHandler = function(e) {
       $('#login').hide();
       $('#main_window').show();
       chatHideDelay = $("#chatDelay").val();
+      addText("test",camera);
       $(document).on('keydown', function(e) {
         buttonHandler(e, true);
       });
@@ -103,16 +107,19 @@ var submitHandler = function(e) {
   }
 //function that contains all logic for various things
 var mainLoop = function() {
-  if (key.w) user[userName].phisObj.applyImpulse(force.forward, user[userName].phisObj.position);
-  if (key.s) user[userName].phisObj.applyImpulse(force.back, user[userName].phisObj.position);
-  if (key.a) user[userName].phisObj.applyImpulse(force.left, user[userName].phisObj.position);
-  if (key.d) user[userName].phisObj.applyImpulse(force.right, user[userName].phisObj.position);
-  if (key.q) user[userName].rotation.y += 0.1;
-  if (key.e) user[userName].rotation.y -= 0.1;
+  var directonalForce = new CANNON.Vec3(0,0,0);
+  key.angle = controls.getAzimuthalAngle();
+  if (key.w) directonalForce.set(-Math.sin(controls.getAzimuthalAngle()),0,-Math.cos(controls.getAzimuthalAngle()));
+  if (key.s) directonalForce.set(Math.sin(controls.getAzimuthalAngle()),0,Math.cos(controls.getAzimuthalAngle()));
+  if (key.a) directonalForce.set(-Math.sin(controls.getAzimuthalAngle() + (Math.PI / 2)),0,-Math.cos(controls.getAzimuthalAngle() + (Math.PI / 2)));
+  if (key.d) directonalForce.set(Math.sin(controls.getAzimuthalAngle() + (Math.PI / 2)),0,Math.cos(controls.getAzimuthalAngle() + (Math.PI / 2)));
+  //if (key.q) user[userName].rotation.y += 0.1;
+  //if (key.e) user[userName].rotation.y -= 0.1;
   if (key.space) user[userName].phisObj.applyImpulse(force.up, user[userName].phisObj.position);
   if (key.shift) user[userName].phisObj.applyImpulse(force.down, user[userName].phisObj.position);
   
   if (key.w || key.a || key.s || key.d || key.q || key.e || key.space || key.shift) {
+    user[userName].phisObj.applyImpulse(directonalForce, user[userName].phisObj.position);
     sendUpdateNoKey = true;
     socket.emit('keys pressed', key);
   } else if (userName.length > 0) {
