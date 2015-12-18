@@ -109,11 +109,18 @@ var submitHandler = function(e) {
 var mainLoop = function() {
   var directonalForce = new CANNON.Vec3(0,0,0);
   key.angle = controls.getAzimuthalAngle();
-  if (key.w) directonalForce.set(-Math.sin(controls.getAzimuthalAngle()),0,-Math.cos(controls.getAzimuthalAngle()));
-  if (key.s) directonalForce.set(Math.sin(controls.getAzimuthalAngle()),0,Math.cos(controls.getAzimuthalAngle()));
-  if (key.a) directonalForce.set(-Math.sin(controls.getAzimuthalAngle() + (Math.PI / 2)),0,-Math.cos(controls.getAzimuthalAngle() + (Math.PI / 2)));
-  if (key.d) directonalForce.set(Math.sin(controls.getAzimuthalAngle() + (Math.PI / 2)),0,Math.cos(controls.getAzimuthalAngle() + (Math.PI / 2)));
+  //(w and d) or (s and a)
+  if((key.w && key.d) || (key.s && key.a)) key.angle -= (Math.PI / 4);
+  //(w and a) or (s and d)
+  if((key.w && key.a) || (key.s && key.d)) key.angle += (Math.PI / 4);
+  if (key.w) directonalForce.set(-Math.sin(key.angle),0,-Math.cos(key.angle));
+  if (key.s) directonalForce.set(Math.sin(key.angle),0,Math.cos(key.angle));
+  //a and not (w or s)
+  if (key.a && !(key.w || key.s)) directonalForce.set(-Math.sin(key.angle + (Math.PI / 2)),0,-Math.cos(key.angle + (Math.PI / 2)));
+  //d and not (w or s)
+  if (key.d && !(key.w || key.s)) directonalForce.set(Math.sin(key.angle + (Math.PI / 2)),0,Math.cos(key.angle + (Math.PI / 2)));
   if (key.q || key.e || key.space || key.shift) directonalForce.set(0,0,0);
+
   //if (key.q) user[userName].rotation.y += 0.1;
   //if (key.e) user[userName].rotation.y -= 0.1;
   if (key.space) user[userName].phisObj.applyImpulse(force.up, user[userName].phisObj.position);
