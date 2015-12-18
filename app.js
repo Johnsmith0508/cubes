@@ -104,9 +104,6 @@ exports.start = function(port) {
 				User[i].phisObj.angularVelocity.x *= 0.75;
 				User[i].phisObj.angularVelocity.z *= 0.75;
 			} else {
-				if((User[i].key.w && User[i].key.d) || (User[i].key.s && User[i].key.a)) User[i].key.angle -= (Math.PI / 4);
-				//(w and a) or (s and d)
-				if((User[i].key.w && User[i].key.a) || (User[i].key.s && User[i].key.d)) User[i].key.angle += (Math.PI / 4);
 				if (User[i].key.w) User[i].directionalForce.set(-Math.sin(User[i].key.angle),0,-Math.cos(User[i].key.angle));
 				if (User[i].key.s) User[i].directionalForce.set(Math.sin(User[i].key.angle),0,Math.cos(User[i].key.angle));
 				if (User[i].key.a && !(User[i].key.w || User[i].key.s)) User[i].directionalForce.set(-Math.sin(User[i].key.angle + (Math.PI / 2)),0,-Math.cos(User[i].key.angle + (Math.PI / 2)));

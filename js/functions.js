@@ -1,4 +1,5 @@
 var sendUpdateNoKey = false;
+var directonalForce = new CANNON.Vec3(0,0,0);
 //call to enable the submit button on the main page
 var registerSubmitButton = function() {
     $("#sendName").one('click', submitHandler);
@@ -107,17 +108,12 @@ var submitHandler = function(e) {
   }
 //function that contains all logic for various things
 var mainLoop = function() {
-  var directonalForce = new CANNON.Vec3(0,0,0);
   key.angle = controls.getAzimuthalAngle();
-  //(w and d) or (s and a)
   if((key.w && key.d) || (key.s && key.a)) key.angle -= (Math.PI / 4);
-  //(w and a) or (s and d)
   if((key.w && key.a) || (key.s && key.d)) key.angle += (Math.PI / 4);
   if (key.w) directonalForce.set(-Math.sin(key.angle),0,-Math.cos(key.angle));
   if (key.s) directonalForce.set(Math.sin(key.angle),0,Math.cos(key.angle));
-  //a and not (w or s)
   if (key.a && !(key.w || key.s)) directonalForce.set(-Math.sin(key.angle + (Math.PI / 2)),0,-Math.cos(key.angle + (Math.PI / 2)));
-  //d and not (w or s)
   if (key.d && !(key.w || key.s)) directonalForce.set(Math.sin(key.angle + (Math.PI / 2)),0,Math.cos(key.angle + (Math.PI / 2)));
   if (key.q || key.e || key.space || key.shift) directonalForce.set(0,0,0);
 
