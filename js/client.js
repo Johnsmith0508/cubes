@@ -154,6 +154,8 @@ var registerEvents = function() {
 		//sent when a user leaves
 		socket.on('user left', function(name) {
 			scene.remove(user[name]);
+			scene.remove(user[name].phisMesh);
+			world.removeBody(user[name].phisObj);
 		});
 		//meh
 		socket.on('physics change',function(data){
