@@ -115,7 +115,7 @@ var mainLoop = function() {
   if (key.s) directonalForce.set(Math.sin(key.angle),0,Math.cos(key.angle));
   if (key.a && !(key.w || key.s)) directonalForce.set(-Math.sin(key.angle + (Math.PI / 2)),0,-Math.cos(key.angle + (Math.PI / 2)));
   if (key.d && !(key.w || key.s)) directonalForce.set(Math.sin(key.angle + (Math.PI / 2)),0,Math.cos(key.angle + (Math.PI / 2)));
-  if (key.q || key.e || key.space || key.shift) directonalForce.set(0,0,0);
+  if (key.q || key.e || key.space || key.shift || (key.w && key.s) || (key.a && key.d)) directonalForce.set(0,0,0);
 
   //if (key.q) user[userName].rotation.y += 0.1;
   //if (key.e) user[userName].rotation.y -= 0.1;
