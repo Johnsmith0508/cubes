@@ -84,3 +84,8 @@ button#send {
 	text-color: #ff0000;
 	
 }
+#controls {
+	border-style: ridge;
+	position: absolute;
+	left: 100px;
+}
