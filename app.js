@@ -33,7 +33,16 @@ exports.start = function(port) {
 		var keysBeingPressed = false;
 		socket.emit('user count', User.size());
 		socket.on('create user', function(user) {
-			console.log(user.name + " joined");
+			for(var i in User)
+				{
+					if (i == user.name) {
+						console.log('user ' + user.name + ' is in use');
+						socket.emit('error','user exists');
+						return;
+					}
+				}
+			socket/*.broadcast.to(socket.id)*/.emit('user created');
+			console.log(user.name + " joined " + socket.id);
 			userName = user.name;
 			User[user.name] = new THREE.Object3D();
 			User[user.name].sid = socket.id;

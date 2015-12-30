@@ -58,54 +58,59 @@ var submitHandler = function(e) {
         name: $("#name").val(),
         model: modelType
       });
-      userName = $("#name").val();
-      $('#login').hide();
-      $('#main_window').show();
-      chatHideDelay = $("#chatDelay").val();
-      addText("test",camera);
-      $(document).on('keydown', function(e) {
-        buttonHandler(e, true);
-      });
-      $(document).on('keyup', function(e) {
-        buttonHandler(e, false);
-      });
-      switch (modelType) {
-        case "car":
-          scene.add(camera);
-          user[userName] = new THREE.Object3D();
-          user[userName].model = new THREE.Mesh(carGeometry, carMaterial);
-          user[userName].model.scale.set(0.6, 0.6, 0.6);
-          user[userName].model.rotateX(-Math.PI / 2);
-          user[userName].model.rotateZ(Math.PI);
-          user[userName].updateMatrixWorld();
-          user[userName].add(user[userName].model);
-          THREE.SceneUtils.attach(camera, scene, user[userName]);
-          break;
-        case "person":
-          user[userName] = new THREE.Mesh(blendMesh.geometry, blendMesh.material);
-          user[userName].scale.set(0.01, 0.01, 0.01);
-          scene.add(user[userName]);
-          user[userName].add(camera);
-          break;
-        default:
-
-          user[userName] = new THREE.Object3D();
-          user[userName].model = new THREE.Mesh(cubeGeometry, clientMaterial);
-          //user[userName].add(user[userName].model);
-          user[userName].add(camera);
-      }
-      scene.add(user[userName]);
-      addPhysicsCube(user[userName]);
-      world.addBody(user[userName].phisObj);
-      scene.add(user[userName].phisMesh);
-      document.body.appendChild(renderer.domElement);
-      if ($("#fpsShow").is(":checked")) {
-        document.body.appendChild(stats.domElement);
-      }
-    } else {
-      registerSubmitButton();
-    }
   }
+}
+  
+ var preInit = function()
+ {
+   console.log('preinit start');
+  userName = $("#name").val();
+  $('#login').hide();
+  $('#main_window').show();
+  chatHideDelay = $("#chatDelay").val();
+  //addText("test",camera);
+  $(document).on('keydown', function(e) {
+    buttonHandler(e, true);
+  });
+  $(document).on('keyup', function(e) {
+    buttonHandler(e, false);
+  });
+    switch (modelType) {
+      case "car":
+        scene.add(camera);
+        user[userName] = new THREE.Object3D();
+        user[userName].model = new THREE.Mesh(carGeometry, carMaterial);
+        user[userName].model.scale.set(0.6, 0.6, 0.6);
+        user[userName].model.rotateX(-Math.PI / 2);
+        user[userName].model.rotateZ(Math.PI);
+        user[userName].updateMatrixWorld();
+        user[userName].add(user[userName].model);
+        THREE.SceneUtils.attach(camera, scene, user[userName]);
+        break;
+      case "person":
+        user[userName] = new THREE.Mesh(blendMesh.geometry, blendMesh.material);
+        user[userName].scale.set(0.01, 0.01, 0.01);
+        scene.add(user[userName]);
+        user[userName].add(camera);
+        break;
+      default:
+
+        user[userName] = new THREE.Object3D();
+        user[userName].model = new THREE.Mesh(cubeGeometry, clientMaterial);
+        //user[userName].add(user[userName].model);
+        user[userName].add(camera);
+    }
+    scene.add(user[userName]);
+    addPhysicsCube(user[userName]);
+    world.addBody(user[userName].phisObj);
+    scene.add(user[userName].phisMesh);
+    document.body.appendChild(renderer.domElement);
+    if ($("#fpsShow").is(":checked")) {
+      document.body.appendChild(stats.domElement);
+  } else {
+    registerSubmitButton();
+}
+ }
 //function that contains all logic for various things
 var mainLoop = function() {
   key.angle = controls.getAzimuthalAngle();

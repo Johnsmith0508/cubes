@@ -166,6 +166,18 @@ var registerEvents = function() {
 				user[data.name].phisObj.quaternion.set(data.quaternion.x,data.quaternion.y,data.quaternion.z,data.quaternion.w);
 			}
 		});
+		socket.on('error',function(error){
+			if(error == "user exists")
+				{
+					$("#ErrorMsg").val("Username is in use, Try annother");
+					$("#ErrorMsg").show();
+					registerSubmitButton();
+				}
+		});
+		socket.on('user created',function(){
+			console.log('meh');
+			preInit();
+		});
 	}
 //run init
 init();
