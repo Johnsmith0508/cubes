@@ -17,7 +17,7 @@ Object.prototype.size = function() {
 };
 Object.prototype.allFalse = function() {
 	for (var i in this) {
-		if( i == 'angle') continue;
+		if (i == 'angle') continue;
 		if (this[i] === true) return false;
 	}
 	return true;
@@ -33,24 +33,33 @@ exports.start = function(port) {
 		var keysBeingPressed = false;
 		socket.emit('user count', User.size());
 		socket.on('create user', function(user) {
-			for(var i in User)
-				{
-					if (i == user.name) {
-						console.log('user ' + user.name + ' is in use');
-						socket.emit('error','user exists');
-						return;
-					}
+			for (var i in User) {
+				if (i == user.name) {
+					console.log('user ' + user.name + ' is in use');
+					socket.emit('error', 'user exists');
+					return;
 				}
-			socket/*.broadcast.to(socket.id)*/.emit('user created');
+			}
+			socket /*.broadcast.to(socket.id)*/ .emit('user created');
 			console.log(user.name + " joined " + socket.id);
 			userName = user.name;
 			User[user.name] = new THREE.Object3D();
 			User[user.name].sid = socket.id;
 			User[user.name].model = user.model;
-			User[user.name].directionalForce = new CANNON.Vec3(0,0,0);
-			User[userName].key = {w:false,a:false,s:false,d:false,q:false,e:false,shift:false,space:false,angle:0}
+			User[user.name].directionalForce = new CANNON.Vec3(0, 0, 0);
+			User[userName].key = {
+				w: false,
+				a: false,
+				s: false,
+				d: false,
+				q: false,
+				e: false,
+				shift: false,
+				space: false,
+				angle: 0
+			}
 			for (var i in User) {
-				if(typeof User[i].position === "undefined") continue;
+				if (typeof User[i].position === "undefined") continue;
 				socket.emit('user joined', {
 					name: i,
 					model: User[i].model,
@@ -78,29 +87,35 @@ exports.start = function(port) {
 			}
 		});
 		socket.on('chat message', function(message) {
-  if (message.substring(0, 1) == "/") {
-    if (message.substring(1, 10) == "debug_rot") {
-      console.log(User[userName].rotation);
-    }
-    if (message.substring(1, 10) == "debug_pos") {
-      console.log(User[userName].position);
-    }
-		if(message.substring(1, 5) == "kick"){
-				
+			if (message.substring(0, 1) == "/") {
+				if (message.substring(1, 10) == "debug_rot") {
+					console.log(User[userName].rotation);
+				}
+				if (message.substring(1, 10) == "debug_pos") {
+					console.log(User[userName].position);
+				}
+				if (message.substring(1, 5) == "kick") {
+
+				}
+				return;
 			}
-    return;
-  }
-  console.log("(chat) " + userName + " : " + message);
-  socket.broadcast.emit('chat message', userName + " : " + message);
-  socket.emit('chat message', userName + " : " + message);
-});
+			console.log("(chat) " + userName + " : " + message);
+			socket.broadcast.emit('chat message', userName + " : " + message);
+			socket.emit('chat message', userName + " : " + message);
+		});
+		
 		socket.on('disconnect', function() {
-			delete User[userName];
+			if (typeof User[userName] !== "undefined") {
+				physics.world.removeBody(User[userName].phisObj);
+				//physics.world.removeBody("test");
+				delete User[userName];
+			}
 			socket.broadcast.emit('user left', userName);
 			socket.broadcast.emit('chat message', userName + " left");
 			console.log(userName + " left");
 		});
 	});
+	
 	http.listen(port, function() {
 		console.log('listening on ' + port);
 	});
@@ -108,19 +123,19 @@ exports.start = function(port) {
 	var mainLoop = function() {
 		physics.updatePhysics();
 		for (var i in User) {
-			if(typeof User[i].phisObj === "undefined") continue;
+			if (typeof User[i].phisObj === "undefined") continue;
 			if (User[i].keysBeingPressed) {
 				User[i].phisObj.angularVelocity.x *= 0.75;
 				User[i].phisObj.angularVelocity.z *= 0.75;
 			} else {
-				if (User[i].key.w) User[i].directionalForce.set(-Math.sin(User[i].key.angle),0,-Math.cos(User[i].key.angle));
-				if (User[i].key.s) User[i].directionalForce.set(Math.sin(User[i].key.angle),0,Math.cos(User[i].key.angle));
-				if (User[i].key.a && !(User[i].key.w || User[i].key.s)) User[i].directionalForce.set(-Math.sin(User[i].key.angle + (Math.PI / 2)),0,-Math.cos(User[i].key.angle + (Math.PI / 2)));
-				if (User[i].key.d && !(User[i].key.w || User[i].key.s)) User[i].directionalForce.set(Math.sin(User[i].key.angle + (Math.PI / 2)),0,Math.cos(User[i].key.angle + (Math.PI / 2)));
-				if (User[i].key.q || User[i].key.e || User[i].key.space || User[i].key.shift || (User[i].key.w && User[i].key.s) || (User[i].key.a && User[i].key.d)) User[i].directionalForce.set(0,0,0);
-				User[i].phisObj.applyImpulse(User[i].directionalForce,User[i].phisObj.position);
+				if (User[i].key.w) User[i].directionalForce.set(-Math.sin(User[i].key.angle), 0, -Math.cos(User[i].key.angle));
+				if (User[i].key.s) User[i].directionalForce.set(Math.sin(User[i].key.angle), 0, Math.cos(User[i].key.angle));
+				if (User[i].key.a && !(User[i].key.w || User[i].key.s)) User[i].directionalForce.set(-Math.sin(User[i].key.angle + (Math.PI / 2)), 0, -Math.cos(User[i].key.angle + (Math.PI / 2)));
+				if (User[i].key.d && !(User[i].key.w || User[i].key.s)) User[i].directionalForce.set(Math.sin(User[i].key.angle + (Math.PI / 2)), 0, Math.cos(User[i].key.angle + (Math.PI / 2)));
+				if (User[i].key.q || User[i].key.e || User[i].key.space || User[i].key.shift || (User[i].key.w && User[i].key.s) || (User[i].key.a && User[i].key.d)) User[i].directionalForce.set(0, 0, 0);
+				User[i].phisObj.applyImpulse(User[i].directionalForce, User[i].phisObj.position);
 			}
-			socketProxy.sendSyncPhisUpdate(io,i,User[i].phisObj.position.toArray(),User[i].phisObj.velocity.toArray(),User[i].phisObj.quaternion.toArray());
+			socketProxy.sendSyncPhisUpdate(io, i, User[i].phisObj.position.toArray(), User[i].phisObj.velocity.toArray(), User[i].phisObj.quaternion.toArray());
 		}
 	}
 	var interval = setInterval(mainLoop, 1000 / 60);

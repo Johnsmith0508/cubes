@@ -153,6 +153,7 @@ var registerEvents = function() {
 		});
 		//sent when a user leaves
 		socket.on('user left', function(name) {
+			console.log(name);
 			scene.remove(user[name]);
 			scene.remove(user[name].phisMesh);
 			world.removeBody(user[name].phisObj);
