@@ -63,6 +63,7 @@ var submitHandler = function(e) {
   
  var preInit = function()
  {
+   //console.log('preinit start');
   userName = $("#name").val();
   $('#login').hide();
   $('#main_window').show();
