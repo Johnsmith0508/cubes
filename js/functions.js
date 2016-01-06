@@ -63,7 +63,7 @@ var submitHandler = function(e) {
   
  var preInit = function()
  {
-   console.log('preinit start');
+   //console.log('preinit start');
   userName = $("#name").val();
   $('#login').hide();
   $('#main_window').show();
@@ -75,10 +75,10 @@ var submitHandler = function(e) {
   $(document).on('keyup', function(e) {
     buttonHandler(e, false);
   });
+    user[userName] = new PhysicsSphere();
     switch (modelType) {
       case "car":
         scene.add(camera);
-        user[userName] = new THREE.Object3D();
         user[userName].model = new THREE.Mesh(carGeometry, carMaterial);
         user[userName].model.scale.set(0.6, 0.6, 0.6);
         user[userName].model.rotateX(-Math.PI / 2);
@@ -94,14 +94,9 @@ var submitHandler = function(e) {
         user[userName].add(camera);
         break;
       default:
-
-        user[userName] = new THREE.Object3D();
-        user[userName].model = new THREE.Mesh(cubeGeometry, clientMaterial);
-        //user[userName].add(user[userName].model);
         user[userName].add(camera);
     }
     scene.add(user[userName]);
-    addPhysicsCube(user[userName]);
     world.addBody(user[userName].phisObj);
     scene.add(user[userName].phisMesh);
     document.body.appendChild(renderer.domElement);
