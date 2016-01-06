@@ -1,10 +1,11 @@
 //house keeping var; not used in code
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
 //define renderer vars
-var scene, camera, renderer, objMtlLoader, JsonLoader;
+var scene,guiScene , camera, renderer, objMtlLoader, JsonLoader, gui;
 //define app spesific vars
 var chatHideDelay, userName = "", isShifted,blendMesh;
 //define client model vars
+var testThing;
 var cubeGeometry, cubeMaterial, clientCubeMaterial;
 var carGeometry, carMaterial,controls;
 //define vars for enviroment
@@ -39,7 +40,7 @@ function init() {
 	scene = new THREE.Scene();
 	JsonLoader = new THREE.JSONLoader();
 	blendMesh = new THREE.BlendCharacter();
-
+	gui = new GUI.guiScene();
 	//configure stats
 	stats.setMode(0);
 	stats.domElement.style.position = 'absolute';
@@ -51,10 +52,10 @@ function init() {
 	scene.add(camera);
 	camera.position.x = -7;
 	camera.position.y = 5;
-	camera.lookAt(new THREE.Vector3(0, 0, 0));
+	camera.lookAt(force.zero);
 	//init geometries
 	planeGeom = new THREE.PlaneGeometry(30, 30);
-	cubeGeometry = new THREE.BoxGeometry(2, 2, 2);
+	cubeGeometry = new THREE.BoxGeometry(50, 50, 50);
 
 	//lights
 	light = new THREE.PointLight(0xffffff, 1, 100);
@@ -88,20 +89,24 @@ function init() {
 	plane.reciveShadow = true;
 	//scene.add(plane);
 
+	var test = new THREE.Mesh(cubeGeometry,cubeMaterial);
+	//test.position;
+	gui.addElement(test);
 	//load externals
 	JsonLoader.load('/node/model/car.AnExtention', function(loadedCar) {
 		carGeometry = loadedCar;
 	});
 	blendMesh.load('model/marine_anims.js',function(){
 		blendMesh.scale.set(0.01,0.01,0.01);
-		//scene.add(blendMesh);
+		//guiScene.add(blendMesh);
 	});
 	
 	initThree(scene);
 	initCannon();
 	//init renderer
-	renderer = new THREE.WebGLRenderer();
+	renderer = new THREE.WebGLRenderer({alpha:true});
 	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.autoClear = false;
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
 	//controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
 	controls.enableDamping = true;
@@ -120,6 +125,7 @@ function animate() {
 
 	requestAnimationFrame(animate);
 	renderer.render(scene, camera);
+	gui.render(renderer);
 }
 //does the 'players online' bit
 socket.on('user count', function(users) {
@@ -130,30 +136,19 @@ var registerEvents = function() {
 		//called when a user joins the server
 		socket.on('user joined', function(data) {
 			if (typeof user[data.name] == "undefined" && typeof userName != "undefined") {
-				user[data.name] = new THREE.Object3D();
-				if (data.model == "car") {
-					user[data.name].model = new THREE.Mesh(carGeometry, carMaterial);
-					user[data.name].model.rotateX(-Math.PI / 2);
-					user[data.name].model.rotateZ(Math.PI);
-					user[data.name].model.scale.set(0.6, 0.6, 0.6);
-					user[data.name].add(user[data.name].model);
-				} else {
-					user[data.name].model = new THREE.Mesh(cubeGeometry, cubeMaterial);
-					user[data.name].up.set(0, 0, 1);
-				}
+        userName = data.name;
+				user[data.name] = new PhysicsSphere();
 				user[data.name].position.fromArray(data.position);
 				user[data.name].rotation.fromArray(data.rotation);
-				user[data.name].castShadow = true;
-				addPhysicsCube(user[data.name]);
 				world.addBody(user[data.name].phisObj);
 				scene.add(user[data.name].phisMesh);
 				scene.add(user[data.name]);
-				addText(data.name, user[data.name]);
+				user[userName].addText(data.name);
 			}
 		});
 		//sent when a user leaves
 		socket.on('user left', function(name) {
-			console.log(name);
+			//console.log(name);
 			scene.remove(user[name]);
 			scene.remove(user[name].phisMesh);
 			world.removeBody(user[name].phisObj);
@@ -176,7 +171,7 @@ var registerEvents = function() {
 				}
 		});
 		socket.on('user created',function(){
-			console.log('meh');
+			//console.log('meh');
 			preInit();
 		});
 	}
