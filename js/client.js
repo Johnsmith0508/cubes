@@ -3,7 +3,7 @@ var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
 //define renderer vars
 var scene,guiScene , camera, renderer, objMtlLoader, JsonLoader, gui;
 //define app spesific vars
-var chatHideDelay, userName = "", isShifted,blendMesh;
+var chatHideDelay, userName = "", isShifted,blendMesh,testsprite;
 //define client model vars
 var testThing;
 var cubeGeometry, cubeMaterial, clientCubeMaterial;
@@ -91,7 +91,8 @@ function init() {
 
 	var test = new THREE.Mesh(cubeGeometry,cubeMaterial);
 	//test.position;
-	gui.addElement(test);
+	//gui.addElement(test);
+	testsprite = gui.addTextElement("hello", 50,250);
 	//load externals
 	JsonLoader.load('/node/model/car.AnExtention', function(loadedCar) {
 		carGeometry = loadedCar;
