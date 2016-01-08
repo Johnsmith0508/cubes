@@ -99,8 +99,8 @@ var submitHandler = function(e) {
     scene.add(user[userName]);
     world.addBody(user[userName].phisObj);
     scene.add(user[userName].phisMesh);
-    var nameGuiElement = gui.addTextElement(userName,(window.innerWidth / -2), (window.innerHeight / 2)  - 20);
-    nameGuiElement.position.x += nameGuiElement.textWidth / 2;
+    var nameGuiElement = gui.addTextElement(userName,(window.innerWidth / -2), (window.innerHeight / 2)  - 20,{textColor:"#262626"});
+    nameGuiElement.position.x += nameGuiElement.scale.x / 2;
     document.body.appendChild(renderer.domElement);
     if ($("#fpsShow").is(":checked")) {
       document.body.appendChild(stats.domElement);

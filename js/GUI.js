@@ -21,6 +21,7 @@ GUI.guiScene = function() {
 		
 		if(typeof opts === "undefined") opts = {};
 		if(typeof opts.z === "undefined") opts.z = 0;
+		if(typeof opts.textColor === "undefined") opts.textColor = "#000";
 		
 		var canvas = document.createElement('canvas'),
 		canvasContext = canvas.getContext('2d');
@@ -33,7 +34,7 @@ GUI.guiScene = function() {
 		canvasContext.font = "normal 100px Arial";
 		//canvasContext.fillStyle = "#f06";
 		//roundRect(canvasContext, 1, 1, (textWidth - 2), 100, 8);
-		canvasContext.fillStyle = "#000";
+		canvasContext.fillStyle = opts.textColor;
 		canvasContext.fillText(text, 0, 85);
 		var texture = new THREE.Texture(canvas);
 		texture.needsUpdate = true;
