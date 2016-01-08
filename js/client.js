@@ -153,6 +153,7 @@ var registerEvents = function() {
 			scene.remove(user[name]);
 			scene.remove(user[name].phisMesh);
 			world.removeBody(user[name].phisObj);
+			delete user[name];
 		});
 		//meh
 		socket.on('physics change',function(data){
