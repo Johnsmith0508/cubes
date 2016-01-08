@@ -137,14 +137,14 @@ var registerEvents = function() {
 		//called when a user joins the server
 		socket.on('user joined', function(data) {
 			if (typeof user[data.name] == "undefined" && typeof userName != "undefined") {
-        userName = data.name;
+        //userName = data.name;
 				user[data.name] = new PhysicsSphere();
 				user[data.name].position.fromArray(data.position);
 				user[data.name].rotation.fromArray(data.rotation);
 				world.addBody(user[data.name].phisObj);
 				scene.add(user[data.name].phisMesh);
 				scene.add(user[data.name]);
-				user[userName].addText(data.name);
+				user[data.name].addText(data.name);
 			}
 		});
 		//sent when a user leaves
