@@ -92,7 +92,7 @@ function init() {
 	var test = new THREE.Mesh(cubeGeometry,cubeMaterial);
 	//test.position;
 	//gui.addElement(test);
-	testsprite = gui.addTextElement("hello", 50,250);
+	//testsprite = gui.addTextElement("hello", 50,250);
 	//load externals
 	JsonLoader.load('/node/model/car.AnExtention', function(loadedCar) {
 		carGeometry = loadedCar;
@@ -193,6 +193,8 @@ function onWindowResize() {
 	windowHalfY = window.innerHeight / 2;
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
+	
+	//GUI.camera.updateProjectionMatrix();
 	renderer.setSize(window.innerWidth, window.innerHeight);
 }
 //register previous function

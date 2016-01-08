@@ -12,6 +12,7 @@ GUI.guiScene = function() {
 
 	this.addElement = function(object) {
 		this.scene.add(object);
+		return object;
 	}
 	this.render = function(renderer) {
 		renderer.render(this.scene, this.camera);
@@ -45,6 +46,7 @@ GUI.guiScene = function() {
 		this.scene.add(sprite);
 		//scene.add(sprite);
 		sprite.position.y += 1.5;
+		sprite.textWidth = textWidth;
 		return sprite;
 	}
 }
