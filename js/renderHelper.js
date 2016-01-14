@@ -1,3 +1,4 @@
+/*global THREE*/
 var addText = function(text, parentObject) {
 	var canvas = document.createElement('canvas'),
 		canvasContext = canvas.getContext('2d');

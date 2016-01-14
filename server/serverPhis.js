@@ -26,6 +26,22 @@ exports.initCannon = function() {
 	exports.world.addBody(ground);
 }
 
+exports.capsuleColider = function(radius,height,parent) {
+	parent._topSphere = new CANNON.Sphere(radius);
+	parent._bottomSphere = new CANNON.Sphere(radius);
+	parent._cylinder = new CANNON.Cylinder(radius,radius,height-(radius*2),16);
+	parent.phisObj = new CANNON.Body({mass:1});
+	parent.phisObj.addShape(parent._cylinder);
+	parent.phisObj.addShape(parent._topSphere,new CANNON.Vec3(0,0,(height / 2) - radius));
+	parent.phisObj.addShape(parent._bottomSphere,new CANNON.Vec3(0,0,radius - (height / 2)));
+	parent.phisObj.quaternion.x += Math.PI / 2;
+	parent.phisObj.angularDamping = 1;
+	parent.updatePhis = function() {
+		this.position.copy(this.phisObj.position);
+		this.quaternion.copy(this.phisObj.quaternion);
+	}
+}
+
 exports.addPhisCube = function(parent) {
 	var box = new CANNON.Sphere(1);
 	parent.phisObj = new CANNON.Body({
@@ -44,4 +60,9 @@ exports.updatePhysics = function(User) {
 	for (var i in User) {
 		User[i].updatePhis();
 	}
+}
+CANNON.Vec3.prototype.add = function(x,y,z) {
+	this.x += x;
+	this.y += y;
+	this.z += z;
 }

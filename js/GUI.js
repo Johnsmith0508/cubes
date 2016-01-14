@@ -1,4 +1,5 @@
-if (typeof THREE === "undefined") throw "THREE.JS not found"
+/*global THREE */
+if (typeof THREE === "undefined") throw "THREE.JS not found";
 var GUI = {
 	version: '0.0.1'
 };

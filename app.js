@@ -67,7 +67,7 @@ exports.start = function(port) {
 					rotation: User[i].rotation.toArray()
 				});
 			}
-			physics.addPhisCube(User[userName]);
+			physics.capsuleColider(1,4,User[userName]);
 			physics.world.addBody(User[userName].phisObj);
 			socket.broadcast.emit('user joined', {
 				name: user.name,
@@ -128,15 +128,17 @@ exports.start = function(port) {
 				User[i].phisObj.angularVelocity.x *= 0.75;
 				User[i].phisObj.angularVelocity.z *= 0.75;
 			} else {
-				if (User[i].key.w) User[i].directionalForce.set(-Math.sin(User[i].key.angle), 0, -Math.cos(User[i].key.angle));
-				if (User[i].key.s) User[i].directionalForce.set(Math.sin(User[i].key.angle), 0, Math.cos(User[i].key.angle));
-				if (User[i].key.a && !(User[i].key.w || User[i].key.s)) User[i].directionalForce.set(-Math.sin(User[i].key.angle + (Math.PI / 2)), 0, -Math.cos(User[i].key.angle + (Math.PI / 2)));
-				if (User[i].key.d && !(User[i].key.w || User[i].key.s)) User[i].directionalForce.set(Math.sin(User[i].key.angle + (Math.PI / 2)), 0, Math.cos(User[i].key.angle + (Math.PI / 2)));
-				if (User[i].key.q || User[i].key.e || User[i].key.space || User[i].key.shift || (User[i].key.w && User[i].key.s) || (User[i].key.a && User[i].key.d)) User[i].directionalForce.set(0, 0, 0);
-				if (User[i].key.space) User[i].directionalForce.set(0,0.25,0);
-				if (User[i].key.shift) User[i].directionalForce.set(0,-0.25,0);
+				User[i].directionalForce.setZero();
+				if (User[i].key.w) User[i].directionalForce.add(-Math.sin(User[i].key.angle), 0, -Math.cos(User[i].key.angle));
+				if (User[i].key.s) User[i].directionalForce.add(Math.sin(User[i].key.angle), 0, Math.cos(User[i].key.angle));
+				if (User[i].key.a) User[i].directionalForce.add(-Math.sin(User[i].key.angle + (Math.PI / 2)), 0, -Math.cos(User[i].key.angle + (Math.PI / 2)));
+				if (User[i].key.d) User[i].directionalForce.add(Math.sin(User[i].key.angle + (Math.PI / 2)), 0, Math.cos(User[i].key.angle + (Math.PI / 2)));
+				if (User[i].key.space) User[i].directionalForce.add(0,0.25,0);
+				if (User[i].key.shift) User[i].directionalForce.add(0,-0.25,0);
+				User[i].directionalForce.normalize();
 				User[i].phisObj.applyImpulse(User[i].directionalForce, User[i].phisObj.position);
 			}
+			//if(User[i].phisObj.velocity.x <= 0.001 && User[i].phisObj.velocity.z <= 0.001) {User[i].phisObj.angularDamping = 1;} else {User[i].angularDamping = 0;}
 			socketProxy.sendSyncPhisUpdate(io, i, User[i].phisObj.position.toArray(), User[i].phisObj.velocity.toArray(), User[i].phisObj.quaternion.toArray());
 		}
 	}

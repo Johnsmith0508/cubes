@@ -1,3 +1,4 @@
+/*global key CANNON registerChatSocket*/
 var sendUpdateNoKey = false;
 var directonalForce = new CANNON.Vec3(0,0,0);
 //call to enable the submit button on the main page
@@ -75,7 +76,7 @@ var submitHandler = function(e) {
   $(document).on('keyup', function(e) {
     buttonHandler(e, false);
   });
-    user[userName] = new PhysicsSphere();
+    user[userName] = new CapsuleColider(1,4);
     switch (modelType) {
       case "car":
         scene.add(camera);
@@ -98,7 +99,7 @@ var submitHandler = function(e) {
     }
     scene.add(user[userName]);
     world.addBody(user[userName].phisObj);
-    scene.add(user[userName].phisMesh);
+    //scene.add(user[userName].phisMesh);
     var nameGuiElement = gui.addTextElement(userName,(window.innerWidth / -2), (window.innerHeight / 2)  - 20,{textColor:"#262626"});
     nameGuiElement.position.x += nameGuiElement.scale.x / 2;
     document.body.appendChild(renderer.domElement);
@@ -111,15 +112,14 @@ var submitHandler = function(e) {
 //function that contains all logic for various things
 var mainLoop = function() {
   key.angle = controls.getAzimuthalAngle();
-  if((key.w && key.d) || (key.s && key.a)) key.angle -= (Math.PI / 4);
-  if((key.w && key.a) || (key.s && key.d)) key.angle += (Math.PI / 4);
-  if (key.w) directonalForce.set(-Math.sin(key.angle),0,-Math.cos(key.angle));
-  if (key.s) directonalForce.set(Math.sin(key.angle),0,Math.cos(key.angle));
-  if (key.a && !(key.w || key.s)) directonalForce.set(-Math.sin(key.angle + (Math.PI / 2)),0,-Math.cos(key.angle + (Math.PI / 2)));
-  if (key.d && !(key.w || key.s)) directonalForce.set(Math.sin(key.angle + (Math.PI / 2)),0,Math.cos(key.angle + (Math.PI / 2)));
-  if (key.q || key.e || key.space || key.shift || (key.w && key.s) || (key.a && key.d)) directonalForce.set(0,0,0);
-  if (key.space) directonalForce.set(0,0.25,0);
-  if (key.shift) directonalForce.set(0,-0.25,0);
+  directonalForce.setZero();
+  if(key.w) directonalForce.add(-Math.sin(key.angle),0,-Math.cos(key.angle));
+  if(key.s) directonalForce.add(Math.sin(key.angle),0,Math.cos(key.angle));
+  if(key.a) directonalForce.add(-Math.sin(key.angle + (Math.PI / 2)),0,-Math.cos(key.angle + (Math.PI / 2)));
+  if(key.d) directonalForce.add(Math.sin(key.angle + (Math.PI / 2)),0,Math.cos(key.angle + (Math.PI / 2)));
+  if (key.space) directonalForce.add(0,0.25,0);
+  if (key.shift) directonalForce.add(0,-0.25,0);
+  directonalForce.normalize();
   //if (key.q) user[userName].rotation.y += 0.1;
   //if (key.e) user[userName].rotation.y -= 0.1;
   //if (key.space) user[userName].phisObj.applyImpulse(force.up, user[userName].phisObj.position);

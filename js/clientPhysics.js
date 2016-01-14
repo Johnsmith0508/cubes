@@ -1,3 +1,4 @@
+/*global THREE CANNON*/
 var world, cube, body, ground, groundShape, groundMaterial;
 var threeCube, cubeGeom, cubeMesh, planeMaterial, planeGeom, threePlane;
 
@@ -52,6 +53,30 @@ var upadtePhysics = function() {
   }
 }
 
+ var CapsuleColider = function(radius, height) {
+   THREE.Object3D.call(this);
+   
+   this._topSphere = new CANNON.Sphere(radius);
+   this._bottomSphere = new CANNON.Sphere(radius);
+   this._cylinder = new CANNON.Cylinder(radius,radius,height - (radius * 2),16);
+   this.phisObj = new CANNON.Body({mass:1});
+   
+   this.phisObj.addShape(this._cylinder);
+   this.phisObj.addShape(this._topSphere,new CANNON.Vec3(0,0,(height / 2)-radius));
+   this.phisObj.addShape(this._bottomSphere, new CANNON.Vec3(0,0,radius - (height / 2)));
+   this.phisObj.quaternion.x += Math.PI / 2;
+   this.phisObj.angularDamping = 1;
+   this.updatePhis = function() {
+    this.position.copy(this.phisObj.position);
+    //this.phisMesh.position.copy(this.phisObj.position);
+    //this.phisMesh.quaternion.copy(this.phisObj.quaternion);
+    //this.model.quaternion.copy(this.phisObj.quaternion);
+  }
+  
+ }
+CapsuleColider.prototype = Object.create( THREE.Object3D.prototype );
+CapsuleColider.prototype.constructor = CapsuleColider;
+
 var PhysicsSphere = function() {
 
   //Protected Vars
@@ -78,3 +103,9 @@ var PhysicsSphere = function() {
 }
 PhysicsSphere.prototype = Object.create( THREE.Object3D.prototype );
 PhysicsSphere.prototype.constructor = PhysicsSphere;
+
+CANNON.Vec3.prototype.add = function(x,y,z) {
+  this.x += x;
+  this.y += y;
+  this.z += z;
+}

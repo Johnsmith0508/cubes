@@ -1,3 +1,4 @@
+/*global $ THREE force initThree updatePhysics*/
 //house keeping var; not used in code
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
 //define renderer vars
@@ -6,6 +7,7 @@ var scene,guiScene , camera, renderer, objMtlLoader, JsonLoader, gui;
 var chatHideDelay, userName = "", isShifted,blendMesh,testsprite;
 //define client model vars
 var testThing;
+var cannonDebugRenderer;
 var cubeGeometry, cubeMaterial, clientCubeMaterial;
 var carGeometry, carMaterial,controls;
 //define vars for enviroment
@@ -43,7 +45,7 @@ function init() {
 	gui = new GUI.guiScene();
 	//configure stats
 	stats.setMode(0);
-	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.position = "absolute";
 	stats.domElement.style.left = '0px';
 	stats.domElement.style.top = '0px';
 
@@ -104,6 +106,8 @@ function init() {
 	
 	initThree(scene);
 	initCannon();
+	
+	cannonDebugRenderer = new THREE.CannonDebugRenderer( scene, world );
 	//init renderer
 	renderer = new THREE.WebGLRenderer({alpha:true});
 	renderer.setSize(window.innerWidth, window.innerHeight);
@@ -122,6 +126,7 @@ function animate() {
 	mainLoop();
 	upadtePhysics();
 	controls.update();
+	cannonDebugRenderer.update();
 	stats.end();
 
 	requestAnimationFrame(animate);
@@ -138,7 +143,8 @@ var registerEvents = function() {
 		socket.on('user joined', function(data) {
 			if (typeof user[data.name] == "undefined" && typeof userName != "undefined") {
         //userName = data.name;
-				user[data.name] = new PhysicsSphere();
+				//user[data.name] = new PhysicsSphere();
+				user[data.name] = new CapsuleColider(1,4);
 				user[data.name].position.fromArray(data.position);
 				user[data.name].rotation.fromArray(data.rotation);
 				world.addBody(user[data.name].phisObj);
