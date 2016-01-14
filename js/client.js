@@ -1,16 +1,21 @@
 /*global $ THREE force initThree updatePhysics world CapsuleColider*/
-//house keeping var; not used in code
+
+/**
+ * house keeping var; not used in code
+ * @deprecated
+ * @private
+ */
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
-//define renderer vars
+/**  renderer variable */
 var scene,guiScene , camera, renderer, objMtlLoader, JsonLoader, gui;
-//define app spesific vars
+/** app spesific variable */
 var chatHideDelay, userName = "", isShifted,blendMesh,testsprite;
-//define client model vars
+/** client model vars */
 var testThing;
 var cannonDebugRenderer;
 var cubeGeometry, cubeMaterial, clientCubeMaterial;
 var carGeometry, carMaterial,controls;
-//define vars for enviroment
+/** vars for enviroment */
 var floorMaterial, wallsMaterial, light;
 //create socket.io connection to server
 var socket = new io('//dynalogic.org', {
@@ -18,7 +23,7 @@ var socket = new io('//dynalogic.org', {
 });
 //initiate stats.js
 var stats = new Stats();
-//object that tracks keys
+/** object that tracks the keys pressed */
 var key = {
 	w: false,
 	a: false,
@@ -32,11 +37,15 @@ var key = {
 	keyPressed: 0,
 	angle: 0
 };
-//object of all users
+/** Object of all users @private */
 var user = {};
 //so the server is only told about no keys being pressed once
 var sentUpdateNoKey = true;
 //initilise all required variables
+/**
+* Init function
+* @function
+*/
 function init() {
 	//create three.js scene / init loaders
 	scene = new THREE.Scene();
@@ -120,7 +129,9 @@ function init() {
 	registerSubmitButton();
 
 }
-//called every frame
+/**
+* Function to render the scene(s)
+*/
 function animate() {
 	stats.begin();
 	mainLoop();
