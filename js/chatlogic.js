@@ -11,7 +11,7 @@ $(document.body).on('click','#send',function(){
 });
 $('#msgIn').on('keyup',function(e)
 {
-if(e.keyCode == 13) {
+if(e.keyCode === 13) {
   $('#send').trigger('click');
 }
 });
@@ -27,13 +27,13 @@ socket.on('chat message', function(payload){
 }
 $(document).on('keyup',function(e)
 {
-  if(e.which == 84)
+  if(e.which === 84)
   {
     $(".chat").show();
     $("#msgIn").focus();
     hasChatOpen = true;
   }
-  if(e.which == 13) {
+  if(e.which === 13) {
     $("#send").trigger('click');
   }
 });

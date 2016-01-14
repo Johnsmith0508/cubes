@@ -17,7 +17,7 @@ Object.prototype.size = function() {
 };
 Object.prototype.allFalse = function() {
 	for (var i in this) {
-		if (i == 'angle') continue;
+		if (i === 'angle') continue;
 		if (this[i] === true) return false;
 	}
 	return true;
@@ -87,14 +87,14 @@ exports.start = function(port) {
 			}
 		});
 		socket.on('chat message', function(message) {
-			if (message.substring(0, 1) == "/") {
-				if (message.substring(1, 10) == "debug_rot") {
+			if (message.substring(0, 1) === "/") {
+				if (message.substring(1, 10) === "debug_rot") {
 					console.log(User[userName].rotation);
 				}
-				if (message.substring(1, 10) == "debug_pos") {
+				if (message.substring(1, 10) === "debug_pos") {
 					console.log(User[userName].position);
 				}
-				if (message.substring(1, 5) == "kick") {
+				if (message.substring(1, 5) === "kick") {
 					//NOOP
 				}
 				return;

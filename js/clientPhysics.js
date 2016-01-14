@@ -1,6 +1,6 @@
 /*global THREE CANNON*/
-var world, cube, body, ground, groundShape, groundMaterial;
-var threeCube, cubeGeom, cubeMesh, planeMaterial, planeGeom, threePlane;
+var world, body, ground, groundShape, groundMaterial;
+var cubeGeom, cubeMesh, planeMaterial, planeGeom, threePlane;
 
 
 var force = {

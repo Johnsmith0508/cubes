@@ -1,6 +1,6 @@
 var CANNON = require('cannon');
 
-var world, groundShape, ground;
+var  groundShape, ground;
 exports.force = {
 	up : new CANNON.Vec3(0,1,0),
 	down : new CANNON.Vec3(0,-1,0),

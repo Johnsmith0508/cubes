@@ -1,18 +1,10 @@
 /*global key CANNON registerChatSocket controls renderer user world gui*/
 var sendUpdateNoKey = false;
-var directonalForce = new CANNON.Vec3(0,0,0);
-//call to enable the submit button on the main page
-var registerSubmitButton = function() {
-    $("#sendName").one('click', submitHandler);
-    $('#name').on('keyup', function(e) {
-      if (e.keyCode == 13) {
-        $('#sendName').trigger('click');
-      }
-    });
-  }
+var directonalForce = new CANNON.Vec3(0, 0, 0);
+
 //handles the sending of keys to the server
 var buttonHandler = function(keyPressed, status) {
-    if (keyPressed.target == $(".chat")) return;
+    if (keyPressed.target === $(".chat")) return;
     switch (keyPressed.which) {
       case 87:
         key.w = status;
@@ -48,8 +40,8 @@ var buttonHandler = function(keyPressed, status) {
       key.shift = false;
     }
   }
-//handles the logic behind the submit button on the login screen
-var submitHandler = function(e) {
+  //handles the logic behind the submit button on the login screen
+var submitHandler = function() {
     $('#name').off('keyup');
     registerEvents();
     registerChatSocket();
@@ -59,24 +51,32 @@ var submitHandler = function(e) {
         name: $("#name").val(),
         model: modelType
       });
+    }
   }
+  //call to enable the submit button on the main page
+var registerSubmitButton = function() {
+  $("#sendName").one('click', submitHandler);
+  $('#name').on('keyup', function(e) {
+    if (e.keyCode === 13) {
+      $('#sendName').trigger('click');
+    }
+  });
 }
-  
- var preInit = function()
- {
-   //console.log('preinit start');
-  userName = $("#name").val();
-  $('#login').hide();
-  $('#main_window').show();
-  chatHideDelay = $("#chatDelay").val();
-  //addText("test",camera);
-  $(document).on('keydown', function(e) {
-    buttonHandler(e, true);
-  });
-  $(document).on('keyup', function(e) {
-    buttonHandler(e, false);
-  });
-    user[userName] = new CapsuleColider(1,4);
+
+var preInit = function() {
+    //console.log('preinit start');
+    userName = $("#name").val();
+    $('#login').hide();
+    $('#main_window').show();
+    chatHideDelay = $("#chatDelay").val();
+    //addText("test",camera);
+    $(document).on('keydown', function(e) {
+      buttonHandler(e, true);
+    });
+    $(document).on('keyup', function(e) {
+      buttonHandler(e, false);
+    });
+    user[userName] = new CapsuleColider(1, 4);
     switch (modelType) {
       case "car":
         scene.add(camera);
@@ -100,32 +100,34 @@ var submitHandler = function(e) {
     scene.add(user[userName]);
     world.addBody(user[userName].phisObj);
     //scene.add(user[userName].phisMesh);
-    var nameGuiElement = gui.addTextElement(userName,window.innerWidth / -2, window.innerHeight/2 - 20,{ textColor:"#262626" });
-   
+    var nameGuiElement = gui.addTextElement(userName, window.innerWidth / -2, window.innerHeight / 2 - 20, {
+      textColor: "#262626"
+    });
+
     nameGuiElement.position.x += nameGuiElement.scale.x / 2;
     document.body.appendChild(renderer.domElement);
     if ($("#fpsShow").is(":checked")) {
       document.body.appendChild(stats.domElement);
-  } else {
-    registerSubmitButton();
-}
- }
-//function that contains all logic for various things
+    } else {
+      registerSubmitButton();
+    }
+  }
+  //function that contains all logic for various things
 var mainLoop = function() {
   key.angle = controls.getAzimuthalAngle();
   directonalForce.setZero();
-  if(key.w) directonalForce.add(-Math.sin(key.angle),0,-Math.cos(key.angle));
-  if(key.s) directonalForce.add(Math.sin(key.angle),0,Math.cos(key.angle));
-  if(key.a) directonalForce.add(-Math.sin(key.angle + Math.PI/2),0,-Math.cos(key.angle + Math.PI/2));
-  if(key.d) directonalForce.add(Math.sin(key.angle + Math.PI/2),0,Math.cos(key.angle + Math.P /2));
-  if (key.space) directonalForce.add(0,0.25,0);
-  if (key.shift) directonalForce.add(0,-0.25,0);
+  if (key.w) directonalForce.add(-Math.sin(key.angle), 0, -Math.cos(key.angle));
+  if (key.s) directonalForce.add(Math.sin(key.angle), 0, Math.cos(key.angle));
+  if (key.a) directonalForce.add(-Math.sin(key.angle + Math.PI / 2), 0, -Math.cos(key.angle + Math.PI / 2));
+  if (key.d) directonalForce.add(Math.sin(key.angle + Math.PI / 2), 0, Math.cos(key.angle + Math.P / 2));
+  if (key.space) directonalForce.add(0, 0.25, 0);
+  if (key.shift) directonalForce.add(0, -0.25, 0);
   directonalForce.normalize();
   //if (key.q) user[userName].rotation.y += 0.1;
   //if (key.e) user[userName].rotation.y -= 0.1;
   //if (key.space) user[userName].phisObj.applyImpulse(force.up, user[userName].phisObj.position);
   //if (key.shift) user[userName].phisObj.applyImpulse(force.down, user[userName].phisObj.position);
-  
+
   if (key.w || key.a || key.s || key.d || key.q || key.e || key.space || key.shift) {
     user[userName].phisObj.applyImpulse(directonalForce, user[userName].phisObj.position);
     sendUpdateNoKey = true;
