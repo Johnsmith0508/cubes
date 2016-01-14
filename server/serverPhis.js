@@ -29,11 +29,11 @@ exports.initCannon = function() {
 exports.capsuleColider = function(radius,height,parent) {
 	parent._topSphere = new CANNON.Sphere(radius);
 	parent._bottomSphere = new CANNON.Sphere(radius);
-	parent._cylinder = new CANNON.Cylinder(radius,radius,height-(radius*2),16);
+	parent._cylinder = new CANNON.Cylinder(radius,radius,height- radius*2,16);
 	parent.phisObj = new CANNON.Body({mass:1});
 	parent.phisObj.addShape(parent._cylinder);
-	parent.phisObj.addShape(parent._topSphere,new CANNON.Vec3(0,0,(height / 2) - radius));
-	parent.phisObj.addShape(parent._bottomSphere,new CANNON.Vec3(0,0,radius - (height / 2)));
+	parent.phisObj.addShape(parent._topSphere,new CANNON.Vec3(0,0,height / 2 - radius));
+	parent.phisObj.addShape(parent._bottomSphere,new CANNON.Vec3(0,0,radius - height / 2));
 	parent.phisObj.quaternion.x += Math.PI / 2;
 	parent.phisObj.angularDamping = 1;
 	parent.updatePhis = function() {

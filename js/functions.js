@@ -100,7 +100,7 @@ var submitHandler = function(e) {
     scene.add(user[userName]);
     world.addBody(user[userName].phisObj);
     //scene.add(user[userName].phisMesh);
-    var nameGuiElement = gui.addTextElement(userName,(window.innerWidth / -2), (window.innerHeight / 2)  - 20,{ textColor:"#262626" });
+    var nameGuiElement = gui.addTextElement(userName,window.innerWidth / -2, window.innerHeight/2 - 20,{ textColor:"#262626" });
    
     nameGuiElement.position.x += nameGuiElement.scale.x / 2;
     document.body.appendChild(renderer.domElement);
@@ -116,8 +116,8 @@ var mainLoop = function() {
   directonalForce.setZero();
   if(key.w) directonalForce.add(-Math.sin(key.angle),0,-Math.cos(key.angle));
   if(key.s) directonalForce.add(Math.sin(key.angle),0,Math.cos(key.angle));
-  if(key.a) directonalForce.add(-Math.sin(key.angle + (Math.PI / 2)),0,-Math.cos(key.angle + (Math.PI / 2)));
-  if(key.d) directonalForce.add(Math.sin(key.angle + (Math.PI / 2)),0,Math.cos(key.angle + (Math.PI / 2)));
+  if(key.a) directonalForce.add(-Math.sin(key.angle + Math.PI/2),0,-Math.cos(key.angle + Math.PI/2));
+  if(key.d) directonalForce.add(Math.sin(key.angle + Math.PI/2),0,Math.cos(key.angle + Math.P /2));
   if (key.space) directonalForce.add(0,0.25,0);
   if (key.shift) directonalForce.add(0,-0.25,0);
   directonalForce.normalize();

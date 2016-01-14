@@ -95,7 +95,7 @@ exports.start = function(port) {
 					console.log(User[userName].position);
 				}
 				if (message.substring(1, 5) == "kick") {
-
+					//NOOP
 				}
 				return;
 			}
@@ -131,8 +131,8 @@ exports.start = function(port) {
 				User[i].directionalForce.setZero();
 				if (User[i].key.w) User[i].directionalForce.add(-Math.sin(User[i].key.angle), 0, -Math.cos(User[i].key.angle));
 				if (User[i].key.s) User[i].directionalForce.add(Math.sin(User[i].key.angle), 0, Math.cos(User[i].key.angle));
-				if (User[i].key.a) User[i].directionalForce.add(-Math.sin(User[i].key.angle + (Math.PI / 2)), 0, -Math.cos(User[i].key.angle + (Math.PI / 2)));
-				if (User[i].key.d) User[i].directionalForce.add(Math.sin(User[i].key.angle + (Math.PI / 2)), 0, Math.cos(User[i].key.angle + (Math.PI / 2)));
+				if (User[i].key.a) User[i].directionalForce.add(-Math.sin(User[i].key.angle + Math.PI/2), 0, -Math.cos(User[i].key.angle + Math.PI/2));
+				if (User[i].key.d) User[i].directionalForce.add(Math.sin(User[i].key.angle + Math.PI/2), 0, Math.cos(User[i].key.angle + Math.PI/2));
 				if (User[i].key.space) User[i].directionalForce.add(0,0.25,0);
 				if (User[i].key.shift) User[i].directionalForce.add(0,-0.25,0);
 				User[i].directionalForce.normalize();

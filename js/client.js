@@ -87,7 +87,7 @@ function init() {
 
 	//add static scene objects
 	plane = new THREE.Mesh(planeGeom, planeMaterial);
-	plane.rotation.x = (Math.PI / 2);
+	plane.rotation.x = Math.PI / 2;
 	plane.reciveShadow = true;
 	//scene.add(plane);
 

@@ -10,7 +10,7 @@ var addText = function(text, parentObject) {
 	canvas.width = textWidth;
 	canvasContext.font = "normal 100px Arial";
 	canvasContext.fillStyle = "#fff";
-	roundRect(canvasContext, 1, 1, (textWidth - 2), 100, 8);
+	roundRect(canvasContext, 1, 1, textWidth - 2, 100, 8);
 	canvasContext.fillStyle = "#000";
 	canvasContext.fillText(text, 0, 85);
 	var texture = new THREE.Texture(canvas);
