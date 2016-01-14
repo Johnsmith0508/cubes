@@ -54,12 +54,13 @@ var upadtePhysics = function() {
 }
 
  var CapsuleColider = function(radius, height) {
+   
    THREE.Object3D.call(this);
    
    this._topSphere = new CANNON.Sphere(radius);
    this._bottomSphere = new CANNON.Sphere(radius);
    this._cylinder = new CANNON.Cylinder(radius,radius,height - (radius * 2),16);
-   this.phisObj = new CANNON.Body({mass:1});
+   this.phisObj = new CANNON.Body({ mass:1 });
    
    this.phisObj.addShape(this._cylinder);
    this.phisObj.addShape(this._topSphere,new CANNON.Vec3(0,0,(height / 2)-radius));

@@ -1,4 +1,4 @@
-/*global $ THREE force initThree updatePhysics*/
+/*global $ THREE force initThree updatePhysics world CapsuleColider*/
 //house keeping var; not used in code
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
 //define renderer vars
@@ -139,6 +139,7 @@ socket.on('user count', function(users) {
 });
 //socket.on(*), part of a failed project
 var registerEvents = function() {
+	
 		//called when a user joins the server
 		socket.on('user joined', function(data) {
 			if (typeof user[data.name] == "undefined" && typeof userName != "undefined") {

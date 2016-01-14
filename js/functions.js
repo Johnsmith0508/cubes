@@ -1,4 +1,4 @@
-/*global key CANNON registerChatSocket*/
+/*global key CANNON registerChatSocket controls renderer user world gui*/
 var sendUpdateNoKey = false;
 var directonalForce = new CANNON.Vec3(0,0,0);
 //call to enable the submit button on the main page
@@ -100,7 +100,8 @@ var submitHandler = function(e) {
     scene.add(user[userName]);
     world.addBody(user[userName].phisObj);
     //scene.add(user[userName].phisMesh);
-    var nameGuiElement = gui.addTextElement(userName,(window.innerWidth / -2), (window.innerHeight / 2)  - 20,{textColor:"#262626"});
+    var nameGuiElement = gui.addTextElement(userName,(window.innerWidth / -2), (window.innerHeight / 2)  - 20,{ textColor:"#262626" });
+   
     nameGuiElement.position.x += nameGuiElement.scale.x / 2;
     document.body.appendChild(renderer.domElement);
     if ($("#fpsShow").is(":checked")) {
