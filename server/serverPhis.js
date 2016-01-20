@@ -1,5 +1,4 @@
 var CANNON = require('cannon');
-
 var  groundShape, ground;
 exports.force = {
 	up : new CANNON.Vec3(0,1,0),
@@ -34,9 +33,15 @@ exports.capsuleColider = function(radius,height,parent) {
 	parent.phisObj.addShape(parent._cylinder);
 	parent.phisObj.addShape(parent._topSphere,new CANNON.Vec3(0,0,height / 2 - radius));
 	parent.phisObj.addShape(parent._bottomSphere,new CANNON.Vec3(0,0,radius - height / 2));
-	parent.phisObj.quaternion.x += Math.PI / 2;
 	parent.phisObj.angularDamping = 1;
+  parent.phisObj.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+	parent.ray = CANNON.RaycastResult();
 	parent.updatePhis = function() {
+		this.position2 = this.position.copy().add(0,-10,0);
+		exports.world.raycastAny(this.position,this.position2,{},this.ray);
+		if(this.ray.distance > 0){
+			this.position.y += 0.1;
+		}
 		this.position.copy(this.phisObj.position);
 		this.quaternion.copy(this.phisObj.quaternion);
 	}

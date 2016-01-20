@@ -65,10 +65,17 @@ var upadtePhysics = function() {
    this.phisObj.addShape(this._cylinder);
    this.phisObj.addShape(this._topSphere,new CANNON.Vec3(0,0,height/2 - radius));
    this.phisObj.addShape(this._bottomSphere, new CANNON.Vec3(0,0,radius - height/2));
-   this.phisObj.quaternion.x += Math.PI / 2;
    this.phisObj.angularDamping = 1;
+   this.phisObj.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+   this.ray = new CANNON.RaycastResult();
    this.updatePhis = function() {
     this.position.copy(this.phisObj.position);
+     this.phisObj.position2 = this.phisObj.position.clone().add(0,-10,0);
+     world.raycastAny(this.phisObj.position,this.phisObj.position2,{},this.ray);//TODO:fix
+     if(this.ray.distance > 0)
+       {
+         this.phisObj.position.y += 0.1;
+       }
     //this.phisMesh.position.copy(this.phisObj.position);
     //this.phisMesh.quaternion.copy(this.phisObj.quaternion);
     //this.model.quaternion.copy(this.phisObj.quaternion);
@@ -109,4 +116,5 @@ CANNON.Vec3.prototype.add = function(x,y,z) {
   this.x += x;
   this.y += y;
   this.z += z;
+  return this;
 }

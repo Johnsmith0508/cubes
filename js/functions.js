@@ -1,4 +1,4 @@
-/*global key CANNON registerChatSocket controls renderer user world gui*/
+/*global key CANNON registerChatSocket controls renderer user world gui $ */
 var sendUpdateNoKey = false;
 var directonalForce = new CANNON.Vec3(0, 0, 0);
 
@@ -105,7 +105,7 @@ var preInit = function() {
     });
 
     nameGuiElement.position.x += nameGuiElement.scale.x / 2;
-    document.body.appendChild(renderer.domElement);
+    $("#threeJsRenderWindow").append(renderer.domElement);
     if ($("#fpsShow").is(":checked")) {
       document.body.appendChild(stats.domElement);
     } else {
