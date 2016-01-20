@@ -69,12 +69,13 @@ var upadtePhysics = function() {
    this.phisObj.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
    this.ray = new CANNON.RaycastResult();
    this.updatePhis = function() {
-    this.position.copy(this.phisObj.position);
+     this.position.copy(this.phisObj.position);
      this.phisObj.position2 = this.phisObj.position.clone().add(0,-10,0);
-     world.raycastAny(this.phisObj.position,this.phisObj.position2,{},this.ray);//TODO:fix
-     if(this.ray.distance > 0)
+     world.raycastAny(this.phisObj.position,this.phisObj.position2,{},this.ray);
+     if(this.ray.distance < 3)
        {
-         this.phisObj.position.y += 0.1;
+         this.phisObj.position.y += 3 - this.ray.distance;
+         this.phisObj.velocity.y = 0;
        }
     //this.phisMesh.position.copy(this.phisObj.position);
     //this.phisMesh.quaternion.copy(this.phisObj.quaternion);

@@ -35,12 +35,14 @@ exports.capsuleColider = function(radius,height,parent) {
 	parent.phisObj.addShape(parent._bottomSphere,new CANNON.Vec3(0,0,radius - height / 2));
 	parent.phisObj.angularDamping = 1;
   parent.phisObj.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
-	parent.ray = CANNON.RaycastResult();
+	parent.ray = new CANNON.RaycastResult();
 	parent.updatePhis = function() {
-		this.position2 = this.position.copy().add(0,-10,0);
-		exports.world.raycastAny(this.position,this.position2,{},this.ray);
-		if(this.ray.distance > 0){
-			this.position.y += 0.1;
+		this.phisObj.position2 = this.phisObj.position.clone().add(0,-10,0);
+		exports.world.raycastAny(this.phisObj.position,this.phisObj.position2,{},this.ray);
+		//console.log(this.ray.distance);
+		if(this.ray.distance < 3){
+			this.phisObj.position.y += 3 - this.ray.distance;
+			this.phisObj.velocity.y = 0;
 		}
 		this.position.copy(this.phisObj.position);
 		this.quaternion.copy(this.phisObj.quaternion);
@@ -63,11 +65,15 @@ exports.addPhisCube = function(parent) {
 exports.updatePhysics = function(User) {
 	exports.world.step(1 / 60);
 	for (var i in User) {
-		User[i].updatePhis();
+		if(typeof User[i].updatePhis !== "undefined") {
+			User[i].updatePhis();
+				//console.log(typeof User[i].updatePhis);
+		}
 	}
 }
 CANNON.Vec3.prototype.add = function(x,y,z) {
 	this.x += x;
 	this.y += y;
 	this.z += z;
+	return this;
 }

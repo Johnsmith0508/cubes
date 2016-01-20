@@ -124,7 +124,7 @@ exports.start = function(port) {
 	});
 
 	var mainLoop = function() {
-		physics.updatePhysics();
+		physics.updatePhysics(User);
 		for (var i in User) {
 			if (typeof User[i].phisObj === "undefined") continue;
 			if (User[i].keysBeingPressed) {
