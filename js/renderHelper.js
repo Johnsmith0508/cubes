@@ -1,4 +1,4 @@
-/*global THREE*/
+/*global THREE $ */
 function roundRect(ctx, x, y, w, h, r) {
 	ctx.beginPath();
 	ctx.moveTo(x + r, y);
@@ -13,7 +13,7 @@ function roundRect(ctx, x, y, w, h, r) {
 	ctx.closePath();
 	ctx.fill();
 	ctx.stroke();
-}$
+}
 var addText = function(text, parentObject) {
 	var canvas = document.createElement('canvas'),
 		canvasContext = canvas.getContext('2d');

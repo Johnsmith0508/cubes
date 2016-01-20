@@ -37,7 +37,7 @@ GUI.guiScene = function() {
 	/**
 	render the scene
 	@function
-	@param renderer - the THREE.js renderer that is used to render this
+	@param {THREE.renderer} renderer - the THREE.js renderer that is used to render this
 	*/
 	this.render = function(renderer) {
 		renderer.render(this.scene, this.camera);
