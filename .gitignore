@@ -3,3 +3,4 @@ node_modules/*
 js/three.js
 js/three.min.js
 out/*
+CannonDebugRenderer.js

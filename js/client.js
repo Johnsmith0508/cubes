@@ -194,6 +194,9 @@ var registerEvents = function() {
 			//console.log('meh');
 			preInit();
 		});
+		socket.on('latencyCheck',function(deltTime){
+			$("#pingDisplay").text(deltTime + "ms");
+		});
 	}
 //run init
 init();
@@ -206,6 +209,10 @@ $(function() {
 		$("#options").toggle();
 	});
 });
+setInterval(function(){
+	socket.emit('latencyCheck',new Date().getTime());
+},1000);
+
 //handle window changing size
 function onWindowResize() {
 	windowHalfX = window.innerWidth / 2;

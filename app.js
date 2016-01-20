@@ -114,6 +114,9 @@ exports.start = function(port) {
 			socket.broadcast.emit('chat message', userName + " left");
 			console.log(userName + " left");
 		});
+		socket.on('latencyCheck',function(clientTime){
+			socket.emit('latencyCheck',new Date().getTime() - clientTime);
+		});
 	});
 	
 	http.listen(port, function() {
