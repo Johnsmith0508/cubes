@@ -36,7 +36,7 @@ var addText = function(text, parentObject) {
 	var sprite = new THREE.Sprite(material);
 	sprite.scale.set(textWidth / 100, 1, 1);
 	parentObject.add(sprite);
-	sprite.position.y += 2.5;
+	sprite.position.z += 2.5;
 	console.log('1');
 	return sprite;
 }

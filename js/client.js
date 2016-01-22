@@ -11,7 +11,6 @@ var scene,guiScene , camera, renderer, objMtlLoader, JsonLoader, gui;
 /** app spesific variable */
 var chatHideDelay, userName = "", isShifted,blendMesh,testsprite;
 /** client model vars */
-var testThing;
 var cannonDebugRenderer;
 var cubeGeometry, cubeMaterial, clientCubeMaterial;
 var carGeometry, carMaterial,controls;
@@ -156,13 +155,13 @@ var registerEvents = function() {
 			if (typeof user[data.name] == "undefined" && typeof userName != "undefined") {
         //userName = data.name;
 				//user[data.name] = new PhysicsSphere();
-				user[data.name] = new CapsuleColider(1,4);
+				user[data.name] = new CapsuleColider(1,4,data.name);
 				user[data.name].position.fromArray(data.position);
 				user[data.name].rotation.fromArray(data.rotation);
 				world.addBody(user[data.name].phisObj);
 				scene.add(user[data.name].phisMesh);
 				scene.add(user[data.name]);
-				user[data.name].addText(data.name);
+				//user[data.name].addText(data.name);
 			}
 		});
 		//sent when a user leaves

@@ -37,10 +37,10 @@ exports.capsuleColider = function(radius,height,parent) {
   parent.phisObj.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
 	parent.ray = new CANNON.RaycastResult();
 	parent.updatePhis = function() {
-		this.phisObj.position2 = this.phisObj.position.clone().add(0,-10,0);
+		this.phisObj.position2 = this.phisObj.position.clone().add(0,-20,0);
 		exports.world.raycastAny(this.phisObj.position,this.phisObj.position2,{},this.ray);
 		//console.log(this.ray.distance);
-		if(this.ray.distance < 3){
+		if(this.ray.distance < 3 && this.ray.distance != 1){
 			this.phisObj.position.y += 3 - this.ray.distance;
 			this.phisObj.velocity.y = 0;
 		}
