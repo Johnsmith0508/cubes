@@ -133,8 +133,8 @@ var mainLoop = function() {
     sendUpdateNoKey = true;
     socket.emit('keys pressed', key);
   } else if (userName.length > 0) {
-    user[userName].phisObj.angularVelocity.x *= 0.75;
-    user[userName].phisObj.angularVelocity.z *= 0.75;
+    user[userName].phisObj.velocity.x *= 0.75;
+    user[userName].phisObj.velocity.z *= 0.75;
     if (sendUpdateNoKey) {
       sendUpdateNoKey = false;
       socket.emit('keys pressed', key);

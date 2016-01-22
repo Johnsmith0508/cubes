@@ -67,6 +67,7 @@ var upadtePhysics = function() {
    this.phisObj.addShape(this._bottomSphere, new CANNON.Vec3(0,0,radius - height/2));
    this.phisObj.angularDamping = 1;
    this.phisObj.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+   console.log('2');
    this.ray = new CANNON.RaycastResult();
    this.updatePhis = function() {
      this.position.copy(this.phisObj.position);
@@ -81,7 +82,9 @@ var upadtePhysics = function() {
     //this.phisMesh.quaternion.copy(this.phisObj.quaternion);
     //this.model.quaternion.copy(this.phisObj.quaternion);
   }
-  
+   this.addText = function(text) {
+    addText(text, this);
+   }
  }
 CapsuleColider.prototype = Object.create( THREE.Object3D.prototype );
 CapsuleColider.prototype.constructor = CapsuleColider;

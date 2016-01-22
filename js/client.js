@@ -194,8 +194,9 @@ var registerEvents = function() {
 			//console.log('meh');
 			preInit();
 		});
-		socket.on('latencyCheck',function(deltTime){
-			$("#pingDisplay").text(deltTime + "ms");
+		socket.on('latencyCheck',function(oldTime){
+			var time = new Date().getTime();
+			$("#pingDisplay").text(Math.floor((time - oldTime)/2) + "ms");
 		});
 	}
 //run init

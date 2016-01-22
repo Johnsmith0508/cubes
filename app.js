@@ -115,7 +115,7 @@ exports.start = function(port) {
 			console.log(userName + " left");
 		});
 		socket.on('latencyCheck',function(clientTime){
-			socket.emit('latencyCheck',new Date().getTime() - clientTime);
+			socket.emit('latencyCheck',clientTime);
 		});
 	});
 	
@@ -128,8 +128,8 @@ exports.start = function(port) {
 		for (var i in User) {
 			if (typeof User[i].phisObj === "undefined") continue;
 			if (User[i].keysBeingPressed) {
-				User[i].phisObj.angularVelocity.x *= 0.75;
-				User[i].phisObj.angularVelocity.z *= 0.75;
+				User[i].phisObj.velocity.x *= 0.75;
+				User[i].phisObj.velocity.z *= 0.75;
 			} else {
 				User[i].directionalForce.setZero();
 				if (User[i].key.w) User[i].directionalForce.add(-Math.sin(User[i].key.angle), 0, -Math.cos(User[i].key.angle));
