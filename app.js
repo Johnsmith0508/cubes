@@ -6,6 +6,11 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var THREE = require('three');
 var CANNON = require('cannon');
+
+//redis
+var redis = require('redis');
+var redisClient = redis.createClient();
+
 var User = {};
 Object.prototype.size = function() {
 	var size = 0,
@@ -23,6 +28,7 @@ Object.prototype.allFalse = function() {
 	return true;
 }
 exports.start = function(port) {
+	redisClient.on("error",function(err){console.log(err);});
 	physics.initCannon();
 	app.use(express.static(__dirname + '/'));
 	app.get('/', function(req, res) {
@@ -76,6 +82,11 @@ exports.start = function(port) {
 				position: User[user.name].position.toArray(),
 				rotation: User[user.name].rotation.toArray()
 			});
+			redisClient.hgetall("cubeuser:"+userName ,function(err,obj){
+				if(obj !== null) {
+					User[userName].phisObj.position.set(parseInt(obj.x),parseInt(obj.y),parseInt(obj.z));
+				}
+			});
 			socket.broadcast.emit('chat message', user.name + " Joined!");
 		});
 		socket.on('keys pressed', function(keys) {
@@ -107,6 +118,9 @@ exports.start = function(port) {
 		
 		socket.on('disconnect', function() {
 			if (typeof User[userName] !== "undefined") {
+				redisClient.hset("cubeuser:"+userName,'x',User[userName].position.x);
+				redisClient.hset("cubeuser:"+userName,'y',User[userName].position.y);
+				redisClient.hset("cubeuser:"+userName,'z',User[userName].position.z);
 				physics.world.removeBody(User[userName].phisObj);
 				//physics.world.removeBody("test");
 				delete User[userName];
