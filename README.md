@@ -5,7 +5,7 @@ _Copyright (c) 2015 Logan Waldman All Rights Reserved._
 How To Run
 ----------
 requires:
-`npm` & `node.js`
+`npm` , `node.js` & `redis.io`
 
 To begin: `npm install`
 to install all required libraries.
