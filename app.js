@@ -47,6 +47,7 @@ exports.start = function(port) {
 			User[user.name].sid = socket.id;
 			User[user.name].model = user.model;
 			User[user.name].directionalForce = new CANNON.Vec3(0, 0, 0);
+			User[user.name].jumpForce = new CANNON.Vec3(0,10,0);
 			User[userName].key = {
 				w: false,
 				a: false,
@@ -136,7 +137,10 @@ exports.start = function(port) {
 				if (User[i].key.s) User[i].directionalForce.add(Math.sin(User[i].key.angle), 0, Math.cos(User[i].key.angle));
 				if (User[i].key.a) User[i].directionalForce.add(-Math.sin(User[i].key.angle + Math.PI/2), 0, -Math.cos(User[i].key.angle + Math.PI/2));
 				if (User[i].key.d) User[i].directionalForce.add(Math.sin(User[i].key.angle + Math.PI/2), 0, Math.cos(User[i].key.angle + Math.PI/2));
-				if (User[i].key.space) User[i].directionalForce.add(0,0.25,0);
+				if (User[i].key.space && User[i].canJump) {
+					User[i].phisObj.applyImpulse(User[i].jumpForce,User[i].phisObj.position);
+					User[i].canJump = false;
+				}
 				if (User[i].key.shift) User[i].directionalForce.add(0,-0.25,0);
 				User[i].directionalForce.normalize();
 				User[i].phisObj.applyImpulse(User[i].directionalForce, User[i].phisObj.position);

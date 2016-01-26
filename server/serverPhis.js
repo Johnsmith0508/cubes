@@ -30,6 +30,8 @@ exports.capsuleColider = function(radius,height,parent) {
 	parent._bottomSphere = new CANNON.Sphere(radius);
 	parent._cylinder = new CANNON.Cylinder(radius,radius,height- radius*2,16);
 	parent.phisObj = new CANNON.Body({mass:1});
+	parent.canJump = true;
+	
 	parent.phisObj.addShape(parent._cylinder);
 	parent.phisObj.addShape(parent._topSphere,new CANNON.Vec3(0,0,height / 2 - radius));
 	parent.phisObj.addShape(parent._bottomSphere,new CANNON.Vec3(0,0,radius - height / 2));
@@ -43,6 +45,7 @@ exports.capsuleColider = function(radius,height,parent) {
 		if(this.ray.distance < 3 && this.ray.distance != 1){
 			this.phisObj.position.y += 3 - this.ray.distance;
 			this.phisObj.velocity.y = 0;
+			this.canJump = true;
 		}
 		this.position.copy(this.phisObj.position);
 		this.quaternion.copy(this.phisObj.quaternion);

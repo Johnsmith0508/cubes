@@ -1,6 +1,8 @@
 /*global key CANNON registerChatSocket controls renderer user world gui $ */
 var sendUpdateNoKey = false;
 var directonalForce = new CANNON.Vec3(0, 0, 0);
+var jumpForce = new CANNON.Vec3(0,10,0);
+var canJump = true;
 
 //handles the sending of keys to the server
 var buttonHandler = function(keyPressed, status) {
@@ -120,7 +122,7 @@ var mainLoop = function() {
   if (key.s) directonalForce.add(Math.sin(key.angle), 0, Math.cos(key.angle));
   if (key.a) directonalForce.add(-Math.sin(key.angle + Math.PI / 2), 0, -Math.cos(key.angle + Math.PI / 2));
   if (key.d) directonalForce.add(Math.sin(key.angle + Math.PI / 2), 0, Math.cos(key.angle + Math.P / 2));
-  if (key.space) directonalForce.add(0, 0.25, 0);
+  if (key.space && canJump) {user[userName].phisObj.applyImpulse(jumpForce,user[userName].phisObj.position); canJump = false;}
   if (key.shift) directonalForce.add(0, -0.25, 0);
   directonalForce.normalize();
   //if (key.q) user[userName].rotation.y += 0.1;

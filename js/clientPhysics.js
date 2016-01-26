@@ -79,6 +79,7 @@ var upadtePhysics = function() {
        {
          this.phisObj.position.y += 3 - this.ray.distance;
          this.phisObj.velocity.y = 0;
+         canJump = true;
        }
     this.phisMesh.position.copy(this.phisObj.position);
     this.phisMesh.quaternion.copy(this.phisObj.quaternion);
