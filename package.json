@@ -2,16 +2,26 @@
   "name": "cubes",
   "version": "1.2.95",
   "description": "a cube 'game' in javascript",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/johnsmith050/cubes"
+  },
+  "bugs": {
+    "url": "https://github.com/johnsmith050/cubes/issues"
+  },
   "dependencies": {
     "cannon": "^0.6.2",
     "express": "^4.13.3",
     "mysql": "^2.10.2",
-    "pact": "^0.1.2",
     "redis": "^2.4.2",
     "socket.io": "^1.3.7",
     "three": "^0.73.0"
   },
   "devDependencies": {
     "zombie": "^4.1.0"
-  }
+  },
+  "private": true
 }
