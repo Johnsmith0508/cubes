@@ -4,4 +4,4 @@ js/three.js
 js/three.min.js
 out/*
 CannonDebugRenderer.js
-config.js
+config.json

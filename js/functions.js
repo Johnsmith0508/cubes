@@ -24,12 +24,11 @@ var getCookies = function() {
   return cookies;
 }
 
-function getCookie(name) {
+var getCookie = function(name) {
   return getCookies()[name];
 }
 
-/*global THREE $ */
-function roundRect(ctx, x, y, w, h, r) {
+var roundRect = function(ctx, x, y, w, h, r) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
   ctx.lineTo(x + w - r, y);
@@ -44,6 +43,7 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.fill();
   ctx.stroke();
 }
+
 var addText = function(text, parentObject) {
   var canvas = document.createElement('canvas'),
     canvasContext = canvas.getContext('2d');
@@ -69,4 +69,10 @@ var addText = function(text, parentObject) {
   sprite.position.z += 2.5;
   console.log('1');
   return sprite;
+}
+
+var loadJson = function(url) {
+  var response = "";
+  $.ajaxSetup( { "async": false } );
+  return $.getJSON(url).responseJSON;
 }

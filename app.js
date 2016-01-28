@@ -9,14 +9,14 @@ var THREE = require('three');
 var CANNON = require('cannon');
 var mysql = require('mysql');
 //redis
-var connection = mysql.createConnection({
-	host : config.mysql.hostname,
-	user : config.mysql.username,
-	password : config.mysql.password,
-	database : config.mysql.database
-});
-var redis = require('redis');
-var redisClient = redis.createClient();
+var connection = config.server.enableMysql ? mysql.createConnection({
+	host: config.server.mysql.hostname,
+	user: config.server.mysql.username,
+	password: config.server.mysql.password,
+	database: config.server.mysql.database
+}) : null;
+var redis = config.server.enableRedis ? require('redis') : null;
+var redisClient = config.server.enableRedis ? redis.createClient() : null;
 
 var User = {};
 Object.prototype.size = function() {
@@ -35,8 +35,10 @@ Object.prototype.allFalse = function() {
 	return true;
 }
 exports.start = function(port) {
-	redisClient.on("error",function(err){console.log(err);});
-	connection.connect();
+	if (config.server.enableRedis) redisClient.on("error", function(err) {
+		console.log(err);
+	});
+	if (config.server.enableMysql) connection.connect();
 	physics.initCannon();
 	app.use(express.static(__dirname + '/'));
 	app.get('/', function(req, res) {
@@ -61,7 +63,7 @@ exports.start = function(port) {
 			User[user.name].sid = socket.id;
 			User[user.name].model = user.model;
 			User[user.name].directionalForce = new CANNON.Vec3(0, 0, 0);
-			User[user.name].jumpForce = new CANNON.Vec3(0,10,0);
+			User[user.name].jumpForce = new CANNON.Vec3(0, 10, 0);
 			User[userName].key = {
 				w: false,
 				a: false,
@@ -82,7 +84,7 @@ exports.start = function(port) {
 					rotation: User[i].rotation.toArray()
 				});
 			}
-			physics.capsuleColider(1,4,User[userName]);
+			physics.capsuleColider(1, 4, User[userName]);
 			physics.world.addBody(User[userName].phisObj);
 			socket.broadcast.emit('user joined', {
 				name: user.name,
@@ -90,17 +92,20 @@ exports.start = function(port) {
 				position: User[user.name].position.toArray(),
 				rotation: User[user.name].rotation.toArray()
 			});
-			connection.query('SELECT * FROM ' + config.mysql.table,function(err,rows,fields){
-				for(var i = 0;i < rows.length; i++)
-					{
-						if(rows[i].username == user.cookieName) User[userName].posSaved = true;
+			if (config.server.enableMysql) {
+				connection.query('SELECT * FROM ' + config.mysql.table, function(err, rows, fields) {
+					for (var i = 0; i < rows.length; i++) {
+						if (rows[i].username == user.cookieName) User[userName].posSaved = true;
 					}
-			});
-			redisClient.hgetall("cubeuser:"+userName ,function(err,obj){
-				if(obj !== null) {
-					User[userName].phisObj.position.set(parseInt(obj.x),parseInt(obj.y),parseInt(obj.z));
-				}
-			});
+				});
+			}
+			if (config.server.enableRedis) {
+				redisClient.hgetall("cubeuser:" + userName, function(err, obj) {
+					if (obj !== null) {
+						User[userName].phisObj.position.set(parseInt(obj.x), parseInt(obj.y), parseInt(obj.z));
+					}
+				});
+			}
 			socket.broadcast.emit('chat message', user.name + " Joined!");
 		});
 		socket.on('keys pressed', function(keys) {
@@ -127,12 +132,14 @@ exports.start = function(port) {
 			socket.broadcast.emit('chat message', userName + " : " + message);
 			socket.emit('chat message', userName + " : " + message);
 		});
-		
+
 		socket.on('disconnect', function() {
 			if (typeof User[userName] !== "undefined" && User[userName].posSaved) {
-				redisClient.hset("cubeuser:"+userName,'x',User[userName].position.x);
-				redisClient.hset("cubeuser:"+userName,'y',User[userName].position.y);
-				redisClient.hset("cubeuser:"+userName,'z',User[userName].position.z);
+				if (config.server.enableRedis) {
+					redisClient.hset("cubeuser:" + userName, 'x', User[userName].position.x);
+					redisClient.hset("cubeuser:" + userName, 'y', User[userName].position.y);
+					redisClient.hset("cubeuser:" + userName, 'z', User[userName].position.z);
+				}
 				physics.world.removeBody(User[userName].phisObj);
 				//physics.world.removeBody("test");
 				delete User[userName];
@@ -141,11 +148,11 @@ exports.start = function(port) {
 			socket.broadcast.emit('chat message', userName + " left");
 			console.log(userName + " left");
 		});
-		socket.on('latencyCheck',function(clientTime){
-			socket.emit('latencyCheck',clientTime);
+		socket.on('latencyCheck', function(clientTime) {
+			socket.emit('latencyCheck', clientTime);
 		});
 	});
-	
+
 	http.listen(port, function() {
 		console.log('listening on ' + port);
 	});
@@ -161,13 +168,13 @@ exports.start = function(port) {
 				User[i].directionalForce.setZero();
 				if (User[i].key.w) User[i].directionalForce.add(-Math.sin(User[i].key.angle), 0, -Math.cos(User[i].key.angle));
 				if (User[i].key.s) User[i].directionalForce.add(Math.sin(User[i].key.angle), 0, Math.cos(User[i].key.angle));
-				if (User[i].key.a) User[i].directionalForce.add(-Math.sin(User[i].key.angle + Math.PI/2), 0, -Math.cos(User[i].key.angle + Math.PI/2));
-				if (User[i].key.d) User[i].directionalForce.add(Math.sin(User[i].key.angle + Math.PI/2), 0, Math.cos(User[i].key.angle + Math.PI/2));
+				if (User[i].key.a) User[i].directionalForce.add(-Math.sin(User[i].key.angle + Math.PI / 2), 0, -Math.cos(User[i].key.angle + Math.PI / 2));
+				if (User[i].key.d) User[i].directionalForce.add(Math.sin(User[i].key.angle + Math.PI / 2), 0, Math.cos(User[i].key.angle + Math.PI / 2));
 				if (User[i].key.space && User[i].canJump) {
-					User[i].phisObj.applyImpulse(User[i].jumpForce,User[i].phisObj.position);
+					User[i].phisObj.applyImpulse(User[i].jumpForce, User[i].phisObj.position);
 					User[i].canJump = false;
 				}
-				if (User[i].key.shift) User[i].directionalForce.add(0,-0.25,0);
+				if (User[i].key.shift) User[i].directionalForce.add(0, -0.25, 0);
 				User[i].directionalForce.normalize();
 				User[i].phisObj.applyImpulse(User[i].directionalForce, User[i].phisObj.position);
 			}

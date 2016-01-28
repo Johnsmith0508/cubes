@@ -1,0 +1,19 @@
+{
+  "client" : {
+    "defaultServer" : "//example.com"
+  },
+  "server" : {
+    
+    "port" : 3000,
+    "enableRedis" : true,
+    "enableMysql" : true,
+    
+    "mysql" : {
+      "hostname" : "localhost",
+      "username" : "username",
+      "password" : "password",
+      "database" : "my_db",
+      "table"    : "users"
+    }
+  }
+}

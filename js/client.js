@@ -30,7 +30,7 @@ var sendUpdateNoKey = true;
 var directonalForce = new CANNON.Vec3(0, 0, 0);
 var jumpForce = new CANNON.Vec3(0, 10, 0);
 var canJump = true;
-
+var config = loadJson('./config.json');
 //handles the sending of keys to the server
 var buttonHandler = function(keyPressed, status) {
 	if (keyPressed.target === $(".chat")) return;
@@ -343,7 +343,7 @@ init();
 animate();
 //toggles hiding/showing options pannel
 $(function() {
-	$("#server").val(defaultServer);
+	$("#server").val(config.client.defaultServer);
 	$("#opts").on('click', function() {
 		$("#options").toggle();
 	});
