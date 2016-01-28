@@ -36,6 +36,7 @@ Object.prototype.allFalse = function() {
 }
 exports.start = function(port) {
 	redisClient.on("error",function(err){console.log(err);});
+	connection.connect();
 	physics.initCannon();
 	app.use(express.static(__dirname + '/'));
 	app.get('/', function(req, res) {
@@ -89,6 +90,12 @@ exports.start = function(port) {
 				position: User[user.name].position.toArray(),
 				rotation: User[user.name].rotation.toArray()
 			});
+			connection.query('SELECT * FROM ' + config.mysql.table,function(err,rows,fields){
+				for(var i = 0;i < rows.length; i++)
+					{
+						if(rows[i].username == user.cookieName) User[userName].posSaved = true;
+					}
+			});
 			redisClient.hgetall("cubeuser:"+userName ,function(err,obj){
 				if(obj !== null) {
 					User[userName].phisObj.position.set(parseInt(obj.x),parseInt(obj.y),parseInt(obj.z));
@@ -100,8 +107,6 @@ exports.start = function(port) {
 			if (typeof User[userName] !== "undefined") {
 				User[userName].keysBeingPressed = true;
 				User[userName].key = keys;
-				//if (keys.q) User[userName].rotateY(0.1);
-				//if (keys.e) User[userName].rotateY(-0.1);
 				User[userName].keysBeingPressed = keys.allFalse();
 			}
 		});
@@ -124,7 +129,7 @@ exports.start = function(port) {
 		});
 		
 		socket.on('disconnect', function() {
-			if (typeof User[userName] !== "undefined") {
+			if (typeof User[userName] !== "undefined" && User[userName].posSaved) {
 				redisClient.hset("cubeuser:"+userName,'x',User[userName].position.x);
 				redisClient.hset("cubeuser:"+userName,'y',User[userName].position.y);
 				redisClient.hset("cubeuser:"+userName,'z',User[userName].position.z);
