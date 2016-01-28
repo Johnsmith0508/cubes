@@ -1,13 +1,20 @@
 var physics = require('./server/serverPhis.js');
 var socketProxy = require('./server/socketProxy.js');
+var config = require('./config');
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var THREE = require('three');
 var CANNON = require('cannon');
-
+var mysql = require('mysql');
 //redis
+var connection = mysql.createConnection({
+	host : config.mysql.hostname,
+	user : config.mysql.username,
+	password : config.mysql.password,
+	database : config.mysql.database
+});
 var redis = require('redis');
 var redisClient = redis.createClient();
 

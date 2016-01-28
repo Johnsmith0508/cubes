@@ -6,11 +6,11 @@ if (typeof exports !== "undefined")
   exports.mysql = {};
   
   //MYSQL config
-  exports.mysql.username = 'blag';
-  exports.mysql.password = 'wordpass';
+  exports.mysql.username = 'username';
+  exports.mysql.password = 'password';
   exports.mysql.hostname = 'localhost';
-  exports.mysql.database = 'site';
-  exports.mysql.table = 'login';
+  exports.mysql.database = 'my_db';
+  exports.mysql.table = 'users';
 } else {
   
 /**
