@@ -16,6 +16,6 @@ if (typeof exports !== "undefined")
 /**
 * BEGIN Client Config
 */
-var defaultServer = "//dynalogic.org/node";
+var defaultServer = "//example.com/game";
 
 }
