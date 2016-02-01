@@ -128,7 +128,8 @@ var submitHandler = function() {
 		socket.emit('create user', {
 			name: $("#name").val(),
 			model: modelType,
-			cookie: getCookie('login')
+			cookie: getCookie('login'),
+			hashedPassword: getCookie('hashpass')
 		});
 	}
 }
@@ -344,6 +345,10 @@ animate();
 //toggles hiding/showing options pannel
 $(function() {
 	$("#server").val(config.client.defaultServer);
+	if(getCookie('login'))
+	{
+		$("#name").hide().val(getCookie('login'));
+	}
 	$("#opts").on('click', function() {
 		$("#options").toggle();
 	});

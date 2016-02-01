@@ -59,11 +59,22 @@ exports.start = function(port) {
 			socket /*.broadcast.to(socket.id)*/ .emit('user created');
 			console.log(user.name + " joined " + socket.id);
 			userName = user.name;
-			User[user.name] = new THREE.Object3D();
-			User[user.name].sid = socket.id;
-			User[user.name].model = user.model;
-			User[user.name].directionalForce = new CANNON.Vec3(0, 0, 0);
-			User[user.name].jumpForce = new CANNON.Vec3(0, 10, 0);
+			if (config.server.enableMysql) {
+				connection.query('SELECT * FROM ' + config.server.mysql.table, function(err, rows, fields) {
+					for (var i = 0; i < rows.length; i++) {
+						if (rows[i].Username == user.cookie && rows[i].Password == user.hashedPassword){
+							userName = user.cookie;
+							User[userName].posSaved = true;
+							break;
+						}
+					}
+				});
+			}
+			User[userName] = new THREE.Object3D();
+			User[userName].sid = socket.id;
+			User[userName].model = user.model;
+			User[userName].directionalForce = new CANNON.Vec3(0, 0, 0);
+			User[userName].jumpForce = new CANNON.Vec3(0, 10, 0);
 			User[userName].key = {
 				w: false,
 				a: false,
@@ -92,13 +103,7 @@ exports.start = function(port) {
 				position: User[user.name].position.toArray(),
 				rotation: User[user.name].rotation.toArray()
 			});
-			if (config.server.enableMysql) {
-				connection.query('SELECT * FROM ' + config.mysql.table, function(err, rows, fields) {
-					for (var i = 0; i < rows.length; i++) {
-						if (rows[i].username == user.cookieName) User[userName].posSaved = true;
-					}
-				});
-			}
+			
 			if (config.server.enableRedis) {
 				redisClient.hgetall("cubeuser:" + userName, function(err, obj) {
 					if (obj !== null) {
@@ -134,8 +139,8 @@ exports.start = function(port) {
 		});
 
 		socket.on('disconnect', function() {
-			if (typeof User[userName] !== "undefined" && User[userName].posSaved) {
-				if (config.server.enableRedis) {
+			if (typeof User[userName] !== "undefined") {
+				if (config.server.enableRedis && User[userName].posSaved) {
 					redisClient.hset("cubeuser:" + userName, 'x', User[userName].position.x);
 					redisClient.hset("cubeuser:" + userName, 'y', User[userName].position.y);
 					redisClient.hset("cubeuser:" + userName, 'z', User[userName].position.z);
