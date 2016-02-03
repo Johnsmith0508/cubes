@@ -13,7 +13,7 @@ Then `node main.js` to start the server. Now, just point your browser to `loacal
 
 Configuration
 -------------
-The only current configuration is to change the environment variable `PORT` to the port that you want the server to listen on.
+See [the Wiki](https://github.com/Johnsmith0508/cubes/wiki/configuration)
 
 Note About Versioning
 ---------------------
