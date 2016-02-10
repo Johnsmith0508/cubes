@@ -53,43 +53,45 @@ var upadtePhysics = function() {
   }
 }
 
- var CapsuleColider = function(radius, height,name) {
-   
-   THREE.Object3D.call(this);
-   
-   this._topSphere = new CANNON.Sphere(radius);
-   this._bottomSphere = new CANNON.Sphere(radius);
-   this._cylinder = new CANNON.Cylinder(radius,radius,height - radius*2,16);
-   this.phisObj = new CANNON.Body({ mass:1 });
-   this.phisMesh = new THREE.Mesh(cubeGeom,cubeMesh);
-   
-   this.phisObj.addShape(this._cylinder);
-   this.phisObj.addShape(this._topSphere,new CANNON.Vec3(0,0,height/2 - radius));
-   this.phisObj.addShape(this._bottomSphere, new CANNON.Vec3(0,0,radius - height/2));
-   this.phisObj.angularDamping = 1;
-   this.phisObj.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
-   this.ray = new CANNON.RaycastResult();
-   addText(name,this.phisMesh);
-   
-   this.updatePhis = function() {
-     this.position.copy(this.phisObj.position);
-     this.phisObj.position2 = this.phisObj.position.clone().add(0,-20,0);
-     world.raycastAny(this.phisObj.position,this.phisObj.position2,{},this.ray);
-     if(this.ray.distance < 3 && this.ray.distance != 1)
-       {
-         this.phisObj.position.y += 3 - this.ray.distance;
-         this.phisObj.velocity.y = 0;
-         canJump = true;
-       }
+var CapsuleColider = function(radius, height, name) {
+
+  THREE.Object3D.call(this);
+
+  this._topSphere = new CANNON.Sphere(radius);
+  this._bottomSphere = new CANNON.Sphere(radius);
+  this._cylinder = new CANNON.Cylinder(radius, radius, height - radius * 2, 16);
+  this.phisObj = new CANNON.Body({
+    mass: 1
+  });
+  this.phisMesh = new THREE.Mesh(cubeGeom, cubeMesh);
+  this._height = height;
+
+  this.phisObj.addShape(this._cylinder);
+  this.phisObj.addShape(this._topSphere, new CANNON.Vec3(0, 0, height / 2 - radius));
+  this.phisObj.addShape(this._bottomSphere, new CANNON.Vec3(0, 0, radius - height / 2));
+  this.phisObj.angularDamping = 1;
+  this.phisObj.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+  this.ray = new CANNON.RaycastResult();
+  addText(name, this.phisMesh);
+
+  this.updatePhis = function() {
+    this.position.copy(this.phisObj.position);
+    this.phisObj.position2 = this.phisObj.position.clone().add(0, -20, 0);
+    this.phisObj.bottomPosition = this.phisObj.position.clone().add(0, this._height / -2 - 0.1, 0);
+    world.raycastClosest(this.phisObj.bottomPosition, this.phisObj.position2, {}, this.ray);
+    if (this.ray.distance < 1 && this.ray.distance != -1) {
+      this.phisObj.position.y += 1 - this.ray.distance;
+      this.phisObj.velocity.y = 0;
+      if (name == userName) canJump = true;
+    }
     this.phisMesh.position.copy(this.phisObj.position);
     this.phisMesh.quaternion.copy(this.phisObj.quaternion);
-    //this.model.quaternion.copy(this.phisObj.quaternion);
   }
-   this.addText = function(text) {
+  this.addText = function(text) {
     addText(text, this);
-   }
- }
-CapsuleColider.prototype = Object.create( THREE.Object3D.prototype );
+  }
+}
+CapsuleColider.prototype = Object.create(THREE.Object3D.prototype);
 CapsuleColider.prototype.constructor = CapsuleColider;
 
 var PhysicsSphere = function() {
@@ -116,10 +118,10 @@ var PhysicsSphere = function() {
     addText(text, this);
   }
 }
-PhysicsSphere.prototype = Object.create( THREE.Object3D.prototype );
+PhysicsSphere.prototype = Object.create(THREE.Object3D.prototype);
 PhysicsSphere.prototype.constructor = PhysicsSphere;
 
-CANNON.Vec3.prototype.add = function(x,y,z) {
+CANNON.Vec3.prototype.add = function(x, y, z) {
   this.x += x;
   this.y += y;
   this.z += z;

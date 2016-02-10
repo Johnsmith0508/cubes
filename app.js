@@ -1,6 +1,6 @@
 var physics = require('./server/serverPhis.js');
 var socketProxy = require('./server/socketProxy.js');
-var config = require('./config');
+var config = require('./config').server;
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
@@ -9,14 +9,14 @@ var THREE = require('three');
 var CANNON = require('cannon');
 var mysql = require('mysql');
 //redis
-var connection = config.server.enableMysql ? mysql.createConnection({
-	host: config.server.mysql.hostname,
-	user: config.server.mysql.username,
-	password: config.server.mysql.password,
-	database: config.server.mysql.database
+var connection = config.enableMysql ? mysql.createConnection({
+	host: config.mysql.hostname,
+	user: config.mysql.username,
+	password: config.mysql.password,
+	database: config.mysql.database
 }) : null;
-var redis = config.server.enableRedis ? require('redis') : null;
-var redisClient = config.server.enableRedis ? redis.createClient() : null;
+var redis = config.enableRedis ? require('redis') : null;
+var redisClient = config.enableRedis ? redis.createClient() : null;
 
 var User = {};
 Object.prototype.size = function() {
@@ -35,10 +35,10 @@ Object.prototype.allFalse = function() {
 	return true;
 }
 exports.start = function(port) {
-	if (config.server.enableRedis) redisClient.on("error", function(err) {
+	if (config.enableRedis) redisClient.on("error", function(err) {
 		console.log(err);
 	});
-	if (config.server.enableMysql) connection.connect();
+	if (config.enableMysql) connection.connect();
 	physics.initCannon();
 	app.use(express.static(__dirname + '/'));
 	app.get('/', function(req, res) {
@@ -57,12 +57,12 @@ exports.start = function(port) {
 				}
 			}
 			socket /*.broadcast.to(socket.id)*/ .emit('user created');
-			console.log(user.name + " joined " + socket.id);
+			console.log(user.name + " joined ");
 			userName = user.name;
-			if (config.server.enableMysql) {
-				connection.query('SELECT * FROM ' + config.server.mysql.table, function(err, rows, fields) {
+			if (config.enableMysql) {
+				connection.query('SELECT * FROM ' + config.mysql.table, function(err, rows, fields) {
 					for (var i = 0; i < rows.length; i++) {
-						if (rows[i].Username == user.cookie && rows[i].Password == user.hashedPassword){
+						if (rows[i].Username == user.cookie && rows[i].Password == user.hashedPassword) {
 							userName = user.cookie;
 							User[userName].posSaved = true;
 							break;
@@ -103,8 +103,8 @@ exports.start = function(port) {
 				position: User[user.name].position.toArray(),
 				rotation: User[user.name].rotation.toArray()
 			});
-			
-			if (config.server.enableRedis) {
+
+			if (config.enableRedis) {
 				redisClient.hgetall("cubeuser:" + userName, function(err, obj) {
 					if (obj !== null) {
 						User[userName].phisObj.position.set(parseInt(obj.x), parseInt(obj.y), parseInt(obj.z));
@@ -140,13 +140,12 @@ exports.start = function(port) {
 
 		socket.on('disconnect', function() {
 			if (typeof User[userName] !== "undefined") {
-				if (config.server.enableRedis && User[userName].posSaved) {
+				if (config.enableRedis && User[userName].posSaved) {
 					redisClient.hset("cubeuser:" + userName, 'x', User[userName].position.x);
 					redisClient.hset("cubeuser:" + userName, 'y', User[userName].position.y);
 					redisClient.hset("cubeuser:" + userName, 'z', User[userName].position.z);
 				}
 				physics.world.removeBody(User[userName].phisObj);
-				//physics.world.removeBody("test");
 				delete User[userName];
 			}
 			socket.broadcast.emit('user left', userName);
@@ -183,7 +182,6 @@ exports.start = function(port) {
 				User[i].directionalForce.normalize();
 				User[i].phisObj.applyImpulse(User[i].directionalForce, User[i].phisObj.position);
 			}
-			//if(User[i].phisObj.velocity.x <= 0.001 && User[i].phisObj.velocity.z <= 0.001) {User[i].phisObj.angularDamping = 1;} else {User[i].angularDamping = 0;}
 			socketProxy.sendSyncPhisUpdate(io, i, User[i].phisObj.position.toArray(), User[i].phisObj.velocity.toArray(), User[i].phisObj.quaternion.toArray());
 		}
 	}

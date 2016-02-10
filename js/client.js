@@ -74,20 +74,16 @@ var registerEvents = function() {
 		//called when a user joins the server
 		socket.on('user joined', function(data) {
 			if (typeof user[data.name] == "undefined" && typeof userName != "undefined") {
-				//userName = data.name;
-				//user[data.name] = new PhysicsSphere();
 				user[data.name] = new CapsuleColider(1, 4, data.name);
 				user[data.name].position.fromArray(data.position);
 				user[data.name].rotation.fromArray(data.rotation);
 				world.addBody(user[data.name].phisObj);
 				scene.add(user[data.name].phisMesh);
 				scene.add(user[data.name]);
-				//user[data.name].addText(data.name);
 			}
 		});
 		//sent when a user leaves
 		socket.on('user left', function(name) {
-			//console.log(name);
 			scene.remove(user[name]);
 			scene.remove(user[name].phisMesh);
 			world.removeBody(user[name].phisObj);
@@ -96,7 +92,6 @@ var registerEvents = function() {
 		//meh
 		socket.on('physics change', function(data) {
 			if (typeof user[userName] !== "undefined") {
-				//console.log(data);
 				user[data.name].phisObj.position.set(data.position.x, data.position.y, data.position.z);
 				user[data.name].phisObj.velocity.set(data.velocity.x, data.velocity.y, data.velocity.z);
 				user[data.name].phisObj.quaternion.set(data.quaternion.x, data.quaternion.y, data.quaternion.z, data.quaternion.w);
@@ -110,7 +105,6 @@ var registerEvents = function() {
 			}
 		});
 		socket.on('user created', function() {
-			//console.log('meh');
 			preInit();
 		});
 		socket.on('latencyCheck', function(oldTime) {
@@ -148,20 +142,16 @@ var registerSubmitButton = function() {
 var mainLoop = function() {
 	key.angle = controls.getAzimuthalAngle();
 	directonalForce.setZero();
-	if (key.w) directonalForce.add(-Math.sin(key.angle), 0, -Math.cos(key.angle));
-	if (key.s) directonalForce.add(Math.sin(key.angle), 0, Math.cos(key.angle));
-	if (key.a) directonalForce.add(-Math.sin(key.angle + Math.PI / 2), 0, -Math.cos(key.angle + Math.PI / 2));
-	if (key.d) directonalForce.add(Math.sin(key.angle + Math.PI / 2), 0, Math.cos(key.angle + Math.P / 2));
+	if (key.w) {directonalForce.add(-Math.sin(key.angle), 0, -Math.cos(key.angle));}else{directonalForce.add(Math.sin(key.angle), 0, Math.cos(key.angle));}
+	if (key.s) {directonalForce.add(Math.sin(key.angle), 0, Math.cos(key.angle));}else{directonalForce.add(-Math.sin(key.angle), 0, -Math.cos(key.angle));}
+	if (key.a) {directonalForce.add(-Math.sin(key.angle + Math.PI / 2), 0, -Math.cos(key.angle + Math.PI / 2));}else{directonalForce.add(Math.sin(key.angle + Math.PI / 2), 0, Math.cos(key.angle + Math.PI / 2));}
+	if (key.d) {directonalForce.add(Math.sin(key.angle + Math.PI / 2), 0, Math.cos(key.angle + Math.P / 2));}else{directonalForce.add(-Math.sin(key.angle + Math.PI / 2), 0, -Math.cos(key.angle + Math.P / 2));}	
 	if (key.space && canJump) {
 		user[userName].phisObj.applyImpulse(jumpForce, user[userName].phisObj.position);
 		canJump = false;
 	}
 	if (key.shift) directonalForce.add(0, -0.25, 0);
 	directonalForce.normalize();
-	//if (key.q) user[userName].rotation.y += 0.1;
-	//if (key.e) user[userName].rotation.y -= 0.1;
-	//if (key.space) user[userName].phisObj.applyImpulse(force.up, user[userName].phisObj.position);
-	//if (key.shift) user[userName].phisObj.applyImpulse(force.down, user[userName].phisObj.position);
 
 	if (key.w || key.a || key.s || key.d || key.q || key.e || key.space || key.shift) {
 		user[userName].phisObj.applyImpulse(directonalForce, user[userName].phisObj.position);
@@ -287,9 +277,6 @@ function init() {
 	//scene.add(plane);
 
 	var test = new THREE.Mesh(cubeGeometry, cubeMaterial);
-	//test.position;
-	//gui.addElement(test);
-	//testsprite = gui.addTextElement("hello", 50,250);
 	//load externals
 	JsonLoader.load('/node/model/car.AnExtention', function(loadedCar) {
 		carGeometry = loadedCar;
@@ -310,7 +297,6 @@ function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.autoClear = false;
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
-	//controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
 	controls.enableDamping = true;
 	controls.dampingFactor = 0.25;
 	controls.enablePan = false;

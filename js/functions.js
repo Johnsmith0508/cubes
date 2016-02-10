@@ -67,12 +67,10 @@ var addText = function(text, parentObject) {
   sprite.scale.set(textWidth / 100, 1, 1);
   parentObject.add(sprite);
   sprite.position.z += 2.5;
-  console.log('1');
   return sprite;
 }
 
 var loadJson = function(url) {
-  var response = "";
   $.ajaxSetup( { "async": false } );
   return $.getJSON(url).responseJSON;
 }
