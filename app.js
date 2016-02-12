@@ -19,6 +19,7 @@ var redis = config.enableRedis ? require('redis') : null;
 var redisClient = config.enableRedis ? redis.createClient() : null;
 
 var User = {};
+var groundItems = [];
 Object.prototype.size = function() {
 	var size = 0,
 		key;
@@ -73,6 +74,7 @@ exports.start = function(port) {
 			User[userName] = new THREE.Object3D();
 			User[userName].sid = socket.id;
 			User[userName].model = user.model;
+			User[userName].inventory = [];
 			User[userName].directionalForce = new CANNON.Vec3(0, 0, 0);
 			User[userName].jumpForce = new CANNON.Vec3(0, 10, 0);
 			User[userName].key = {
@@ -184,6 +186,13 @@ exports.start = function(port) {
 			}
 			socketProxy.sendSyncPhisUpdate(io, i, User[i].phisObj.position.toArray(), User[i].phisObj.velocity.toArray(), User[i].phisObj.quaternion.toArray());
 		}
+	}
+	var CreategroundItem = function(name,location,model) {
+		groundItems.push({
+			name:name,
+			position: location,
+			model: model
+		});
 	}
 	var interval = setInterval(mainLoop, 1000 / 60);
 }

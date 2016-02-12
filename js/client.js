@@ -1,5 +1,5 @@
 /*global $ THREE force initThree updatePhysics world CapsuleColider*/
-
+var test;
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
 var scene, guiScene, camera, renderer, objMtlLoader, JsonLoader, gui, chatHideDelay, userName = "",
 	isShifted, blendMesh, testsprite, cannonDebugRenderer, cubeGeometry, cubeMaterial, clientCubeMaterial, carGeometry, carMaterial, controls, floorMaterial, wallsMaterial, light;
@@ -25,6 +25,7 @@ var key = {
 };
 /** Object of all users @private */
 var user = {};
+var groundItems = [];
 //so the server is only told about no keys being pressed once
 var sendUpdateNoKey = true;
 var directonalForce = new CANNON.Vec3(0, 0, 0);
@@ -77,6 +78,7 @@ var registerEvents = function() {
 				user[data.name] = new CapsuleColider(1, 4, data.name);
 				user[data.name].position.fromArray(data.position);
 				user[data.name].rotation.fromArray(data.rotation);
+				user[data.name].items = [];
 				world.addBody(user[data.name].phisObj);
 				scene.add(user[data.name].phisMesh);
 				scene.add(user[data.name]);
@@ -106,6 +108,22 @@ var registerEvents = function() {
 		});
 		socket.on('user created', function() {
 			preInit();
+			for(var i = 0; i < 15; i++)
+			{
+			addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(Math.random()*10,-2.5,Math.random()*10),test);
+			}
+			for(var i = 0; i < 15; i++)
+			{
+			addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(-Math.random()*100,-5,Math.random()*100),test);
+			}
+			for(var i = 0; i < 15; i++)
+			{
+			addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(Math.random()*100,-5,-Math.random()*100),test);
+			}
+			for(var i = 0; i < 15; i++)
+		{
+			addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(-Math.random()*10,-5,-Math.random()*10),test);
+		}
 		});
 		socket.on('latencyCheck', function(oldTime) {
 			var time = new Date().getTime();
@@ -152,7 +170,16 @@ var mainLoop = function() {
 	}
 	if (key.shift) directonalForce.add(0, -0.25, 0);
 	directonalForce.normalize();
-
+	for(var i = 0; i < groundItems.length; i++)
+	{
+		groundItems[i].update();
+		if(groundItems[i].position.distanceTo(user[userName].position) <= 1 )
+		{
+			user[userName].items.push(groundItems[i].name);
+			scene.remove(groundItems[i].model);
+			groundItems.splice(i,1);
+		}
+	}
 	if (key.w || key.a || key.s || key.d || key.q || key.e || key.space || key.shift) {
 		user[userName].phisObj.applyImpulse(directonalForce, user[userName].phisObj.position);
 		sendUpdateNoKey = true;
@@ -181,6 +208,7 @@ var preInit = function() {
 		buttonHandler(e, false);
 	});
 	user[userName] = new CapsuleColider(1, 4);
+	
 	switch (modelType) {
 		case "car":
 			scene.add(camera);
@@ -200,6 +228,7 @@ var preInit = function() {
 			break;
 		default:
 			user[userName].add(camera);
+			user[userName].items = [];
 	}
 	scene.add(user[userName]);
 	world.addBody(user[userName].phisObj);
@@ -215,6 +244,18 @@ var preInit = function() {
 	} else {
 		registerSubmitButton();
 	}
+}
+
+var addGroundItem = function(name,location,model) {
+	model = model.clone();
+	groundItems.push({
+		name:name,
+		position:location,
+		model:model,
+		update:function(){this.model.position.copy(this.position);}
+	});
+	scene.add(model);
+	return groundItems.length - 1;
 }
 
 //initilise all required variables
@@ -242,7 +283,7 @@ function init() {
 	camera.lookAt(force.zero);
 	//init geometries
 	planeGeom = new THREE.PlaneGeometry(30, 30);
-	cubeGeometry = new THREE.BoxGeometry(50, 50, 50);
+	cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
 
 	//lights
 	light = new THREE.PointLight(0xffffff, 1, 100);
@@ -276,10 +317,12 @@ function init() {
 	plane.reciveShadow = true;
 	//scene.add(plane);
 
-	var test = new THREE.Mesh(cubeGeometry, cubeMaterial);
+ test = new THREE.Mesh(cubeGeometry, cubeMaterial);
 	//load externals
-	JsonLoader.load('/node/model/car.AnExtention', function(loadedCar) {
-		carGeometry = loadedCar;
+	JsonLoader.load('/node/model/testObject.js', function(geometry,materials) {
+		var material = new THREE.MultiMaterial( materials );
+		var object = new THREE.Mesh( geometry, material );
+		//scene.add( object );
 	});
 	blendMesh.load('model/marine_anims.js', function() {
 		blendMesh.scale.set(0.01, 0.01, 0.01);
@@ -288,7 +331,7 @@ function init() {
 
 	initThree(scene);
 	initCannon();
-
+	
 	cannonDebugRenderer = new THREE.CannonDebugRenderer(scene, world);
 	//init renderer
 	renderer = new THREE.WebGLRenderer({
@@ -301,7 +344,7 @@ function init() {
 	controls.dampingFactor = 0.25;
 	controls.enablePan = false;
 	registerSubmitButton();
-
+	
 }
 /**
  * Function to render the scene(s)
