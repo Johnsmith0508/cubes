@@ -74,7 +74,7 @@ exports.start = function(port) {
 			User[userName] = new THREE.Object3D();
 			User[userName].sid = socket.id;
 			User[userName].model = user.model;
-			User[userName].inventory = [];
+			User[userName].items = [];
 			User[userName].directionalForce = new CANNON.Vec3(0, 0, 0);
 			User[userName].jumpForce = new CANNON.Vec3(0, 10, 0);
 			User[userName].key = {
@@ -160,6 +160,7 @@ exports.start = function(port) {
 	});
 
 	http.listen(port, function() {
+		addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(Math.floor(Math.random() * 10),-2.5,Math.floor(Math.random() * 10)));
 		console.log('listening on ' + port);
 	});
 
@@ -184,15 +185,30 @@ exports.start = function(port) {
 				User[i].directionalForce.normalize();
 				User[i].phisObj.applyImpulse(User[i].directionalForce, User[i].phisObj.position);
 			}
+			for(var j = 0; j < groundItems.length; j++)
+			{
+				if(groundItems[j].position.distanceTo(User[i].position) <= 1)
+					{
+						User[i].items.push(groundItems[j].name);
+						io.emit('itemRemove',groundItems[j].name);
+						groundItems.splice(j,1);
+						addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(Math.floor(Math.random() * 10),-2.5,Math.floor(Math.random() * 10)));
+					}
+			}
 			socketProxy.sendSyncPhisUpdate(io, i, User[i].phisObj.position.toArray(), User[i].phisObj.velocity.toArray(), User[i].phisObj.quaternion.toArray());
 		}
+		for(var k = 0; k < groundItems.length; k++)
+		{
+			io.emit('item',{name: groundItems[k].name, position: groundItems[k].position});
+		}
 	}
-	var CreategroundItem = function(name,location,model) {
+	var addGroundItem = function(name,location) {
 		groundItems.push({
 			name:name,
 			position: location,
-			model: model
+			update:function(){this.model.position.copy(this.position);}
 		});
+		return groundItems.length - 1;
 	}
 	var interval = setInterval(mainLoop, 1000 / 60);
 }

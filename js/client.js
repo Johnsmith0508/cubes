@@ -25,7 +25,7 @@ var key = {
 };
 /** Object of all users @private */
 var user = {};
-var groundItems = [];
+var groundItems = {};
 //so the server is only told about no keys being pressed once
 var sendUpdateNoKey = true;
 var directonalForce = new CANNON.Vec3(0, 0, 0);
@@ -108,22 +108,30 @@ var registerEvents = function() {
 		});
 		socket.on('user created', function() {
 			preInit();
-			for(var i = 0; i < 15; i++)
+			/*for(var i = 0; i < 15; i++)
 			{
 			addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(Math.random()*10,-2.5,Math.random()*10),test);
-			}
-			for(var i = 0; i < 15; i++)
-			{
-			addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(-Math.random()*100,-5,Math.random()*100),test);
-			}
-			for(var i = 0; i < 15; i++)
-			{
-			addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(Math.random()*100,-5,-Math.random()*100),test);
-			}
-			for(var i = 0; i < 15; i++)
+			addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(-Math.random()*100,-2.5,Math.random()*100),test);
+			addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(Math.random()*100,-2.5,-Math.random()*100),test);
+			addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(-Math.random()*10,-2.5,-Math.random()*10),test);
+		}*/
+		});
+		socket.on('item', function(data)
 		{
-			addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(-Math.random()*10,-5,-Math.random()*10),test);
-		}
+			if(typeof groundItems[data.name] === "undefined")
+			{
+				groundItems[data.name] = {};
+				groundItems[data.name].model = test.clone();
+				scene.add(groundItems[data.name].model);
+				groundItems[data.name].position = new CANNON.Vec3();
+			}
+			groundItems[data.name].position.copy(data.position);
+			groundItems[data.name].model.position.copy(groundItems[data.name].position);
+		});
+		socket.on('itemRemove',function(name)
+		{
+			scene.remove(groundItems[name].model);
+			delete groundItems[name];
 		});
 		socket.on('latencyCheck', function(oldTime) {
 			var time = new Date().getTime();
@@ -172,7 +180,7 @@ var mainLoop = function() {
 	directonalForce.normalize();
 	for(var i = 0; i < groundItems.length; i++)
 	{
-		groundItems[i].update();
+		//groundItems[i].model.position.copy(groundItems[i].position);
 		if(groundItems[i].position.distanceTo(user[userName].position) <= 1 )
 		{
 			user[userName].items.push(groundItems[i].name);
@@ -246,9 +254,10 @@ var preInit = function() {
 	}
 }
 
-var addGroundItem = function(name,location,model) {
+var addGroundItem = function(name,location,model,index) {
+	var index1 = index || groundItems.length;
 	model = model.clone();
-	groundItems.push({
+	groundItems.splice(index1, 0,{
 		name:name,
 		position:location,
 		model:model,
