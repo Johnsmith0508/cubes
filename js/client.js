@@ -1,7 +1,7 @@
 /*global $ THREE force initThree updatePhysics world CapsuleColider*/
 var test;
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
-var scene, guiScene, camera, renderer, objMtlLoader, JsonLoader, gui, chatHideDelay, userName = "",
+var scene, guiScene, camera, renderer, objMtlLoader, JsonLoader, gui, chatHideDelay, userName = "", debugItem,
 	isShifted, blendMesh, testsprite, cannonDebugRenderer, cubeGeometry, cubeMaterial, clientCubeMaterial, carGeometry, carMaterial, controls, floorMaterial, wallsMaterial, light;
 //create socket.io connection to server
 var socket = new io('//dynalogic.org', {
@@ -32,6 +32,73 @@ var directonalForce = new CANNON.Vec3(0, 0, 0);
 var jumpForce = new CANNON.Vec3(0, 10, 0);
 var canJump = true;
 var config = loadJson('./config.json');
+
+
+
+
+
+
+
+
+/**
+@constructor
+@param {String} name - name of item
+@param {int} [id] - id of the item
+@param {THREE.Mesh} model - model to use for the item
+@param {function} [onUse] - callback when item is used
+@param {function} [onSecondary] - callback for second ability
+*/
+var Item = function(name, id, model, onUse, onSecondary)
+{
+	this.model = model.clone();
+	this.name = name;
+	this.id = id || Math.floor(Math.random * 10000);
+	onUse = onUse || function(){};
+	onSecondary = onSecondary || function(){};
+	this.clone = function()
+	{
+		return new Item(this.name, this.id, this.model);
+	}
+	this.use = function(){return onUse();}
+	this.secondary = function(){return onSecondary();}
+	return this;
+}
+
+var ItemStack = function(item, ammount)
+{
+	this.item = item.clone();
+	this.name = this.item.name;
+	this.ammount = ammount;
+	if(ammount === 0) throw "must have at least one";
+	this.addItem = function(num)
+	{
+		num = num || 1;
+		this.ammount += num;
+		return this;
+	}
+	this.removeItem = function(num)
+	{
+		num = num || 1;
+		this.ammount -= num;
+		return this;
+	}
+	this.use = function(){return this.item.use();}
+	this.secondary = function(){return this.item.secondary();}
+	this.getAmmount = function(){return this.ammount;}
+	this.clone = function()
+	{
+		return new ItemStack(this.item, this.ammount);
+	}
+	return this;
+}
+
+
+
+
+
+
+
+
 //handles the sending of keys to the server
 var buttonHandler = function(keyPressed, status) {
 	if (keyPressed.target === $(".chat")) return;
@@ -349,7 +416,7 @@ function init() {
 
 	initThree(scene);
 	initCannon();
-	
+	debugItem = new Item("debugItem",test);
 	cannonDebugRenderer = new THREE.CannonDebugRenderer(scene, world);
 	//init renderer
 	renderer = new THREE.WebGLRenderer({
