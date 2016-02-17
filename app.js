@@ -110,6 +110,14 @@ exports.start = function(port) {
 				redisClient.hgetall("cubeuser:" + userName, function(err, obj) {
 					if (obj !== null) {
 						User[userName].phisObj.position.set(parseInt(obj.x), parseInt(obj.y), parseInt(obj.z));
+						try {
+							User[userName].items = JSON.parse(obj.items);
+						} catch(e)
+							{
+								console.info("Can't read empty array");
+								console.warn(e);
+								console.warn(e.stack);
+							}
 					}
 				});
 			}
@@ -146,6 +154,7 @@ exports.start = function(port) {
 					redisClient.hset("cubeuser:" + userName, 'x', User[userName].position.x);
 					redisClient.hset("cubeuser:" + userName, 'y', User[userName].position.y);
 					redisClient.hset("cubeuser:" + userName, 'z', User[userName].position.z);
+					redisClient.hset("cubeuser:" + userName, 'items', JSON.stringify(User[userName].items));
 				}
 				physics.world.removeBody(User[userName].phisObj);
 				delete User[userName];
@@ -195,6 +204,7 @@ exports.start = function(port) {
 						addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(Math.floor(Math.random() * 10),-2.5,Math.floor(Math.random() * 10)));
 					}
 			}
+			io.emit('itemHeld',{name: i, items: User[i].items});
 			socketProxy.sendSyncPhisUpdate(io, i, User[i].phisObj.position.toArray(), User[i].phisObj.velocity.toArray(), User[i].phisObj.quaternion.toArray());
 		}
 		for(var k = 0; k < groundItems.length; k++)

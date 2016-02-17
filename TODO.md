@@ -1,5 +1,5 @@
-- [ ] Tell clients what they hold
-- [ ] Save Inventories to Redis
+- [X] Tell clients what they hold
+- [X] Save Inventories to Redis
 - [ ] Add better items
-- [ ] Display items to users in a way that looks good
+- [X] Display items to users in a way that looks good
 - [ ] Fix the game

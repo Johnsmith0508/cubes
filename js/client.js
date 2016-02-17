@@ -133,6 +133,11 @@ var registerEvents = function() {
 			scene.remove(groundItems[name].model);
 			delete groundItems[name];
 		});
+	socket.on('itemHeld',function(data){
+		if(typeof user[data.name] !== "undefined"){
+			user[data.name].items = data.items;
+		}
+	});
 		socket.on('latencyCheck', function(oldTime) {
 			var time = new Date().getTime();
 			$("#pingDisplay").text(Math.floor((time - oldTime) / 2) + "ms");
@@ -166,6 +171,8 @@ var registerSubmitButton = function() {
 
 //function that contains all logic for various things
 var mainLoop = function() {
+	$("#items").empty();
+	if(typeof user[userName] === "undefined") return;
 	key.angle = controls.getAzimuthalAngle();
 	directonalForce.setZero();
 	if (key.w) {directonalForce.add(-Math.sin(key.angle), 0, -Math.cos(key.angle));}else{directonalForce.add(Math.sin(key.angle), 0, Math.cos(key.angle));}
@@ -178,7 +185,7 @@ var mainLoop = function() {
 	}
 	if (key.shift) directonalForce.add(0, -0.25, 0);
 	directonalForce.normalize();
-	for(var i = 0; i < groundItems.length; i++)
+	/*for(var i in groundItems)
 	{
 		//groundItems[i].model.position.copy(groundItems[i].position);
 		if(groundItems[i].position.distanceTo(user[userName].position) <= 1 )
@@ -187,7 +194,9 @@ var mainLoop = function() {
 			scene.remove(groundItems[i].model);
 			groundItems.splice(i,1);
 		}
-	}
+	}*/
+	for(var j in user[userName].items) $("#items").append($("<li>").text(user[userName].items[j]));
+
 	if (key.w || key.a || key.s || key.d || key.q || key.e || key.space || key.shift) {
 		user[userName].phisObj.applyImpulse(directonalForce, user[userName].phisObj.position);
 		sendUpdateNoKey = true;

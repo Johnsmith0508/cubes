@@ -7,6 +7,11 @@ right: 0;
 top: 0;
 
 }
+div.inventory {
+	position: absolute;
+	left: 0;
+	top: 0;
+}
 #messages {
 	list-style-type: none;
 	margin: 0;
