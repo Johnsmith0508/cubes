@@ -1,0 +1,7 @@
+{
+  "item":{
+    "name" : "item",
+    "id" : 7,
+    "model" : "textObject.js"
+  }
+}

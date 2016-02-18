@@ -10,7 +10,7 @@ top: 0;
 div.inventory {
 	position: absolute;
 	left: 0;
-	top: 0;
+	top: 10px;
 }
 #messages {
 	list-style-type: none;

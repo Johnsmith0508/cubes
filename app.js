@@ -17,7 +17,7 @@ var connection = config.enableMysql ? mysql.createConnection({
 }) : null;
 var redis = config.enableRedis ? require('redis') : null;
 var redisClient = config.enableRedis ? redis.createClient() : null;
-
+var debugItem,itemName;
 var User = {};
 var groundItems = [];
 Object.prototype.size = function() {
@@ -35,16 +35,83 @@ Object.prototype.allFalse = function() {
 	}
 	return true;
 }
+
+
+
+
+var Item = function(name,id,onUse,onSecondary)
+{
+	this.id = id || Math.floor(Math.random() * 1000);
+	this.name = name;
+	this._onUse = onUse;
+	this._onSecondary = onSecondary;
+	
+	this.use = function(){return this._onUse();}
+	this.secondary = function(){return this._onSecondary();}
+	this.clone = function()
+	{
+		return new Item(this.name,this.id,this._onUse,this._onSecondary);
+	}
+	
+	return this;
+}
+
+
+var ItemStack = function(item, ammount)
+{
+	this.ammount = ammount || 1;
+	this.item = item.clone();
+	this.name = this.item.name;
+	this._unclonedItem = item;
+	this.addItem = function(num)
+	{
+		num = num || 1;
+		this.ammount += num;
+		return this;
+	}
+	this.removeItem = function(num)
+	{
+		num = num || 1;
+		this.ammount -= num;
+		return this;
+	}
+	this.use = function(){return this.item.use();}
+	this.secondary = function(){return this.item.secondary();}
+	this.getAmmount = function(){return this.ammount;}
+	this.clone = function()
+	{
+		return new ItemStack(this._unclonedItem,this.ammount);
+	}
+	return this;
+}
+
+
+
+
+
+
 exports.start = function(port) {
 	if (config.enableRedis) redisClient.on("error", function(err) {
-		console.log(err);
+		console.error(err);
 	});
-	if (config.enableMysql) connection.connect();
+	if (config.enableMysql) {
+		connection.connect();
+		connection.on('error',function(){
+			connection = mysql.createConnection({
+				host: config.mysql.hostname,
+				user: config.mysql.username,
+				password: config.mysql.password,
+				database: config.mysql.database
+			});
+			connection.connect();
+		});
+	}
 	physics.initCannon();
 	app.use(express.static(__dirname + '/'));
 	app.get('/', function(req, res) {
 		res.sendFile(__dirname + '/index.html');
 	});
+	debugItem = new Item("debugItem");
 	io.on('connection', function(socket) {
 		var userName = "";
 		var keysBeingPressed = false;
@@ -52,13 +119,13 @@ exports.start = function(port) {
 		socket.on('create user', function(user) {
 			for (var i in User) {
 				if (i == user.name) {
-					console.log('user ' + user.name + ' is in use');
+					console.warn('user ' + user.name + ' is in use');
 					socket.emit('error', 'user exists');
 					return;
 				}
 			}
 			socket /*.broadcast.to(socket.id)*/ .emit('user created');
-			console.log(user.name + " joined ");
+			console.info(user.name + " joined ");
 			userName = user.name;
 			if (config.enableMysql) {
 				connection.query('SELECT * FROM ' + config.mysql.table, function(err, rows, fields) {
@@ -74,7 +141,8 @@ exports.start = function(port) {
 			User[userName] = new THREE.Object3D();
 			User[userName].sid = socket.id;
 			User[userName].model = user.model;
-			User[userName].items = [];
+			User[userName].items = {};
+			User[userName].health = 100;
 			User[userName].directionalForce = new CANNON.Vec3(0, 0, 0);
 			User[userName].jumpForce = new CANNON.Vec3(0, 10, 0);
 			User[userName].key = {
@@ -110,6 +178,7 @@ exports.start = function(port) {
 				redisClient.hgetall("cubeuser:" + userName, function(err, obj) {
 					if (obj !== null) {
 						User[userName].phisObj.position.set(parseInt(obj.x), parseInt(obj.y), parseInt(obj.z));
+						User[userName].health = obj.health || 100;
 						try {
 							User[userName].items = JSON.parse(obj.items);
 						} catch(e)
@@ -133,17 +202,17 @@ exports.start = function(port) {
 		socket.on('chat message', function(message) {
 			if (message.substring(0, 1) === "/") {
 				if (message.substring(1, 10) === "debug_rot") {
-					console.log(User[userName].rotation);
+					console.info(User[userName].rotation);
 				}
 				if (message.substring(1, 10) === "debug_pos") {
-					console.log(User[userName].position);
+					console.info(User[userName].position);
 				}
 				if (message.substring(1, 5) === "kick") {
 					//NOOP
 				}
 				return;
 			}
-			console.log("(chat) " + userName + " : " + message);
+			console.info("(chat) " + userName + " : " + message);
 			socket.broadcast.emit('chat message', userName + " : " + message);
 			socket.emit('chat message', userName + " : " + message);
 		});
@@ -155,13 +224,14 @@ exports.start = function(port) {
 					redisClient.hset("cubeuser:" + userName, 'y', User[userName].position.y);
 					redisClient.hset("cubeuser:" + userName, 'z', User[userName].position.z);
 					redisClient.hset("cubeuser:" + userName, 'items', JSON.stringify(User[userName].items));
+					redisClient.hset("cubeuser:" + userName, 'health', User[userName].health);
 				}
 				physics.world.removeBody(User[userName].phisObj);
 				delete User[userName];
 			}
 			socket.broadcast.emit('user left', userName);
 			socket.broadcast.emit('chat message', userName + " left");
-			console.log(userName + " left");
+			console.info(userName + " left");
 		});
 		socket.on('latencyCheck', function(clientTime) {
 			socket.emit('latencyCheck', clientTime);
@@ -169,8 +239,8 @@ exports.start = function(port) {
 	});
 
 	http.listen(port, function() {
-		addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(Math.floor(Math.random() * 10),-2.5,Math.floor(Math.random() * 10)));
-		console.log('listening on ' + port);
+		addGroundItem(debugItem,new CANNON.Vec3(Math.floor(Math.random() * 10),-2.5,Math.floor(Math.random() * 10)));
+		console.info('listening on ' + port);
 	});
 
 	var mainLoop = function() {
@@ -198,26 +268,32 @@ exports.start = function(port) {
 			{
 				if(groundItems[j].position.distanceTo(User[i].position) <= 1)
 					{
-						User[i].items.push(groundItems[j].name);
+						itemName = groundItems[j].name;
+						if(typeof User[i].items[itemName] === "undefined")
+							{
+								User[i].items[groundItems[j].name] = 1;
+							}else{
+						User[i].items[itemName]++;}
 						io.emit('itemRemove',groundItems[j].name);
-						groundItems.splice(j,1);
-						addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(Math.floor(Math.random() * 10),-2.5,Math.floor(Math.random() * 10)));
+						groundItems[j].removeItem();
+						if(groundItems[j].ammount <= 0) groundItems.splice(j,1);
+						addGroundItem(debugItem,new CANNON.Vec3(Math.floor(Math.random() * 10),-2.5,Math.floor(Math.random() * 10)));
 					}
 			}
 			io.emit('itemHeld',{name: i, items: User[i].items});
-			socketProxy.sendSyncPhisUpdate(io, i, User[i].phisObj.position.toArray(), User[i].phisObj.velocity.toArray(), User[i].phisObj.quaternion.toArray());
+			if(typeof User[i] !== "undefined")
+			{
+				socketProxy.sendSyncPhisUpdate(io, i, User[i].phisObj.position.toArray(), User[i].phisObj.velocity.toArray(), User[i].phisObj.quaternion.toArray());
+			}
 		}
 		for(var k = 0; k < groundItems.length; k++)
 		{
 			io.emit('item',{name: groundItems[k].name, position: groundItems[k].position});
 		}
 	}
-	var addGroundItem = function(name,location) {
-		groundItems.push({
-			name:name,
-			position: location,
-			update:function(){this.model.position.copy(this.position);}
-		});
+	var addGroundItem = function(item,location) {
+		groundItems.push(new ItemStack(item));
+		groundItems[groundItems.length -1].position = location;
 		return groundItems.length - 1;
 	}
 	var interval = setInterval(mainLoop, 1000 / 60);

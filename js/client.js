@@ -43,33 +43,43 @@ var config = loadJson('./config.json');
 /**
 @constructor
 @param {String} name - name of item
-@param {int} [id] - id of the item
 @param {THREE.Mesh} model - model to use for the item
+@param {int} [id] - id of the item
 @param {function} [onUse] - callback when item is used
 @param {function} [onSecondary] - callback for second ability
+@return - new Item
 */
-var Item = function(name, id, model, onUse, onSecondary)
+var Item = function(name, model, id, onUse, onSecondary)
 {
+	this._unclonedModel = model;
 	this.model = model.clone();
 	this.name = name;
 	this.id = id || Math.floor(Math.random * 10000);
-	onUse = onUse || function(){};
-	onSecondary = onSecondary || function(){};
+	this.onUse = onUse || function(){};
+	this.onSecondary = onSecondary || function(){};
 	this.clone = function()
 	{
-		return new Item(this.name, this.id, this.model);
+		return new Item(this.name, this.model, this.id, this.onUse, this.onSecondary);
 	}
 	this.use = function(){return onUse();}
 	this.secondary = function(){return onSecondary();}
 	return this;
 }
 
+
+/**
+@constructor
+@param {Item} item - what item the stack contains
+@param {int} [ammount] - ammount of items in the stack
+@return {ItemStack} - the new ItemStack
+*/
 var ItemStack = function(item, ammount)
 {
+	this._unclonedItem = item;
 	this.item = item.clone();
 	this.name = this.item.name;
-	this.ammount = ammount;
-	if(ammount === 0) throw "must have at least one";
+	this.ammount = ammount || 1;
+	this.model = this.item.model;
 	this.addItem = function(num)
 	{
 		num = num || 1;
@@ -87,12 +97,10 @@ var ItemStack = function(item, ammount)
 	this.getAmmount = function(){return this.ammount;}
 	this.clone = function()
 	{
-		return new ItemStack(this.item, this.ammount);
+		return new ItemStack(this._unclonedItem, this.ammount);
 	}
 	return this;
 }
-
-
 
 
 
@@ -145,7 +153,7 @@ var registerEvents = function() {
 				user[data.name] = new CapsuleColider(1, 4, data.name);
 				user[data.name].position.fromArray(data.position);
 				user[data.name].rotation.fromArray(data.rotation);
-				user[data.name].items = [];
+				user[data.name].items = {};
 				world.addBody(user[data.name].phisObj);
 				scene.add(user[data.name].phisMesh);
 				scene.add(user[data.name]);
@@ -175,28 +183,19 @@ var registerEvents = function() {
 		});
 		socket.on('user created', function() {
 			preInit();
-			/*for(var i = 0; i < 15; i++)
-			{
-			addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(Math.random()*10,-2.5,Math.random()*10),test);
-			addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(-Math.random()*100,-2.5,Math.random()*100),test);
-			addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(Math.random()*100,-2.5,-Math.random()*100),test);
-			addGroundItem(Math.floor(Math.random() * 1000000),new CANNON.Vec3(-Math.random()*10,-2.5,-Math.random()*10),test);
-		}*/
 		});
 		socket.on('item', function(data)
 		{
 			if(typeof groundItems[data.name] === "undefined")
 			{
-				groundItems[data.name] = {};
-				groundItems[data.name].model = test.clone();
+				groundItems[data.name] = new ItemStack(debugItem,data.ammount);
 				scene.add(groundItems[data.name].model);
-				groundItems[data.name].position = new CANNON.Vec3();
 			}
-			groundItems[data.name].position.copy(data.position);
-			groundItems[data.name].model.position.copy(groundItems[data.name].position);
+			groundItems[data.name].model.position.copy(data.position);
 		});
 		socket.on('itemRemove',function(name)
 		{
+			console.info(name);
 			scene.remove(groundItems[name].model);
 			delete groundItems[name];
 		});
@@ -262,7 +261,7 @@ var mainLoop = function() {
 			groundItems.splice(i,1);
 		}
 	}*/
-	for(var j in user[userName].items) $("#items").append($("<li>").text(user[userName].items[j]));
+	for(var j in user[userName].items) $("#items").append($("<li>").text(j + " - " + user[userName].items[j]));
 
 	if (key.w || key.a || key.s || key.d || key.q || key.e || key.space || key.shift) {
 		user[userName].phisObj.applyImpulse(directonalForce, user[userName].phisObj.position);
@@ -312,7 +311,7 @@ var preInit = function() {
 			break;
 		default:
 			user[userName].add(camera);
-			user[userName].items = [];
+			user[userName].items = {};
 	}
 	scene.add(user[userName]);
 	world.addBody(user[userName].phisObj);
