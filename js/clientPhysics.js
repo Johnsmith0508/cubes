@@ -65,7 +65,7 @@ var CapsuleColider = function(radius, height, name) {
   });
   this.phisMesh = new THREE.Mesh(cubeGeom, cubeMesh);
   this._height = height;
-
+  this.realPosition = new CANNON.Vec3(0,0,0);
   this.phisObj.addShape(this._cylinder);
   this.phisObj.addShape(this._topSphere, new CANNON.Vec3(0, 0, height / 2 - radius));
   this.phisObj.addShape(this._bottomSphere, new CANNON.Vec3(0, 0, radius - height / 2));

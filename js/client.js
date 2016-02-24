@@ -1,5 +1,5 @@
 /*global $ THREE force initThree updatePhysics world CapsuleColider*/
-var test;
+var test,debugModel,cubeItem;
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
 var scene, guiScene, camera, renderer, objMtlLoader, JsonLoader, gui, chatHideDelay, userName = "", debugItem,
 	isShifted, blendMesh, testsprite, cannonDebugRenderer, cubeGeometry, cubeMaterial, clientCubeMaterial, carGeometry, carMaterial, controls, floorMaterial, wallsMaterial, light;
@@ -25,7 +25,7 @@ var key = {
 };
 /** Object of all users @private */
 var user = {};
-var groundItems = {};
+var groundItems = [];
 //so the server is only told about no keys being pressed once
 var sendUpdateNoKey = true;
 var directonalForce = new CANNON.Vec3(0, 0, 0);
@@ -70,12 +70,14 @@ var Item = function(name, model, id, onUse, onSecondary)
 /**
 @constructor
 @param {Item} item - what item the stack contains
+@param {int} id - uuid of itemstack
 @param {int} [ammount] - ammount of items in the stack
 @return {ItemStack} - the new ItemStack
 */
-var ItemStack = function(item, ammount)
+var ItemStack = function(item, id, ammount)
 {
 	this._unclonedItem = item;
+	this.id = id;
 	this.item = item.clone();
 	this.name = this.item.name;
 	this.ammount = ammount || 1;
@@ -169,7 +171,7 @@ var registerEvents = function() {
 		//meh
 		socket.on('physics change', function(data) {
 			if (typeof user[userName] !== "undefined") {
-				user[data.name].phisObj.position.set(data.position.x, data.position.y, data.position.z);
+				user[data.name].realPosition.set(data.position.x, data.position.y, data.position.z);
 				user[data.name].phisObj.velocity.set(data.velocity.x, data.velocity.y, data.velocity.z);
 				user[data.name].phisObj.quaternion.set(data.quaternion.x, data.quaternion.y, data.quaternion.z, data.quaternion.w);
 			}
@@ -186,18 +188,33 @@ var registerEvents = function() {
 		});
 		socket.on('item', function(data)
 		{
-			if(typeof groundItems[data.name] === "undefined")
+			var itemPosition = -1;
+			for(var i = 0; i < groundItems.length; i++){ if(groundItems[i].id == data.id){itemPosition = i;}}
+			if(itemPosition == -1)
 			{
-				groundItems[data.name] = new ItemStack(debugItem,data.ammount);
-				scene.add(groundItems[data.name].model);
+				switch(data.name)
+				{
+					case "debugItem":
+						groundItems.push(new ItemStack(debugItem,data.id,data.ammount));
+						break;
+					case "cubeItem":
+						groundItems.push(new ItemStack(cubeItem,data.id,data.ammount));
+						break;
+				}
+				itemPosition = groundItems.length -1;
+				scene.add(groundItems[itemPosition].model);
 			}
-			groundItems[data.name].model.position.copy(data.position);
+			groundItems[itemPosition].model.position.copy(data.position);
 		});
-		socket.on('itemRemove',function(name)
+		socket.on('itemRemove',function(id)
 		{
-			console.info(name);
-			scene.remove(groundItems[name].model);
-			delete groundItems[name];
+			for(var i = 0; i < groundItems.length; i++)
+				{
+					if(groundItems[i].id == id){
+						scene.remove(groundItems[i].model);
+						groundItems.splice(i,1);
+					}
+				}
 		});
 	socket.on('itemHeld',function(data){
 		if(typeof user[data.name] !== "undefined"){
@@ -251,16 +268,6 @@ var mainLoop = function() {
 	}
 	if (key.shift) directonalForce.add(0, -0.25, 0);
 	directonalForce.normalize();
-	/*for(var i in groundItems)
-	{
-		//groundItems[i].model.position.copy(groundItems[i].position);
-		if(groundItems[i].position.distanceTo(user[userName].position) <= 1 )
-		{
-			user[userName].items.push(groundItems[i].name);
-			scene.remove(groundItems[i].model);
-			groundItems.splice(i,1);
-		}
-	}*/
 	for(var j in user[userName].items) $("#items").append($("<li>").text(j + " - " + user[userName].items[j]));
 
 	if (key.w || key.a || key.s || key.d || key.q || key.e || key.space || key.shift) {
@@ -275,6 +282,10 @@ var mainLoop = function() {
 			socket.emit('keys pressed', key);
 		}
 	}
+	for(var i in user)
+		{
+			user[i].phisObj.position.lerp2(user[i].realPosition,0.1);
+		}
 }
 
 var preInit = function() {
@@ -405,7 +416,9 @@ function init() {
 	//load externals
 	JsonLoader.load('/node/model/testObject.js', function(geometry,materials) {
 		var material = new THREE.MultiMaterial( materials );
-		var object = new THREE.Mesh( geometry, material );
+		debugModel = new THREE.Mesh( geometry, material );
+		debugModel.scale.set(0.1,0.1,0.1);
+		debugItem = new Item("debugItem",debugModel);
 		//scene.add( object );
 	});
 	blendMesh.load('model/marine_anims.js', function() {
@@ -415,7 +428,8 @@ function init() {
 
 	initThree(scene);
 	initCannon();
-	debugItem = new Item("debugItem",test);
+	
+	cubeItem = new Item("cubeItem",test);
 	cannonDebugRenderer = new THREE.CannonDebugRenderer(scene, world);
 	//init renderer
 	renderer = new THREE.WebGLRenderer({
@@ -482,3 +496,17 @@ function onWindowResize() {
 }
 //register previous function
 window.addEventListener('resize', onWindowResize, false);
+
+CANNON.Vec3.prototype.lerp2 = function(v,t){
+	this.x = this.x + (v.x-this.x)*t;
+	this.y = this.y + (v.y-this.y)*t;
+	this.z = this.z + (v.z-this.z)*t;
+	return this;
+}
+CANNON.Vec3.prototype.lerp3 = function(x,y,z,t)
+{
+	this.x = this.x + (x-this.x)*t;
+	this.y = this.y + (y-this.y)*t;
+	this.z = this.z + (z-this.z)*t;
+	return this;
+}

@@ -8,16 +8,10 @@ var io = require('socket.io')(http);
 var THREE = require('three');
 var CANNON = require('cannon');
 var mysql = require('mysql');
-//redis
-var connection = config.enableMysql ? mysql.createConnection({
-	host: config.mysql.hostname,
-	user: config.mysql.username,
-	password: config.mysql.password,
-	database: config.mysql.database
-}) : null;
+var _istackid = 0;
 var redis = config.enableRedis ? require('redis') : null;
 var redisClient = config.enableRedis ? redis.createClient() : null;
-var debugItem,itemName;
+var debugItem, itemName, cubeItem;
 var User = {};
 var groundItems = [];
 Object.prototype.size = function() {
@@ -39,48 +33,53 @@ Object.prototype.allFalse = function() {
 
 
 
-var Item = function(name,id,onUse,onSecondary)
-{
+var Item = function(name, id, onUse, onSecondary) {
 	this.id = id || Math.floor(Math.random() * 1000);
 	this.name = name;
 	this._onUse = onUse;
 	this._onSecondary = onSecondary;
-	
-	this.use = function(){return this._onUse();}
-	this.secondary = function(){return this._onSecondary();}
-	this.clone = function()
-	{
-		return new Item(this.name,this.id,this._onUse,this._onSecondary);
+
+	this.use = function() {
+		return this._onUse();
 	}
-	
+	this.secondary = function() {
+		return this._onSecondary();
+	}
+	this.clone = function() {
+		return new Item(this.name, this.id, this._onUse, this._onSecondary);
+	}
+
 	return this;
 }
 
 
-var ItemStack = function(item, ammount)
-{
+var ItemStack = function(item, ammount) {
+	this.id = _istackid++;
 	this.ammount = ammount || 1;
 	this.item = item.clone();
 	this.name = this.item.name;
 	this._unclonedItem = item;
-	this.addItem = function(num)
-	{
+	this.addItem = function(num) {
 		num = num || 1;
 		this.ammount += num;
 		return this;
 	}
-	this.removeItem = function(num)
-	{
+	this.removeItem = function(num) {
 		num = num || 1;
 		this.ammount -= num;
 		return this;
 	}
-	this.use = function(){return this.item.use();}
-	this.secondary = function(){return this.item.secondary();}
-	this.getAmmount = function(){return this.ammount;}
-	this.clone = function()
-	{
-		return new ItemStack(this._unclonedItem,this.ammount);
+	this.use = function() {
+		return this.item.use();
+	}
+	this.secondary = function() {
+		return this.item.secondary();
+	}
+	this.getAmmount = function() {
+		return this.ammount;
+	}
+	this.clone = function() {
+		return new ItemStack(this._unclonedItem, this.ammount);
 	}
 	return this;
 }
@@ -94,24 +93,13 @@ exports.start = function(port) {
 	if (config.enableRedis) redisClient.on("error", function(err) {
 		console.error(err);
 	});
-	if (config.enableMysql) {
-		connection.connect();
-		connection.on('error',function(){
-			connection = mysql.createConnection({
-				host: config.mysql.hostname,
-				user: config.mysql.username,
-				password: config.mysql.password,
-				database: config.mysql.database
-			});
-			connection.connect();
-		});
-	}
 	physics.initCannon();
 	app.use(express.static(__dirname + '/'));
 	app.get('/', function(req, res) {
 		res.sendFile(__dirname + '/index.html');
 	});
 	debugItem = new Item("debugItem");
+	cubeItem = new Item("cubeItem");
 	io.on('connection', function(socket) {
 		var userName = "";
 		var keysBeingPressed = false;
@@ -128,15 +116,14 @@ exports.start = function(port) {
 			console.info(user.name + " joined ");
 			userName = user.name;
 			if (config.enableMysql) {
-				connection.query('SELECT * FROM ' + config.mysql.table, function(err, rows, fields) {
-					for (var i = 0; i < rows.length; i++) {
-						if (rows[i].Username == user.cookie && rows[i].Password == user.hashedPassword) {
-							userName = user.cookie;
-							User[userName].posSaved = true;
-							break;
-						}
+				var result = connection.query('SELECT * FROM ' + config.mysql.table);
+				for (var i = 0; i < result.length; i++) {
+					if (rows[i].Username == user.cookie && rows[i].Password == user.hashedPassword) {
+						userName = user.cookie;
+						User[userName].posSaved = true;
+						break;
 					}
-				});
+				}
 			}
 			User[userName] = new THREE.Object3D();
 			User[userName].sid = socket.id;
@@ -181,12 +168,11 @@ exports.start = function(port) {
 						User[userName].health = obj.health || 100;
 						try {
 							User[userName].items = JSON.parse(obj.items);
-						} catch(e)
-							{
-								console.info("Can't read empty array");
-								console.warn(e);
-								console.warn(e.stack);
-							}
+						} catch (e) {
+							console.info("Can't read empty array");
+							console.warn(e);
+							console.warn(e.stack);
+						}
 					}
 				});
 			}
@@ -239,7 +225,8 @@ exports.start = function(port) {
 	});
 
 	http.listen(port, function() {
-		addGroundItem(debugItem,new CANNON.Vec3(Math.floor(Math.random() * 10),-2.5,Math.floor(Math.random() * 10)));
+		addGroundItem(debugItem, new CANNON.Vec3(Math.floor(Math.random() * 10), -2.5, Math.floor(Math.random() * 10)));
+		addGroundItem(cubeItem, new CANNON.Vec3(Math.floor(Math.random() * 10), -2.5, Math.floor(Math.random() * 10)));
 		console.info('listening on ' + port);
 	});
 
@@ -264,36 +251,45 @@ exports.start = function(port) {
 				User[i].directionalForce.normalize();
 				User[i].phisObj.applyImpulse(User[i].directionalForce, User[i].phisObj.position);
 			}
-			for(var j = 0; j < groundItems.length; j++)
-			{
-				if(groundItems[j].position.distanceTo(User[i].position) <= 1)
-					{
-						itemName = groundItems[j].name;
-						if(typeof User[i].items[itemName] === "undefined")
-							{
-								User[i].items[groundItems[j].name] = 1;
-							}else{
-						User[i].items[itemName]++;}
-						io.emit('itemRemove',groundItems[j].name);
-						groundItems[j].removeItem();
-						if(groundItems[j].ammount <= 0) groundItems.splice(j,1);
-						addGroundItem(debugItem,new CANNON.Vec3(Math.floor(Math.random() * 10),-2.5,Math.floor(Math.random() * 10)));
+			for (var j = 0; j < groundItems.length; j++) {
+				if (groundItems[j].position.distanceTo(User[i].position) <= 1) {
+					itemName = groundItems[j].name;
+					if (typeof User[i].items[itemName] === "undefined") {
+						User[i].items[groundItems[j].name] = 1;
+					} else {
+						User[i].items[itemName]++;
 					}
+					io.emit('itemRemove', groundItems[j].id);
+					groundItems[j].removeItem();
+					if (groundItems[j].ammount <= 0) groundItems.splice(j, 1);
+					switch (itemName) {
+						case "debugItem":
+							addGroundItem(debugItem, new CANNON.Vec3(Math.floor(-Math.random() * 10), -2.5, -Math.floor(Math.random() * 10)));
+							break;
+						case "cubeItem":
+							addGroundItem(cubeItem, new CANNON.Vec3(Math.floor(Math.random() * 10), -2.5, Math.floor(Math.random() * 10)));
+					}
+				}
 			}
-			io.emit('itemHeld',{name: i, items: User[i].items});
-			if(typeof User[i] !== "undefined")
-			{
+			io.emit('itemHeld', {
+				name: i,
+				items: User[i].items
+			});
+			if (typeof User[i] !== "undefined") {
 				socketProxy.sendSyncPhisUpdate(io, i, User[i].phisObj.position.toArray(), User[i].phisObj.velocity.toArray(), User[i].phisObj.quaternion.toArray());
 			}
 		}
-		for(var k = 0; k < groundItems.length; k++)
-		{
-			io.emit('item',{name: groundItems[k].name, position: groundItems[k].position});
+		for (var k = 0; k < groundItems.length; k++) {
+			io.emit('item', {
+				name: groundItems[k].name,
+				position: groundItems[k].position,
+				id: groundItems[k].id
+			});
 		}
 	}
-	var addGroundItem = function(item,location) {
+	var addGroundItem = function(item, location) {
 		groundItems.push(new ItemStack(item));
-		groundItems[groundItems.length -1].position = location;
+		groundItems[groundItems.length - 1].position = location;
 		return groundItems.length - 1;
 	}
 	var interval = setInterval(mainLoop, 1000 / 60);
