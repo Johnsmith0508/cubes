@@ -1,32 +1,38 @@
 body {
 	overflow: hidden;
 }
-div.chat {
-position: absolute;
-right: 0;
-top: 0;
 
+div.chat {
+	position: absolute;
+	right: 0;
+	top: 0;
 }
+
 div.inventory {
 	position: absolute;
 	left: 0;
 	top: 10px;
 }
+
 #messages {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
 }
+
 #messages li {
 	opacity: .5;
 	padding: 5px 10px;
 }
+
 #messages li:nth-child(odd) {
 	background-color: #4c4c4c;
 }
+
 #messages li:nth-child(even) {
 	background-color: #707070;
 }
+
 div.chat {
 	position: absolute;
 	top: 0;
@@ -34,48 +40,56 @@ div.chat {
 	width: 350px;
 	height: 500px;
 }
+
 ul#messages {
 	overflow: auto;
 	height: 95%;
 }
+
 input#msgIn {
 	position: absolute;
 	bottom: 0px;
 	width: 66.66%;
 }
+
 button#send {
 	position: absolute;
 	bottom: 0px;
 	right: 0px;
 	width: 33.33%;
 }
+
 #login {
-    width: 50%;
-    height: 300px;
-    position: absolute;
-    top:0;
-    bottom:0;
-    left:0;
-    right:0;
-    margin: auto;
-    border-style: groove;
-    text-align: center;
+	width: 50%;
+	height: 300px;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+	border-style: groove;
+	text-align: center;
 }
+
 #name {
-    position: absolute;
-    margin: auto;
-    bottom: 50%;
+	position: absolute;
+	margin: auto;
+	bottom: 50%;
 }
+
 #sendName {
-    position: absolute;
-    margin: auto;
-    bottom: 40%;
+	position: absolute;
+	margin: auto;
+	bottom: 40%;
 }
+
 #opts {
 	position: absolute;
 	bottom: 25%;
 	margin: auto;
 }
+
 #options {
 	border-style: groove;
 	position: absolute;
@@ -87,10 +101,72 @@ button#send {
 	position: fixed;
 	margin: auto;
 	text-color: #ff0000;
-	
 }
+
 #controls {
 	border-style: ridge;
 	position: absolute;
 	left: 100px;
+}
+
+#keyconfig {
+	position:fixed;
+	top: 10px;
+	left: 10px;
+}
+
+.buttonConfig {
+	position: absolute;
+	height: 50px;
+	width: 50px;
+	background-color: #888;
+	text-align: center;
+	display: inline-block;
+	vertical-align: middle;
+	line-height: 50px;
+	font-weight: bold;
+	font-size: 20px;
+	color: #333;
+}
+
+#back {
+	left: 55px;
+	top: 55px;
+}
+
+#forward {
+	left: 55px;
+}
+
+#left {
+	top: 55px;
+}
+
+#right {
+	top: 55px;
+	left: 112px;
+}
+
+#up {
+	top: 80px;
+	left: 170px;
+}
+
+#down {
+	top: 135px;
+	left: 170px;
+}
+
+#reset {
+	top: 165px;
+}
+
+#chat {
+	top: 165px;
+	left: 55px;
+}
+
+#inventory {
+	top: 165px;
+	left: 112px;
 }

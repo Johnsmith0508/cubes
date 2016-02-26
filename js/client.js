@@ -1,8 +1,10 @@
 /*global $ THREE force initThree updatePhysics world CapsuleColider*/
-var test,debugModel,cubeItem;
+var test, debugModel, cubeItem;
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
-var scene, guiScene, camera, renderer, objMtlLoader, JsonLoader, gui, chatHideDelay, userName = "", debugItem,
+var scene, guiScene, camera, renderer, objMtlLoader, JsonLoader, gui, chatHideDelay, userName = "",
+	debugItem,
 	isShifted, blendMesh, testsprite, cannonDebugRenderer, cubeGeometry, cubeMaterial, clientCubeMaterial, carGeometry, carMaterial, controls, floorMaterial, wallsMaterial, light;
+var color;
 //create socket.io connection to server
 var socket = new io('//dynalogic.org', {
 	path: '/node/socket.io'
@@ -11,18 +13,28 @@ var socket = new io('//dynalogic.org', {
 var stats = new Stats();
 /** object that tracks the keys pressed */
 var key = {
-	w: false,
-	a: false,
-	s: false,
-	d: false,
+	forward: false,
+	left: false,
+	back: false,
+	right: false,
 	q: false,
 	e: false,
-	t: false,
-	space: false,
-	shift: false,
+	chat: false,
+	up: false,
+	down: false,
 	keyPressed: 0,
 	angle: 0
 };
+var keycode = {
+	forward : 87,
+	back : 83,
+	left : 65,
+	right : 68,
+	up : 32,
+	down : 16,
+	reset : 82,
+	chat : 84
+}
 /** Object of all users @private */
 var user = {};
 var groundItems = [];
@@ -49,20 +61,22 @@ var config = loadJson('./config.json');
 @param {function} [onSecondary] - callback for second ability
 @return - new Item
 */
-var Item = function(name, model, id, onUse, onSecondary)
-{
+var Item = function(name, model, id, onUse, onSecondary) {
 	this._unclonedModel = model;
 	this.model = model.clone();
 	this.name = name;
 	this.id = id || Math.floor(Math.random * 10000);
-	this.onUse = onUse || function(){};
-	this.onSecondary = onSecondary || function(){};
-	this.clone = function()
-	{
+	this.onUse = onUse || function() {};
+	this.onSecondary = onSecondary || function() {};
+	this.clone = function() {
 		return new Item(this.name, this.model, this.id, this.onUse, this.onSecondary);
 	}
-	this.use = function(){return onUse();}
-	this.secondary = function(){return onSecondary();}
+	this.use = function() {
+		return onUse();
+	}
+	this.secondary = function() {
+		return onSecondary();
+	}
 	return this;
 }
 
@@ -74,31 +88,33 @@ var Item = function(name, model, id, onUse, onSecondary)
 @param {int} [ammount] - ammount of items in the stack
 @return {ItemStack} - the new ItemStack
 */
-var ItemStack = function(item, id, ammount)
-{
+var ItemStack = function(item, id, ammount) {
 	this._unclonedItem = item;
 	this.id = id;
 	this.item = item.clone();
 	this.name = this.item.name;
 	this.ammount = ammount || 1;
 	this.model = this.item.model;
-	this.addItem = function(num)
-	{
+	this.addItem = function(num) {
 		num = num || 1;
 		this.ammount += num;
 		return this;
 	}
-	this.removeItem = function(num)
-	{
+	this.removeItem = function(num) {
 		num = num || 1;
 		this.ammount -= num;
 		return this;
 	}
-	this.use = function(){return this.item.use();}
-	this.secondary = function(){return this.item.secondary();}
-	this.getAmmount = function(){return this.ammount;}
-	this.clone = function()
-	{
+	this.use = function() {
+		return this.item.use();
+	}
+	this.secondary = function() {
+		return this.item.secondary();
+	}
+	this.getAmmount = function() {
+		return this.ammount;
+	}
+	this.clone = function() {
 		return new ItemStack(this._unclonedItem, this.ammount);
 	}
 	return this;
@@ -113,17 +129,17 @@ var ItemStack = function(item, id, ammount)
 var buttonHandler = function(keyPressed, status) {
 	if (keyPressed.target === $(".chat")) return;
 	switch (keyPressed.which) {
-		case 87:
-			key.w = status;
+		case keycode.forward:
+			key.forward = status;
 			break;
-		case 83:
-			key.s = status;
+		case keycode.back:
+			key.back = status;
 			break;
-		case 65:
-			key.a = status;
+		case keycode.left:
+			key.left = status;
 			break;
-		case 68:
-			key.d = status;
+		case keycode.right:
+			key.right = status;
 			break;
 		case 81:
 			key.q = status;
@@ -131,20 +147,20 @@ var buttonHandler = function(keyPressed, status) {
 		case 69:
 			key.e = status;
 			break;
-		case 32:
-			key.space = status;
+		case keycode.up:
+			key.up = status;
 			break;
-		case 84:
-			key.t = status;
+		case keycode.chat:
+			key.chat = status;
 			break;
-		case 82:
+		case keycode.reset:
 			controls.reset();
 			break;
 	}
 	if (keyPressed.shiftKey) {
-		key.shift = true;
+		key.down = true;
 	} else {
-		key.shift = false;
+		key.down = false;
 	}
 }
 var registerEvents = function() {
@@ -186,41 +202,42 @@ var registerEvents = function() {
 		socket.on('user created', function() {
 			preInit();
 		});
-		socket.on('item', function(data)
-		{
+		socket.on('item', function(data) {
 			var itemPosition = -1;
-			for(var i = 0; i < groundItems.length; i++){ if(groundItems[i].id == data.id){itemPosition = i;}}
-			if(itemPosition == -1)
-			{
-				switch(data.name)
-				{
+			for (var i = 0; i < groundItems.length; i++) {
+				if (groundItems[i].id == data.id) {
+					itemPosition = i;
+				}
+			}
+			if (itemPosition == -1) {
+				switch (data.name) {
 					case "debugItem":
-						groundItems.push(new ItemStack(debugItem,data.id,data.ammount));
+						groundItems.push(new ItemStack(debugItem, data.id, data.ammount));
+						groundItems[groundItems.length - 1].model.material.materials[0].color.setHex('0x'+randomColor().substring(1,7))
 						break;
 					case "cubeItem":
-						groundItems.push(new ItemStack(cubeItem,data.id,data.ammount));
+						groundItems.push(new ItemStack(cubeItem, data.id, data.ammount));
+						groundItems[groundItems.length - 1].model.material.color.setHex('0x' + randomColor().substring(1, 7));
 						break;
 				}
-				itemPosition = groundItems.length -1;
+				itemPosition = groundItems.length - 1;
 				scene.add(groundItems[itemPosition].model);
 			}
 			groundItems[itemPosition].model.position.copy(data.position);
 		});
-		socket.on('itemRemove',function(id)
-		{
-			for(var i = 0; i < groundItems.length; i++)
-				{
-					if(groundItems[i].id == id){
-						scene.remove(groundItems[i].model);
-						groundItems.splice(i,1);
-					}
+		socket.on('itemRemove', function(id) {
+			for (var i = 0; i < groundItems.length; i++) {
+				if (groundItems[i].id == id) {
+					scene.remove(groundItems[i].model);
+					groundItems.splice(i, 1);
 				}
+			}
 		});
-	socket.on('itemHeld',function(data){
-		if(typeof user[data.name] !== "undefined"){
-			user[data.name].items = data.items;
-		}
-	});
+		socket.on('itemHeld', function(data) {
+			if (typeof user[data.name] !== "undefined") {
+				user[data.name].items = data.items;
+			}
+		});
 		socket.on('latencyCheck', function(oldTime) {
 			var time = new Date().getTime();
 			$("#pingDisplay").text(Math.floor((time - oldTime) / 2) + "ms");
@@ -255,22 +272,38 @@ var registerSubmitButton = function() {
 //function that contains all logic for various things
 var mainLoop = function() {
 	$("#items").empty();
-	if(typeof user[userName] === "undefined") return;
+	if (typeof user[userName] === "undefined") return;
 	key.angle = controls.getAzimuthalAngle();
 	directonalForce.setZero();
-	if (key.w) {directonalForce.add(-Math.sin(key.angle), 0, -Math.cos(key.angle));}else{directonalForce.add(Math.sin(key.angle), 0, Math.cos(key.angle));}
-	if (key.s) {directonalForce.add(Math.sin(key.angle), 0, Math.cos(key.angle));}else{directonalForce.add(-Math.sin(key.angle), 0, -Math.cos(key.angle));}
-	if (key.a) {directonalForce.add(-Math.sin(key.angle + Math.PI / 2), 0, -Math.cos(key.angle + Math.PI / 2));}else{directonalForce.add(Math.sin(key.angle + Math.PI / 2), 0, Math.cos(key.angle + Math.PI / 2));}
-	if (key.d) {directonalForce.add(Math.sin(key.angle + Math.PI / 2), 0, Math.cos(key.angle + Math.P / 2));}else{directonalForce.add(-Math.sin(key.angle + Math.PI / 2), 0, -Math.cos(key.angle + Math.P / 2));}	
-	if (key.space && canJump) {
+	if (key.forward) {
+		directonalForce.add(-Math.sin(key.angle), 0, -Math.cos(key.angle));
+	} else {
+		directonalForce.add(Math.sin(key.angle), 0, Math.cos(key.angle));
+	}
+	if (key.back) {
+		directonalForce.add(Math.sin(key.angle), 0, Math.cos(key.angle));
+	} else {
+		directonalForce.add(-Math.sin(key.angle), 0, -Math.cos(key.angle));
+	}
+	if (key.left) {
+		directonalForce.add(-Math.sin(key.angle + Math.PI / 2), 0, -Math.cos(key.angle + Math.PI / 2));
+	} else {
+		directonalForce.add(Math.sin(key.angle + Math.PI / 2), 0, Math.cos(key.angle + Math.PI / 2));
+	}
+	if (key.right) {
+		directonalForce.add(Math.sin(key.angle + Math.PI / 2), 0, Math.cos(key.angle + Math.P / 2));
+	} else {
+		directonalForce.add(-Math.sin(key.angle + Math.PI / 2), 0, -Math.cos(key.angle + Math.P / 2));
+	}
+	if (key.up && canJump) {
 		user[userName].phisObj.applyImpulse(jumpForce, user[userName].phisObj.position);
 		canJump = false;
 	}
-	if (key.shift) directonalForce.add(0, -0.25, 0);
+	if (key.down) directonalForce.add(0, -0.25, 0);
 	directonalForce.normalize();
-	for(var j in user[userName].items) $("#items").append($("<li>").text(j + " - " + user[userName].items[j]));
+	for (var j in user[userName].items) $("#items").append($("<li>").text(j + " - " + user[userName].items[j]));
 
-	if (key.w || key.a || key.s || key.d || key.q || key.e || key.space || key.shift) {
+	if (key.forward || key.back || key.left || key.right || key.q || key.e || key.up || key.down) {
 		user[userName].phisObj.applyImpulse(directonalForce, user[userName].phisObj.position);
 		sendUpdateNoKey = true;
 		socket.emit('keys pressed', key);
@@ -282,27 +315,27 @@ var mainLoop = function() {
 			socket.emit('keys pressed', key);
 		}
 	}
-	for(var i in user)
-		{
-			user[i].phisObj.position.lerp2(user[i].realPosition,0.1);
-		}
+	for (var i in user) {
+		user[i].phisObj.position.lerp2(user[i].realPosition, 0.1);
+	}
 }
 
 var preInit = function() {
 	//console.log('preinit start');
 	userName = $("#name").val();
 	$('#login').hide();
+	$("#threeJsRenderWindow").append(renderer.domElement);
 	$('#main_window').show();
 	chatHideDelay = $("#chatDelay").val();
 	//addText("test",camera);
 	$(document).on('keydown', function(e) {
-		buttonHandler(e, true);
+		if(e.target.id != "msgIn") buttonHandler(e, true);
 	});
 	$(document).on('keyup', function(e) {
-		buttonHandler(e, false);
+		if(e.target.id != "msgIn") buttonHandler(e, false);
 	});
 	user[userName] = new CapsuleColider(1, 4);
-	
+
 	switch (modelType) {
 		case "car":
 			scene.add(camera);
@@ -332,7 +365,7 @@ var preInit = function() {
 	});
 
 	nameGuiElement.position.x += nameGuiElement.scale.x / 2;
-	$("#threeJsRenderWindow").append(renderer.domElement);
+	
 	if ($("#fpsShow").is(":checked")) {
 		document.body.appendChild(stats.domElement);
 	} else {
@@ -340,14 +373,16 @@ var preInit = function() {
 	}
 }
 
-var addGroundItem = function(name,location,model,index) {
+var addGroundItem = function(name, location, model, index) {
 	var index1 = index || groundItems.length;
 	model = model.clone();
-	groundItems.splice(index1, 0,{
-		name:name,
-		position:location,
-		model:model,
-		update:function(){this.model.position.copy(this.position);}
+	groundItems.splice(index1, 0, {
+		name: name,
+		position: location,
+		model: model,
+		update: function() {
+			this.model.position.copy(this.position);
+		}
 	});
 	scene.add(model);
 	return groundItems.length - 1;
@@ -412,13 +447,13 @@ function init() {
 	plane.reciveShadow = true;
 	//scene.add(plane);
 
- test = new THREE.Mesh(cubeGeometry, cubeMaterial);
+	test = new THREE.Mesh(cubeGeometry, cubeMaterial);
 	//load externals
-	JsonLoader.load('/node/model/testObject.js', function(geometry,materials) {
-		var material = new THREE.MultiMaterial( materials );
-		debugModel = new THREE.Mesh( geometry, material );
-		debugModel.scale.set(0.1,0.1,0.1);
-		debugItem = new Item("debugItem",debugModel);
+	JsonLoader.load('/node/model/testObject.js', function(geometry, materials) {
+		var material = new THREE.MultiMaterial(materials);
+		debugModel = new THREE.Mesh(geometry, material);
+		debugModel.scale.set(0.1, 0.1, 0.1);
+		debugItem = new Item("debugItem", debugModel);
 		//scene.add( object );
 	});
 	blendMesh.load('model/marine_anims.js', function() {
@@ -428,8 +463,8 @@ function init() {
 
 	initThree(scene);
 	initCannon();
-	
-	cubeItem = new Item("cubeItem",test);
+
+	cubeItem = new Item("cubeItem", test);
 	cannonDebugRenderer = new THREE.CannonDebugRenderer(scene, world);
 	//init renderer
 	renderer = new THREE.WebGLRenderer({
@@ -442,7 +477,7 @@ function init() {
 	controls.dampingFactor = 0.25;
 	controls.enablePan = false;
 	registerSubmitButton();
-	
+
 }
 /**
  * Function to render the scene(s)
@@ -472,8 +507,7 @@ animate();
 //toggles hiding/showing options pannel
 $(function() {
 	$("#server").val(config.client.defaultServer);
-	if(getCookie('login'))
-	{
+	if (getCookie('login')) {
 		$("#name").hide().val(getCookie('login'));
 	}
 	$("#opts").on('click', function() {
@@ -497,16 +531,15 @@ function onWindowResize() {
 //register previous function
 window.addEventListener('resize', onWindowResize, false);
 
-CANNON.Vec3.prototype.lerp2 = function(v,t){
-	this.x = this.x + (v.x-this.x)*t;
-	this.y = this.y + (v.y-this.y)*t;
-	this.z = this.z + (v.z-this.z)*t;
+CANNON.Vec3.prototype.lerp2 = function(v, t) {
+	this.x = this.x + (v.x - this.x) * t;
+	this.y = this.y + (v.y - this.y) * t;
+	this.z = this.z + (v.z - this.z) * t;
 	return this;
 }
-CANNON.Vec3.prototype.lerp3 = function(x,y,z,t)
-{
-	this.x = this.x + (x-this.x)*t;
-	this.y = this.y + (y-this.y)*t;
-	this.z = this.z + (z-this.z)*t;
+CANNON.Vec3.prototype.lerp3 = function(x, y, z, t) {
+	this.x = this.x + (x - this.x) * t;
+	this.y = this.y + (y - this.y) * t;
+	this.z = this.z + (z - this.z) * t;
 	return this;
 }

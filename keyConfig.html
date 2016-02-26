@@ -1,0 +1,148 @@
+<html>
+
+<head>
+  <style>
+    .buttonConfig {
+      position: absolute;
+      height: 50px;
+      width: 50px;
+      background-color: #888;
+      text-align: center;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 50px;
+      font-weight: bold;
+      font-size: 20px;
+      color: #333;
+    }
+    
+    #back {
+      left: 60px;
+      top: 60px;
+    }
+    
+    #forward {
+      left: 60px;
+    }
+    
+    #left {
+      top: 60px;
+    }
+    
+    #right {
+      top: 60px;
+      left: 112px;
+    }
+    
+    #reset {
+      top: 164px;
+    }
+    
+    #chat {
+      top: 164px;
+      left: 60px;
+    }
+    
+    #inventory {
+      top: 164px;
+      left: 112px;
+    }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+  <script src="./js/jquery.color.min.js"></script>
+  <script>
+    var buttons = {
+      forward: 87,
+      left: 65,
+      back: 83,
+      right: 68,
+      reset: 82,
+      chat: 84,
+      inventory: 73
+    }
+
+    ;
+    var keyAvalible = false;
+    $(function() {
+        $(".buttonConfig").mouseover(function(e) {
+          $(document).on("keydown", function(f) {
+            keyAvalible = true;
+            for (var i in buttons) {
+              if (buttons[i] == f.which){ keyAvalible = false;console.log("button used");}
+            }
+            if (keyAvalible) {
+              switch(f.which)
+                {
+                  case 37:
+                    $("#" + e.target.id).html("&larr;");
+                    break;
+                  case 38:
+                     $("#" + e.target.id).html("&uarr;");
+                    break;
+                  case 39:
+                    $("#" + e.target.id).html("&rarr;");
+                    break;
+                  case 40:
+                    $("#" + e.target.id).html("&darr;");
+                    break;
+                  case 17:
+                    $("#" + e.target.id).text("ctrl");
+                    break;
+                  case 16:
+                    $("#" + e.target.id).text("shift");
+                    break;
+                  case 32:
+                    $("#" + e.target.id).text("space");
+                    break;
+                  case 20:
+                    $("#" + e.target.id).text("caps");
+                    break;
+                  case 9:
+                    $("#" + e.target.id).text("tab");
+                    break;
+                  case 13:
+                    $("#" + e.target.id).text("enter");
+                    break;
+                  case 18:
+                    $("#" + e.target.id).text("alt");
+                    break;
+                  case 93:
+                    $("#" + e.target.id).text("menu");
+                    break;
+                  case 91:
+                    $("#" + e.target.id).text("win key");
+                    break;
+                  default:
+                    $("#" + e.target.id).text(String.fromCharCode(f.which).toLowerCase());
+                }
+              buttons[e.target.id] = f.which;
+            }else{
+              $("#" + e.target.id).animate({backgroundColor:"#AC3333"},'fast');
+              setTimeout(function(){
+                $("#" + e.target.id).animate({backgroundColor:"#888"},'slow');
+              },1000);
+            }
+            $("#data").text(JSON.stringify(buttons));
+          });
+        });
+        $(".buttonConfig").mouseleave(function(e) {
+          $(document).off("keydown");
+        });
+      }
+
+    );
+  </script>
+</head>
+
+<body>
+  <div class="buttonConfig" id="forward">w</div>
+  <div class="buttonConfig" id="back">s</div>
+  <div class="buttonConfig" id="left">a</div>
+  <div class="buttonConfig" id="right">d</div>
+  <div class="buttonConfig" id="reset">r</div>
+  <div class="buttonConfig" id="chat">t</div>
+  <div class="buttonConfig" id="inventory">i</div>
+  <div id="data" hidden> </div>
+</body>
+
+</html>

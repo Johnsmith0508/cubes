@@ -27,7 +27,7 @@ socket.on('chat message', function(payload){
 }
 $(document).on('keyup',function(e)
 {
-  if(e.which === 84)
+  if(e.which === keycode.chat)
   {
     $(".chat").show();
     $("#msgIn").focus();

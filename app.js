@@ -14,6 +14,14 @@ var redisClient = config.enableRedis ? redis.createClient() : null;
 var debugItem, itemName, cubeItem;
 var User = {};
 var groundItems = [];
+
+var connection = config.enableMysql ? mysql.createConnection({
+	host: config.mysql.hostname,
+	user: config.mysql.username,
+	password: config.mysql.password,
+	database: config.mysql.database
+}) : null;
+
 Object.prototype.size = function() {
 	var size = 0,
 		key;
@@ -116,14 +124,15 @@ exports.start = function(port) {
 			console.info(user.name + " joined ");
 			userName = user.name;
 			if (config.enableMysql) {
-				var result = connection.query('SELECT * FROM ' + config.mysql.table);
-				for (var i = 0; i < result.length; i++) {
-					if (rows[i].Username == user.cookie && rows[i].Password == user.hashedPassword) {
-						userName = user.cookie;
-						User[userName].posSaved = true;
-						break;
+				connection.query('SELECT * FROM ' + config.mysql.table, function(err, rows, fields) {
+					for (var i = 0; i < rows.length; i++) {
+						if (rows[i].Username == user.cookie && rows[i].Password == user.hashedPassword) {
+							userName = user.cookie;
+							User[userName].posSaved = true;
+							break;
+						}
 					}
-				}
+				});
 			}
 			User[userName] = new THREE.Object3D();
 			User[userName].sid = socket.id;
@@ -133,14 +142,14 @@ exports.start = function(port) {
 			User[userName].directionalForce = new CANNON.Vec3(0, 0, 0);
 			User[userName].jumpForce = new CANNON.Vec3(0, 10, 0);
 			User[userName].key = {
-				w: false,
-				a: false,
-				s: false,
-				d: false,
+				forward: false,
+				left: false,
+				back: false,
+				right: false,
 				q: false,
 				e: false,
-				shift: false,
-				space: false,
+				down: false,
+				up: false,
 				angle: 0
 			}
 			for (var i in User) {
@@ -239,15 +248,15 @@ exports.start = function(port) {
 				User[i].phisObj.velocity.z *= 0.75;
 			} else {
 				User[i].directionalForce.setZero();
-				if (User[i].key.w) User[i].directionalForce.add(-Math.sin(User[i].key.angle), 0, -Math.cos(User[i].key.angle));
-				if (User[i].key.s) User[i].directionalForce.add(Math.sin(User[i].key.angle), 0, Math.cos(User[i].key.angle));
-				if (User[i].key.a) User[i].directionalForce.add(-Math.sin(User[i].key.angle + Math.PI / 2), 0, -Math.cos(User[i].key.angle + Math.PI / 2));
-				if (User[i].key.d) User[i].directionalForce.add(Math.sin(User[i].key.angle + Math.PI / 2), 0, Math.cos(User[i].key.angle + Math.PI / 2));
-				if (User[i].key.space && User[i].canJump) {
+				if (User[i].key.forward) User[i].directionalForce.add(-Math.sin(User[i].key.angle), 0, -Math.cos(User[i].key.angle));
+				if (User[i].key.back) User[i].directionalForce.add(Math.sin(User[i].key.angle), 0, Math.cos(User[i].key.angle));
+				if (User[i].key.left) User[i].directionalForce.add(-Math.sin(User[i].key.angle + Math.PI / 2), 0, -Math.cos(User[i].key.angle + Math.PI / 2));
+				if (User[i].key.right) User[i].directionalForce.add(Math.sin(User[i].key.angle + Math.PI / 2), 0, Math.cos(User[i].key.angle + Math.PI / 2));
+				if (User[i].key.up && User[i].canJump) {
 					User[i].phisObj.applyImpulse(User[i].jumpForce, User[i].phisObj.position);
 					User[i].canJump = false;
 				}
-				if (User[i].key.shift) User[i].directionalForce.add(0, -0.25, 0);
+				if (User[i].key.down) User[i].directionalForce.add(0, -0.25, 0);
 				User[i].directionalForce.normalize();
 				User[i].phisObj.applyImpulse(User[i].directionalForce, User[i].phisObj.position);
 			}
