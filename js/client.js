@@ -77,9 +77,10 @@ var Item = function(name, model, id, onUse, onSecondary) {
 	this.secondary = function() {
 		return onSecondary();
 	}
+	Item.allInstances.push(this);
 	return this;
 }
-
+Item.allInstances = [];
 
 /**
 @constructor
@@ -91,7 +92,7 @@ var Item = function(name, model, id, onUse, onSecondary) {
 var ItemStack = function(item, id, ammount) {
 	this._unclonedItem = item;
 	this.id = id;
-	this.item = item.clone();
+	this.item = item;
 	this.name = this.item.name;
 	this.ammount = ammount || 1;
 	this.model = this.item.model;
@@ -117,9 +118,10 @@ var ItemStack = function(item, id, ammount) {
 	this.clone = function() {
 		return new ItemStack(this._unclonedItem, this.ammount);
 	}
+	ItemStack.allInstances.push(this);
 	return this;
 }
-
+ItemStack.allInstances = [];
 
 
 
@@ -316,7 +318,11 @@ var mainLoop = function() {
 		}
 	}
 	for (var i in user) {
-		user[i].phisObj.position.lerp2(user[i].realPosition, 0.1);
+		if(user[i].phisObj.position.distanceTo(user[i].realPosition) < 4 || i === userName) {
+			user[i].phisObj.position.lerp2(user[i].realPosition, 0.1);
+		} else {
+			user[i].phisObj.position.copy(user[i].realPosition);
+		}
 	}
 }
 
