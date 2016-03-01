@@ -73,21 +73,21 @@ button#send {
 }
 
 #name {
-	position: absolute;
+	width: 169px;
 	margin: auto;
-	bottom: 50%;
 }
 
 #sendName {
-	position: absolute;
-	margin: auto;
-	bottom: 40%;
+	position: relative;
+	top: 65px;
+}
+#logoutButton {
+	position:relative;
 }
 
 #opts {
-	position: absolute;
-	bottom: 25%;
-	margin: auto;
+	position:relative;
+	top: 60px;
 }
 
 #options {
@@ -110,7 +110,7 @@ button#send {
 }
 
 #keyconfig {
-	position:fixed;
+	position: fixed;
 	top: 10px;
 	left: 10px;
 }
@@ -127,6 +127,14 @@ button#send {
 	font-weight: bold;
 	font-size: 20px;
 	color: #333;
+}
+#loginTypes {
+	position: absolute;
+	width: 100%;
+}
+
+#loginButton {
+	width: 173px;
 }
 
 #back {
@@ -148,13 +156,13 @@ button#send {
 }
 
 #up {
-	top: 80px;
-	left: 170px;
+	left: 30px;
+	top: 110px;;
 }
 
 #down {
-	top: 135px;
-	left: 170px;
+	top: 110px;
+	left: 85px;
 }
 
 #reset {

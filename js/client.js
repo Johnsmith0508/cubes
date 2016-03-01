@@ -509,6 +509,8 @@ $(function() {
 	$("#server").val(config.client.defaultServer);
 	if (getCookie('login')) {
 		$("#name").hide().val(getCookie('login'));
+		$("#loginTypes").hide();
+		$("#logoutButton").show();
 	}
 	$("#opts").on('click', function() {
 		$("#options").toggle();

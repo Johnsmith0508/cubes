@@ -34,7 +34,7 @@
 			chat: 84,
 			inventory: 73
 		};
-		
+
 		var keyAvalible = false;
 		$(function() {
 				$(".buttonConfig").mouseover(function(e) {
@@ -149,12 +149,12 @@
 		<!--h4>(!) This will be visible to all other players!</h4-->
 		<p id="usersOnline"></p>
 		<br />
-		<div id="controls">
+		<!--div id="controls">
 			<p>Use W A S D to move</p>
 			<p>
 				Press R to reset the Camera<br/> Press T to open Chat<br/> Click and drag to move the Camera<br/> Scroll to zoom in/out
 			</p>
-		</div>
+		</div-->
 		<div id="keyconfig">
 			<div class="buttonConfig" title="forward" id="forward">w</div>
 			<div class="buttonConfig" title="back" id="back">s</div>
@@ -166,10 +166,14 @@
 			<div class="buttonConfig" title="up" id="up">space</div>
 			<div class="buttonConfig" title="down" id="down">shift</div>
 		</div>
-		<input id="name" type="text" defaultValue="name" />
-		<input id="sendName" type="submit" />
-		<p><a href="/login.php?to=/node" id="abc123">login</a></p>
-		<p><a href="/logout.php?to=/node" id="abc123">logout</a></p>
+		<input id="sendName" type="submit" value="Start!" />
+		<br />
+		<input type="button" id="logoutButton" onclick="window.location = '/logout.php?to=/node';" value="logout" hidden />
+		<br />
+		<div id="loginTypes">
+			<input id="name" type="text" defaultValue="name" /> - or -
+			<input type="button" id="loginButton" onclick="window.location = '/login.php?to=/node';" value="login" />
+		</div>
 		<input id="opts" type="button" value="Options" />
 		<div id="options" hidden>
 			<input id="fpsShow" type="checkbox">Show FPS</input>
