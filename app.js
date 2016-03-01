@@ -64,8 +64,8 @@ var Item = function(name, id, onUse, onSecondary) {
 var ItemStack = function(item, ammount) {
 	this.id = _istackid++;
 	this.ammount = ammount || 1;
-	this.item = item.clone();
-	this.name = this.item.name;
+	this.item = item;
+	this.name = item.name;
 	this._unclonedItem = item;
 	this.addItem = function(num) {
 		num = num || 1;
@@ -112,6 +112,16 @@ exports.start = function(port) {
 		var userName = "";
 		var keysBeingPressed = false;
 		socket.emit('user count', User.size());
+		socket.on('getKeyConfig', function(name) {
+			redisClient.hgetall("cubeuser:" + name, function(err, obj) {
+				if (obj !== null) {
+					io.emit('keyConfig', {
+						name: name,
+						config: obj.keyConfig
+					});
+				}
+			});
+		});
 		socket.on('create user', function(user) {
 			for (var i in User) {
 				if (i == user.name) {
@@ -141,6 +151,7 @@ exports.start = function(port) {
 			User[userName].health = 100;
 			User[userName].directionalForce = new CANNON.Vec3(0, 0, 0);
 			User[userName].jumpForce = new CANNON.Vec3(0, 10, 0);
+			redisClient.hset("cubeuser:" + userName, 'keyConfig', user.keyConfig);
 			User[userName].key = {
 				forward: false,
 				left: false,

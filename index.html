@@ -32,11 +32,25 @@
 			right: 68,
 			reset: 82,
 			chat: 84,
-			inventory: 73
+			inventory: 73,
+			up: 32,
+			down: 16
 		};
 
 		var keyAvalible = false;
 		$(function() {
+				$("#resetControls").on('click',function() {
+					keycode = buttons;
+					$("#forward").text('w');
+					$("#back").text('s');
+					$("#left").text('a');
+					$("#right").text('d');
+					$("#reset").text('r');
+					$("#chat").text('t');
+					$("#inventory").text('i');
+					$("#up").text('space');
+					$("#down").text('shift');
+				});
 				$(".buttonConfig").mouseover(function(e) {
 					$(document).on("keydown", function(f) {
 						keyAvalible = true;
@@ -165,6 +179,7 @@
 			<div class="buttonConfig" title="show inventory" id="inventory">i</div>
 			<div class="buttonConfig" title="up" id="up">space</div>
 			<div class="buttonConfig" title="down" id="down">shift</div>
+			<input type="button" id="resetControls" value="Reset" />
 		</div>
 		<input id="sendName" type="submit" value="Start!" />
 		<br />

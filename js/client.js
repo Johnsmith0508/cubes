@@ -93,7 +93,7 @@ var ItemStack = function(item, id, ammount) {
 	this._unclonedItem = item;
 	this.id = id;
 	this.item = item;
-	this.name = this.item.name;
+	this.name = item.name;
 	this.ammount = ammount || 1;
 	this.model = this.item.model;
 	this.addItem = function(num) {
@@ -166,7 +166,61 @@ var buttonHandler = function(keyPressed, status) {
 	}
 }
 var registerEvents = function() {
-
+		socket.on('keyConfig',function(data) {
+			if(data.name === getCookie('login'))
+				{ try {
+					var parsedConfig = JSON.parse(data.config);
+					keycode = parsedConfig;
+					for(var i in keycode)
+					{
+						switch (keycode[i]) {
+								case 37:
+									$("#" + i).html("&larr;");
+									break;
+								case 38:
+									$("#" + i).html("&uarr;");
+									break;
+								case 39:
+									$("#" + i).html("&rarr;");
+									break;
+								case 40:
+									$("#" + i).html("&darr;");
+									break;
+								case 17:
+									$("#" + i).text("ctrl");
+									break;
+								case 16:
+									$("#" + i).text("shift");
+									break;
+								case 32:
+									$("#" + i).text("space");
+									break;
+								case 20:
+									$("#" + i).text("caps");
+									break;
+								case 9:
+									$("#" + i).text("tab");
+									break;
+								case 13:
+									$("#" + i).text("enter");
+									break;
+								case 18:
+									$("#" + i).text("alt");
+									break;
+								case 93:
+									$("#" + i).text("menu");
+									break;
+								case 91:
+									$("#" + i).text("win key");
+									break;
+								default:
+									$("#" + i).text(String.fromCharCode(keycode[i]).toLowerCase());
+							}
+					}
+				} catch (e) {
+					console.log(e)
+				}}
+		});
 		//called when a user joins the server
 		socket.on('user joined', function(data) {
 			if (typeof user[data.name] == "undefined" && typeof userName != "undefined") {
@@ -248,15 +302,16 @@ var registerEvents = function() {
 	//handles the logic behind the submit button on the login screen
 var submitHandler = function() {
 	$('#name').off('keyup');
-	registerEvents();
 	registerChatSocket();
 	if ($("#name").val().length > 0) {
 		modelType = $(".model:checked").val();
+		console.log(keycode);
 		socket.emit('create user', {
 			name: $("#name").val(),
 			model: modelType,
 			cookie: getCookie('login'),
-			hashedPassword: getCookie('hashpass')
+			hashedPassword: getCookie('hashpass'),
+			keyConfig: JSON.stringify(keycode)
 		});
 	}
 }
@@ -512,11 +567,14 @@ init();
 animate();
 //toggles hiding/showing options pannel
 $(function() {
+	registerEvents();
 	$("#server").val(config.client.defaultServer);
 	if (getCookie('login')) {
+		console.log("asked");
 		$("#name").hide().val(getCookie('login'));
 		$("#loginTypes").hide();
 		$("#logoutButton").show();
+		socket.emit('getKeyConfig',getCookie('login'));
 	}
 	$("#opts").on('click', function() {
 		$("#options").toggle();

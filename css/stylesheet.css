@@ -115,7 +115,7 @@ button#send {
 	left: 10px;
 }
 
-.buttonConfig {
+div.buttonConfig {
 	position: absolute;
 	height: 50px;
 	width: 50px;
@@ -128,6 +128,15 @@ button#send {
 	font-size: 20px;
 	color: #333;
 }
+
+#resetControls {
+	position: absolute;
+	top: 225px;
+	width: 161px;
+	height: 30px;
+	color: 333;
+}
+
 #loginTypes {
 	position: absolute;
 	width: 100%;
