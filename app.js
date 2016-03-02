@@ -151,7 +151,6 @@ exports.start = function(port) {
 			User[userName].health = 100;
 			User[userName].directionalForce = new CANNON.Vec3(0, 0, 0);
 			User[userName].jumpForce = new CANNON.Vec3(0, 10, 0);
-			redisClient.hset("cubeuser:" + userName, 'keyConfig', user.keyConfig);
 			User[userName].key = {
 				forward: false,
 				left: false,
@@ -181,7 +180,8 @@ exports.start = function(port) {
 				rotation: User[user.name].rotation.toArray()
 			});
 
-			if (config.enableRedis) {
+			if (config.enableRedis && User[userName].posSaved) {
+				redisClient.hset("cubeuser:" + userName, 'keyConfig', user.keyConfig);
 				redisClient.hgetall("cubeuser:" + userName, function(err, obj) {
 					if (obj !== null) {
 						User[userName].phisObj.position.set(parseInt(obj.x), parseInt(obj.y), parseInt(obj.z));
