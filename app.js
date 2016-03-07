@@ -133,6 +133,7 @@ exports.start = function(port) {
 			socket /*.broadcast.to(socket.id)*/ .emit('user created');
 			console.info(user.name + " joined ");
 			userName = user.name;
+			User[userName] = new THREE.Object3D();
 			if (config.enableMysql) {
 				connection.query('SELECT * FROM ' + config.mysql.table, function(err, rows, fields) {
 					for (var i = 0; i < rows.length; i++) {
@@ -142,9 +143,24 @@ exports.start = function(port) {
 							break;
 						}
 					}
+					if (config.enableRedis && User[userName].posSaved) {
+						redisClient.hset("cubeuser:" + userName, 'keyConfig', user.keyConfig);
+						redisClient.hgetall("cubeuser:" + userName, function(err, obj) {
+							if (obj !== null) {
+								User[userName].phisObj.position.set(parseInt(obj.x), parseInt(obj.y), parseInt(obj.z));
+								User[userName].health = obj.health || 100;
+								try {
+									User[userName].items = JSON.parse(obj.items);
+								} catch (e) {
+									console.info("Can't read empty array");
+									console.warn(e);
+									console.warn(e.stack);
+								}
+							}
+						});
+					}
 				});
 			}
-			User[userName] = new THREE.Object3D();
 			User[userName].sid = socket.id;
 			User[userName].model = user.model;
 			User[userName].items = {};
@@ -180,22 +196,7 @@ exports.start = function(port) {
 				rotation: User[user.name].rotation.toArray()
 			});
 
-			if (config.enableRedis && User[userName].posSaved) {
-				redisClient.hset("cubeuser:" + userName, 'keyConfig', user.keyConfig);
-				redisClient.hgetall("cubeuser:" + userName, function(err, obj) {
-					if (obj !== null) {
-						User[userName].phisObj.position.set(parseInt(obj.x), parseInt(obj.y), parseInt(obj.z));
-						User[userName].health = obj.health || 100;
-						try {
-							User[userName].items = JSON.parse(obj.items);
-						} catch (e) {
-							console.info("Can't read empty array");
-							console.warn(e);
-							console.warn(e.stack);
-						}
-					}
-				});
-			}
+
 			socket.broadcast.emit('chat message', user.name + " Joined!");
 		});
 		socket.on('keys pressed', function(keys) {

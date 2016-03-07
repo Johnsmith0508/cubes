@@ -252,7 +252,6 @@ var submitHandler = function() {
 	registerChatSocket();
 	if ($("#name").val().length > 0) {
 		modelType = $(".model:checked").val();
-		console.log(keycode);
 		socket.emit('create user', {
 			name: $("#name").val(),
 			model: modelType,
@@ -329,7 +328,6 @@ var mainLoop = function() {
 }
 
 var preInit = function() {
-	//console.log('preinit start');
 	userName = $("#name").val();
 	$('#login').hide();
 	$("#threeJsRenderWindow").append(renderer.domElement);
@@ -566,12 +564,11 @@ $(function() {
 							}
 					}
 				} catch (e) {
-					console.log(e)
+					console.log(e);
 				}}
 		});
 	$("#server").val(config.client.defaultServer);
 	if (getCookie('login')) {
-		console.log("asked");
 		$("#name").hide().val(getCookie('login'));
 		$("#loginTypes").hide();
 		$("#logoutButton").show();

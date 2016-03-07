@@ -13,6 +13,7 @@ GUI.origin = new THREE.Vector3(0, 0, 0);
 @constructor
 */
 GUI.guiScene = function() {
+	var self = this;
 	/** the camera that is used
 	@private */
 	this.camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, -500, 1000);
@@ -83,5 +84,68 @@ GUI.guiScene = function() {
 		sprite.position.y += 1.5;
 		sprite.textWidth = textWidth;
 		return sprite;
+	}
+	/**
+	@construtor
+	*/
+	this.Inventory = function(rows,columns) {
+		this.height = rows * 100 + 1;
+		this.width = columns * 100 + 1;
+		this.rows = rows;
+		this.columns = columns;
+		this.canvas = document.createElement("canvas");
+		this.canvas.height = this.height;
+		this.canvas.width = this.width;
+		this.grid = this.canvas.getContext("2d");
+		this.grid.beginPath();
+		this.grid.rect(0,0,this.width,this.height);
+		this.grid.fillStyle = "white";
+		this.grid.fill();
+		this.grid.lineWidth = 5;
+		this.grid.moveTo(0,0);
+		this.grid.lineTo(0,this.width);
+		this.grid.lineTo(this.height,this.width);
+		this.grid.lineTo(this.height,0);
+		this.grid.lineTo(0,0);
+		this.grid.stroke();
+		this.grid.lineWidth = 2;
+		for (var i = 0; i <= this.width; i+= 100)
+			{
+				this.grid.moveTo(i,0);
+				this.grid.lineTo(i,this.height);
+			}
+		for (var i = 0; i <= this.height; i+= 100)
+			{
+				this.grid.moveTo(0,i);
+				this.grid.lineTo(this.width,i);
+			}
+		this.grid.stroke();
+		this.canvas.style.zIndex = 9001;
+		this.canvas.style.position = 'absolute';
+		this.canvas.style.top = "5px";
+		this.canvas.style.left = "5px";
+		//document.body.appendChild(this.canvas);
+		this.texture = new THREE.Texture(this.canvas);
+		this.texture.needsUpdate = true;
+		this.material = new THREE.SpriteMaterial({map:this.texture});
+		this.sprite = new THREE.Sprite(this.material);
+		this.sprite.scale.set(this.width / 4, this.height / 4 , this.height / 4);
+		self.scene.add(this.sprite);
+		this.hidden = true;
+		this.containerObject = new THREE.Object3D();
+		this.addItemStack = function(itemStack) {
+			this.containerObject.add(itemStack.model);
+		}
+		this.show = function() {
+			this.canvas.style.visibility = "visible";
+			this.hidden = false;
+		}
+		this.hide = function() {
+			this.canvas.style.visibility = "hidden";
+			this.hidden = true;
+		}
+		this.toggle = function() {
+			if(this.hidden){this.show();}else{this.hide();}
+		}
 	}
 }

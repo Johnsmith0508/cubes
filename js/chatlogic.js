@@ -2,7 +2,6 @@
 var hasChatOpen = false;
 $(document.body).on('click','#send',function(){
   hasChatOpen = false;
-  //console.log("send button clicked");
   if($('#msgIn').val().length > 0){
     socket.emit('chat message', $('#msgIn').val());
     $('#msgIn').val('');
