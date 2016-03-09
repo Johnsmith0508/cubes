@@ -74,7 +74,7 @@ stdin.addListener("data", function(d) {
     console.log("Write file? [Y/n]");
     stdin.addListener("data", function(d) {
       if (d.toString().trim().toLowerCase().startsWith("y") || d.toString().trim() === "") {
-        fs.writeFile(__dirname + "/config.json");
+        fs.writeFile(__dirname + "/config.json",JSON.stringify(configData));
         process.stdin.destroy();
       } else { if(!d.toString().trim().toLowerCase().startsWith("n")) {
         console.log("Write file? [Y/n]");

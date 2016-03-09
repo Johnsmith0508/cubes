@@ -19,12 +19,12 @@ var key = {
 	right: false,
 	q: false,
 	e: false,
-	chat: false,
+	chat: false,s
 	up: false,
 	down: false,
 	keyPressed: 0,
 	angle: 0
-};
+};//TODO
 var keycode = {
 	forward : 87,
 	back : 83,
