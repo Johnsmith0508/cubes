@@ -10,6 +10,29 @@ center of the scene
 */
 GUI.origin = new THREE.Vector3(0, 0, 0);
 /**
+default control scheme
+*/
+GUI.CONTROL_SCHEME_DEFAULT = {
+	leftClick: function(inventory, x, y) {
+		if (typeof inventory.items[x][y] === "undefined" && typeof inventory.itemOnMouse !== "undefined") {
+			inventory.addItemToSlot(inventory.mouseItem, x, y);
+			delete inventory.itemOnMouse;
+		}
+		if (typeof inventory.items[x][y] !== "undefined" && typeof inventory.itemOnMouse === "undefined") {
+			inventory.mouseItem = inventory.removeItem(x, y);
+		}
+		if (typeof inventory.items[x][y] !== "undefined" && typeof inventory.itemOnMouse !== "undefined") {
+			var standby = inventory.removeItem(x, y);
+			inventory.addItemToSlot(inventory.itemOnMouse, x, y);
+			inventory.itemOnMouse = standby;
+		}
+
+	},
+	rightClick: function(inventory, itemStack, x, y) {
+
+	}
+};
+/**
 @constructor
 */
 GUI.guiScene = function() {
@@ -95,6 +118,7 @@ GUI.guiScene = function() {
 		opts = opts || {};
 		opts.backgroundColor = opts.backgroundColor || "#fff";
 		opts.lineColor = opts.lineColor || "#000";
+		this.ctrlScheme = opts.ctrlScheme || GUI.CONTROL_SCHEME_DEFAULT;
 		this.height = rows * 100 + 1;
 		this.width = columns * 100 + 1;
 		this.rows = rows;
@@ -136,26 +160,31 @@ GUI.guiScene = function() {
 			map: this.texture
 		});
 		this.sprite = new THREE.Sprite(this.material);
-		this.sprite.scale.set(this.width /* (window.innerHeight / window.innerWidth)*/, this.height /* (window.innerHeight / window.innerWidth)*/, this.height);
+		this.sprite.scale.set(this.width, this.height, 1);
 		this.hidden = true;
 		this.containerObject = new THREE.Object3D();
-		//this.containerObject.scale.set(window.innerHeight / window.innerWidth * 5, window.innerHeight / window.innerWidth * 5, 1);
 		this.containerObject.add(this.sprite);
-		this.addItemStack = function(itemStack) {
-				this.containerObject.add(itemStack.model);
-			}
-			/**
-			@param {ItemStack} itemStack - Itemstack to add to the inv
-			@param {int} x - column to place item in (0 is far left)
-			@param {int} y - row to place item in (0 is top)
-			*/
+		/**
+		@param {ItemStack} itemStack - Itemstack to add to the inv
+		@param {int} x - column to place item in (0 is far left)
+		@param {int} y - row to place item in (0 is top)
+		*/
 		this.addItemToSlot = function(itemStack, x, y) {
 			this.items[x][y] = itemStack.model.clone();
-			var xPos = ((this.width / -2) + (x * 100) + 50) /* (window.innerHeight / window.innerWidth)*/;
-			var yPos = ((this.height / 2) - (y * 100) - 50) /* (window.innerHeight / window.innerWidth)*/;
+			this.items[x][y].ammount = itemStack.ammount;
+			this.items[x][y].itemName = itemStack.name;
+			this.items[x][y].itemStack = itemStack.itemStack;
+			var xPos = ((this.width / -2) + (x * 100) + 50);
+			var yPos = ((this.height / 2) - (y * 100) - 50);
 			this.items[x][y].position.set(xPos, yPos, 0);
 			this.items[x][y].scale.multiplyScalar(50);
 			this.containerObject.add(this.items[x][y]);
+			return [x, y];
+		}
+		this.removeItem = function(x, y) {
+			if (typeof this.items[x][y] === "undefined") return false;
+			this.containerObject.remove(this.items[x][y]);
+			return this.items[x][y].itemStack;
 		}
 		this.show = function() {
 			self.scene.add(this.containerObject);
@@ -174,15 +203,26 @@ GUI.guiScene = function() {
 			return this;
 		}
 		this.update = function() {
-			for(var i = 0; i < this.items.length; i++) {
-				for(var j = 0; j < this.items[i].length; j++) {
-					if(typeof this.items[i][j] !== "undefined")
-						{
-							this.items[i][j].rotation.y += 0.05;
-						}
+			for (var i = 0; i < this.items.length; i++) {
+				for (var j = 0; j < this.items[i].length; j++) {
+					if (typeof this.items[i][j] !== "undefined") {
+						this.items[i][j].rotation.y += 0.05;
+					}
 				}
 			}
 		}
+		window.addEventListener('mousedown', function(e) {
+			if (!invSelf.hidden) {
+				switch (e.button) {
+					case 0:
+						invSelf.ctrlScheme.leftClick(invSelf, Math.floor((window.innerWidth / -2 + invSelf.width / 2 + e.clientX) / 100), Math.floor((window.innerHeight / -2 + invSelf.height / 2 + e.clientY) / 100));
+						break;
+					case 1:
+						invSelf.ctrlScheme.rightClick(invSelf,Math.floor((window.innerWidth / -2 + invSelf.width / 2 + e.clientX) / 100), Math.floor((window.innerHeight / -2 + invSelf.height / 2 + e.clientY) / 100));
+						break;
+				}
+			}
+		}, false);
 		window.addEventListener('resize', function() {
 			//invSelf.containerObject.scale.set(3 * window.innerHeight / window.innerWidth, 3 * window.innerHeight / window.innerWidth, 1);
 			//invSelf.sprite.scale.set(invSelf.width * (window.innerHeight / window.innerWidth), invSelf.height * (window.innerHeight / window.innerWidth), invSelf.height);
