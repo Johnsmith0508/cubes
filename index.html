@@ -52,6 +52,7 @@
 					$("#down").text('shift');
 				});
 				$(".buttonConfig").mouseover(function(e) {
+					$("#" + e.target.id).animate({backgroundColor: "#777"},"fast");
 					$(document).on("keydown", function(f) {
 						keyAvalible = true;
 						for (var i in keycode) {
@@ -118,6 +119,7 @@
 					});
 				});
 				$(".buttonConfig").mouseleave(function(e) {
+					$("#" + e.target.id).animate({backgroundColor: "#888"},"fast");
 					$(document).off("keydown");
 				});
 			}

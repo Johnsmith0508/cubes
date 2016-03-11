@@ -2,7 +2,7 @@
 var test, debugModel, cubeItem;
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
 var scene, guiScene, camera, renderer, objMtlLoader, JsonLoader, gui, chatHideDelay, userName = "",
-	debugItem,
+	debugItem, inventory,
 	isShifted, blendMesh, testsprite, cannonDebugRenderer, cubeGeometry, cubeMaterial, clientCubeMaterial, carGeometry, carMaterial, controls, floorMaterial, wallsMaterial, light;
 var color;
 //create socket.io connection to server
@@ -19,12 +19,12 @@ var key = {
 	right: false,
 	q: false,
 	e: false,
-	chat: false,s
+	chat: false,
 	up: false,
 	down: false,
 	keyPressed: 0,
 	angle: 0
-};//TODO
+};
 var keycode = {
 	forward : 87,
 	back : 83,
@@ -33,7 +33,8 @@ var keycode = {
 	up : 32,
 	down : 16,
 	reset : 82,
-	chat : 84
+	chat : 84,
+	inventory : 73
 }
 /** Object of all users @private */
 var user = {};
@@ -158,6 +159,9 @@ var buttonHandler = function(keyPressed, status) {
 		case keycode.reset:
 			controls.reset();
 			break;
+		case keycode.inventory:
+			if (status) inventory.toggle();
+			break;
 	}
 	if (keyPressed.shiftKey) {
 		key.down = true;
@@ -277,6 +281,7 @@ var mainLoop = function() {
 	$("#items").empty();
 	if (typeof user[userName] === "undefined") return;
 	key.angle = controls.getAzimuthalAngle();
+	inventory.update();
 	directonalForce.setZero();
 	if (key.forward) {
 		directonalForce.add(-Math.sin(key.angle), 0, -Math.cos(key.angle));
@@ -405,6 +410,9 @@ function init() {
 	JsonLoader = new THREE.JSONLoader();
 	blendMesh = new THREE.BlendCharacter();
 	gui = new GUI.guiScene();
+	
+	inventory = new gui.Inventory(5,9);
+	
 	//configure stats
 	stats.setMode(0);
 	stats.domElement.style.position = "absolute";
