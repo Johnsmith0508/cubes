@@ -136,7 +136,7 @@ GUI.guiScene = function() {
 			map: this.texture
 		});
 		this.sprite = new THREE.Sprite(this.material);
-		this.sprite.scale.set(this.width * (window.innerHeight / window.innerWidth), this.height * (window.innerHeight / window.innerWidth), this.height);
+		this.sprite.scale.set(this.width /* (window.innerHeight / window.innerWidth)*/, this.height /* (window.innerHeight / window.innerWidth)*/, this.height);
 		this.hidden = true;
 		this.containerObject = new THREE.Object3D();
 		//this.containerObject.scale.set(window.innerHeight / window.innerWidth * 5, window.innerHeight / window.innerWidth * 5, 1);
@@ -151,10 +151,10 @@ GUI.guiScene = function() {
 			*/
 		this.addItemToSlot = function(itemStack, x, y) {
 			this.items[x][y] = itemStack.model.clone();
-			var xPos = ((this.width / -2) + (x * 100) + 50) * (window.innerHeight / window.innerWidth);
-			var yPos = ((this.height / 2) - (y * 100) - 50) * (window.innerHeight / window.innerWidth);
+			var xPos = ((this.width / -2) + (x * 100) + 50) /* (window.innerHeight / window.innerWidth)*/;
+			var yPos = ((this.height / 2) - (y * 100) - 50) /* (window.innerHeight / window.innerWidth)*/;
 			this.items[x][y].position.set(xPos, yPos, 0);
-			this.items[x][y].scale.multiplyScalar(25);
+			this.items[x][y].scale.multiplyScalar(50);
 			this.containerObject.add(this.items[x][y]);
 		}
 		this.show = function() {
