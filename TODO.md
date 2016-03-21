@@ -3,3 +3,7 @@
 - [ ] Add better items
 - [X] Display items to users in a way that looks good
 - [ ] Fix the game
+- [ ] Refactor code to use browserify
+  - [X] clientPhysics.js
+  - [ ] client.js
+  - [ ] functions.js

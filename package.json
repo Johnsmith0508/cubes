@@ -18,7 +18,8 @@
     "mysql": "^2.10.2",
     "redis": "^2.4.2",
     "socket.io": "^1.3.7",
-    "three": "^0.73.0"
+    "three": "^0.73.0",
+    "three.js": "^0.73.2"
   },
   "devDependencies": {
     "zombie": "^4.1.0"
