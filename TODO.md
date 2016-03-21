@@ -6,4 +6,4 @@
 - [ ] Refactor code to use browserify
   - [X] clientPhysics.js
   - [ ] client.js
-  - [ ] functions.js
+  - [X] functions.js

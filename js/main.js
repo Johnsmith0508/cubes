@@ -1,1 +1,2 @@
-var physics = require("./clientPhysics.js");
+var physics = require("./clientPhysics.new.js");
+physics.initCannon();
