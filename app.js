@@ -280,7 +280,11 @@ exports.start = function(port) {
 					} else {
 						User[i].items[itemName]++;
 					}
-					io.emit('itemRemove', groundItems[j].id);
+					io.emit('itemRemove', {
+						id: groundItems[j].id,
+						user: i,
+						itemName: groundItems[j].name
+					});
 					groundItems[j].removeItem();
 					if (groundItems[j].ammount <= 0) groundItems.splice(j, 1);
 					switch (itemName) {

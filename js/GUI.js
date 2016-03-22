@@ -134,6 +134,7 @@ GUI.guiScene = function() {
 		this.grid.beginPath();
 		this.grid.rect(0, 0, this.width, this.height);
 		this.grid.fillStyle = opts.backgroundColor;
+		this.grid.font = "30px Arial";
 		this.grid.fill();
 		this.grid.lineWidth = 5;
 		this.grid.strokeStyle = opts.lineColor;
@@ -153,8 +154,10 @@ GUI.guiScene = function() {
 			this.grid.lineTo(this.width, i);
 		}
 		this.grid.stroke();
+		this.grid.fillStyle = opts.lineColor;
 		//document.body.appendChild(this.canvas);
 		this.texture = new THREE.Texture(this.canvas);
+		this.texture.minFilter = THREE.LinearFilter
 		this.texture.needsUpdate = true;
 		this.material = new THREE.SpriteMaterial({
 			map: this.texture
@@ -180,6 +183,15 @@ GUI.guiScene = function() {
 			this.items[x][y].scale.multiplyScalar(50);
 			this.containerObject.add(this.items[x][y]);
 			return [x, y];
+		}
+		this.getEmptySlot = function() {
+			for(var j = 0; j < this.rows; j++){for(var i = 0; i < this.columns; i++){
+				if(typeof this.items[i][j] === "undefined"){ return [i,j];}
+			}}
+		}
+		this.addItemToEmptySlot = function(itemStack) {
+			var pos = this.getEmptySlot();
+			this.addItemToSlot(itemStack,pos[0],pos[1]);
 		}
 		this.removeItem = function(x, y) {
 			if (typeof this.items[x][y] === "undefined") return false;
@@ -207,9 +219,25 @@ GUI.guiScene = function() {
 				for (var j = 0; j < this.items[i].length; j++) {
 					if (typeof this.items[i][j] !== "undefined") {
 						this.items[i][j].rotation.y += 0.05;
+						this.grid.fillStyle = opts.backgroundColor;
+						this.grid.fillText(this.items[i][j].oldAmt,i * 100 + 5, j * 100 + 30);
+						this.grid.fillStyle = opts.lineColor;
+						this.grid.fillText(this.items[i][j].ammount,i * 100 + 5, j * 100 + 30);
+						this.items[i][j].oldAmt = this.items[i][j].ammount;
+						
+		this.texture.needsUpdate = true;
 					}
 				}
 			}
+		}
+		this.locateItem = function(itemName) {
+			var ret = [];
+			for(var i = 0; i < this.items.length; i++){ for(var j = 0; j < this.items[i].length; j++) {
+				if(typeof this.items[i][j] !== "undefined" && this.items[i][j].itemName == itemName) {
+					return [i,j];
+				}
+			}}
+			return ret.length > 1 ? ret : ret[0];
 		}
 		window.addEventListener('mousedown', function(e) {
 			if (!invSelf.hidden) {

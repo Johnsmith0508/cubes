@@ -231,13 +231,23 @@ var registerEvents = function() {
 			}
 			groundItems[itemPosition].model.position.copy(data.position);
 		});
-		socket.on('itemRemove', function(id) {
+		socket.on('itemRemove', function(data) {
 			for (var i = 0; i < groundItems.length; i++) {
-				if (groundItems[i].id == id) {
+				if (groundItems[i].id == data.id) {
 					scene.remove(groundItems[i].model);
+					if(data.user === userName) {
+						if(typeof inventory.locateItem(data.itemName) !== "undefined")
+						{
+							var itemLocation = inventory.locateItem(data.itemName);
+							inventory.items[itemLocation[0]][itemLocation[1]].ammount++;
+						} else {
+							inventory.addItemToEmptySlot(groundItems[i]);
+						}
+					}
 					groundItems.splice(i, 1);
 				}
 			}
+			
 		});
 		socket.on('itemHeld', function(data) {
 			if (typeof user[data.name] !== "undefined") {
