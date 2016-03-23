@@ -74,3 +74,15 @@ var loadJson = function(url) {
   $.ajaxSetup( { "async": false } );
   return $.getJSON(url).responseJSON;
 }
+
+var createElement = function(name,opts) {
+  opts = opts || {};
+  var element = document.createElement(name);
+  element.createElement = function(name, opts){element.appendChild(createElement(name,opts));return element;}
+  element.addElement = function(ele,opts){ opts = opts || {}; element.appendChild(ele); if(typeof opts.id !== "undefined"){ele.id = opts.id;} if(typeof opts.class !== "undefined"){ele.class = opts.class;} return element;}
+  element.setId = function(id){element.id = id; return element;}
+  element.setClass = function(c){element.class = c; return element;}
+  if(typeof opts.id !== "undefined")element.id = opts.id;
+  if(typeof opts.class !== "undefined")element.class = opts.class;
+  return element;
+}

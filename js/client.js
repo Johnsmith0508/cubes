@@ -263,7 +263,6 @@ var registerEvents = function() {
 var submitHandler = function() {
 	$('#name').off('keyup');
 	registerEvents();
-	registerChatSocket();
 	if ($("#name").val().length > 0) {
 		modelType = $(".model:checked").val();
 		socket.emit('create user', {
@@ -392,6 +391,8 @@ var preInit = function() {
 	} else {
 		registerSubmitButton();
 	}
+	var chat = new Chat(socket,keycode.chat);
+	document.getElementById("main_window").appendChild(chat);
 }
 
 var addGroundItem = function(name, location, model, index) {
