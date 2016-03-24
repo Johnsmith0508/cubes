@@ -82,7 +82,7 @@ var createElement = function(name,opts) {
   element.addElement = function(ele,opts){ opts = opts || {}; element.appendChild(ele); if(typeof opts.id !== "undefined"){ele.id = opts.id;} if(typeof opts.class !== "undefined"){ele.class = opts.class;} return element;}
   element.setId = function(id){element.id = id; return element;}
   element.setClass = function(c){element.class = c; return element;}
-  if(typeof opts.id !== "undefined")element.id = opts.id;
-  if(typeof opts.class !== "undefined")element.class = opts.class;
+  element.id = (typeof opts.id !== "undefined") ? element.id = opts.id : null;
+  element.class = (typeof opts.class !== "undefined") ? opts.class : null;
   return element;
 }
