@@ -3,6 +3,9 @@
 @param {socket} socket - socket.io connection to use
 */
 var Chat = function(socket, keyCode, opts) {
+  opts = opts || {};
+  opts.hideDelay = opts.hideDelay || 5;
+  var timeout;
   this.element = createElement("div").setClass("chat").createElement("ul", {
     id: "messages"
   }).createElement("input", {
@@ -29,17 +32,15 @@ var Chat = function(socket, keyCode, opts) {
       $('#messages').append($('<li>').text(payload));
     }
     if (!this.chatOpen) {
-      setTimeout(function() {
+      clearTimeout(timeout);
+      timeout = setTimeout(function() {
         $(".chat").hide();
-      }, chatHideDelay * 1000);
+      }, opts.hideDelay * 1000);
     }
   });
   $("#messages").scroll(function() {
-    console.log($("#messages").scrollTop() + $("#messages").innerHeight(), document.getElementById("messages").scrollHeight);
-    setTimeout(function(){ console.log(document.getElementById("messages").scrollHeight);},1000);
     if ($("#messages").scrollTop() + $("#messages").innerHeight() == document.getElementById("messages").scrollHeight) {
       atBottom = true;
-      console.log("atBottom");
     } else {
       atBottom = false;
     }
@@ -48,10 +49,16 @@ var Chat = function(socket, keyCode, opts) {
     if (e.which === keyCode) {
       $(".chat").show();
       $("#msgIn").focus();
+      clearTimeout(timeout);
       hasChatOpen = true;
     }
     if (e.which === 13) {
       $("#send").trigger('click');
+    }
+    if (typeof opts.closeKey !== "undefined") {
+      if (e.which === opts.closeKey) {
+        $(".chat").hide();
+      }
     }
   });
   return this.element;

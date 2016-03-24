@@ -392,7 +392,7 @@ var preInit = function() {
 	} else {
 		registerSubmitButton();
 	}
-	var chat = new Chat(socket,keycode.chat);
+	var chat = new Chat(socket,keycode.chat, {closeKey:keycode.close, hideDelay: $("#chatDelay").val()});
 	document.getElementById("main_window").appendChild(chat);
 }
 
