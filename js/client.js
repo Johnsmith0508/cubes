@@ -3,7 +3,7 @@ var test, debugModel, cubeItem;
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
 var scene, guiScene, camera, renderer, objMtlLoader, JsonLoader, gui, chatHideDelay, userName = "",
 	debugItem, inventory,
-	isShifted, blendMesh, testsprite, cannonDebugRenderer, cubeGeometry, cubeMaterial, clientCubeMaterial, carGeometry, carMaterial, controls, floorMaterial, wallsMaterial, light;
+	isShifted, blendMesh, testsprite, cannonDebugRenderer, cubeGeometry, cubeMaterial, clientCubeMaterial, carGeometry, carMaterial, controls, floorMaterial, wallsMaterial, light, ambientLight;
 var color;
 //create socket.io connection to server
 var socket = new io('//dynalogic.org', {
@@ -447,6 +447,8 @@ function init() {
 	light.position.z = 5;
 	light.position.x = -7;
 	scene.add(light);
+	ambientLight = new THREE.AmbientLight( 0x404040 ); // soft white light
+	scene.add(ambientLight);
 	//scene.add(new THREE.AmbientLight( 0xaaaaaa ));
 
 	//init materials
