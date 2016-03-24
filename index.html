@@ -50,15 +50,15 @@
 					$("#inventory").text('i');
 					$("#up").text('space');
 					$("#down").text('shift');
+					$("#close").text('esc');
 				});
-				$(".buttonConfig").mouseover(function(e) {
+				var configFunction = function(e) {
 					$("#" + e.target.id).animate({backgroundColor: "#777"},"fast");
 					$(document).on("keydown", function(f) {
 						keyAvalible = true;
 						for (var i in keycode) {
 							if (keycode[i] == f.which) {
 								keyAvalible = false;
-								console.log("button used");
 							}
 						}
 						if (keyAvalible) {
@@ -102,6 +102,9 @@
 								case 91:
 									$("#" + e.target.id).text("win key");
 									break;
+								case 27:
+									$("#" + e.target.id).text("esc");
+									break;
 								default:
 									$("#" + e.target.id).text(String.fromCharCode(f.which).toLowerCase());
 							}
@@ -117,8 +120,14 @@
 							}, 1000);
 						}
 					});
-				});
+				}
+				$(".buttonConfig").mouseover(configFunction);
+				$(".tableConfig").mouseover(configFunction);
 				$(".buttonConfig").mouseleave(function(e) {
+					$("#" + e.target.id).animate({backgroundColor: "#888"},"fast");
+					$(document).off("keydown");
+				});
+				$(".tableConfig").mouseleave(function(e) {
 					$("#" + e.target.id).animate({backgroundColor: "#888"},"fast");
 					$(document).off("keydown");
 				});
@@ -177,12 +186,29 @@
 			<div class="buttonConfig" title="back" id="back">s</div>
 			<div class="buttonConfig" title="left" id="left">a</div>
 			<div class="buttonConfig" title="right" id="right">d</div>
-			<div class="buttonConfig" title="reset camera" id="reset">r</div>
-			<div class="buttonConfig" title="chat" id="chat">t</div>
-			<div class="buttonConfig" title="show inventory" id="inventory">i</div>
 			<div class="buttonConfig" title="up" id="up">space</div>
 			<div class="buttonConfig" title="down" id="down">shift</div>
 			<input type="button" id="resetControls" value="Reset" />
+			<table class="configTable">
+				<col width="130px" />
+				<col width="70px" />
+				<tr>
+					<td class="tableInfo">Close</td>
+					<td class="tableConfig" id="close">esc</td>
+				</tr>
+				<tr>
+					<td class="tableInfo">Reset Camera</td>
+					<td class="tableConfig" id="reset">r</td>
+				</tr>
+				<tr>
+					<td class="tableInfo">Open Chat</td>
+					<td class="tableConfig" id="chat">t</td>
+				</tr>
+				<tr>
+					<td class="tableInfo">Show Inventory</td>
+					<td class="tableConfig" id="inventory">i</td>
+				</tr>
+			</table>
 		</div>
 		<input id="sendName" type="submit" value="Start!" />
 		<br />

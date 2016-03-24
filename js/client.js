@@ -34,7 +34,8 @@ var keycode = {
 	down : 16,
 	reset : 82,
 	chat : 84,
-	inventory : 73
+	inventory : 73,
+	close : 27
 }
 /** Object of all users @private */
 var user = {};
@@ -586,7 +587,7 @@ $(function() {
 					console.log(e);
 				}}
 		});
-	$("#server").val(config.client.defaultServer);
+	$("#server").val(config.defaultServer);
 	if (getCookie('login')) {
 		$("#name").hide().val(getCookie('login'));
 		$("#loginTypes").hide();

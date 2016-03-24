@@ -6,3 +6,4 @@ out/*
 CannonDebugRenderer.js
 config.json
 hamsters.min.js
+.sass-cache/*

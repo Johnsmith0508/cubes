@@ -1,6 +1,7 @@
 var physics = require('./server/serverPhis.js');
 var socketProxy = require('./server/socketProxy.js');
 var config = require('./config').server;
+var clientConfig = require('./config').client;
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
@@ -102,6 +103,9 @@ exports.start = function(port) {
 		console.error(err);
 	});
 	physics.initCannon();
+	app.all('/config.json', function(req,res) {
+		res.end(JSON.stringify(clientConfig));
+	});
 	app.use(express.static(__dirname + '/'));
 	app.get('/', function(req, res) {
 		res.sendFile(__dirname + '/index.html');

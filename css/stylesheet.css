@@ -1,189 +1,180 @@
 body {
-	overflow: hidden;
-}
+  overflow: hidden; }
 
 div.chat {
-	position: absolute;
-	right: 0;
-	top: 0;
-}
+  position: absolute;
+  right: 0;
+  top: 0; }
 
 div.inventory {
-	position: absolute;
-	left: 0;
-	top: 10px;
-}
+  position: absolute;
+  left: 0;
+  top: 10px; }
 
 #messages {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-}
+  list-style-type: none;
+  margin: 0;
+  padding: 0; }
 
 #messages li {
-	opacity: .5;
-	padding: 5px 10px;
-}
+  opacity: .5;
+  padding: 5px 10px; }
 
 #messages li:nth-child(odd) {
-	background-color: #4c4c4c;
-}
+  background-color: #4c4c4c; }
 
 #messages li:nth-child(even) {
-	background-color: #707070;
-}
+  background-color: #707070; }
 
 div.chat {
-	position: absolute;
-	top: 0;
-	right: 0;
-	width: 350px;
-	height: 500px;
-}
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 350px;
+  height: 500px; }
 
 ul#messages {
-	overflow: auto;
-	height: 95%;
-}
+  overflow: auto;
+  height: 95%; }
 
 input#msgIn {
-	position: absolute;
-	bottom: 0px;
-	width: 66.66%;
-}
+  position: absolute;
+  bottom: 0px;
+  width: 66.66%; }
 
 button#send {
-	position: absolute;
-	bottom: 0px;
-	right: 0px;
-	width: 33.33%;
-}
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 33.33%; }
 
 #login {
-	width: 50%;
-	height: 300px;
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	margin: auto;
-	border-style: groove;
-	text-align: center;
-}
+  width: 50%;
+  height: 300px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  border-style: groove;
+  text-align: center; }
 
 #name {
-	width: 169px;
-	margin: auto;
-}
+  width: 169px;
+  margin: auto; }
 
 #sendName {
-	position: relative;
-	top: 65px;
-}
+  position: relative;
+  top: 65px; }
+
 #logoutButton {
-	position:relative;
-}
+  position: relative; }
 
 #opts {
-	position:relative;
-	top: 60px;
-}
+  position: relative;
+  top: 60px; }
 
 #options {
-	border-style: groove;
-	position: absolute;
-	top: -130px;
-	left: 5%;
-}
+  border-style: groove;
+  position: absolute;
+  top: -130px;
+  left: 5%; }
 
 #ErrorMsg {
-	position: fixed;
-	margin: auto;
-	text-color: #ff0000;
-}
+  position: fixed;
+  margin: auto;
+  text-color: #ff0000; }
 
 #controls {
-	border-style: ridge;
-	position: absolute;
-	left: 100px;
-}
+  border-style: ridge;
+  position: absolute;
+  left: 100px; }
 
 #keyconfig {
-	position: fixed;
-	top: 10px;
-	left: 10px;
-}
+  position: fixed;
+  top: 10px;
+  left: 10px; }
 
 div.buttonConfig {
-	position: absolute;
-	height: 50px;
-	width: 50px;
-	background-color: #888;
-	text-align: center;
-	display: inline-block;
-	vertical-align: middle;
-	line-height: 50px;
-	font-weight: bold;
-	font-size: 20px;
-	color: #333;
-}
+  position: absolute;
+  height: 50px;
+  width: 50px;
+  background-color: #888;
+  text-align: center;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 50px;
+  font-weight: bold;
+  font-size: 20px;
+  color: #333; }
+
+.configTable {
+  table-layout: fixed;
+  position: absolute;
+  top: 300px;
+  width: 225px;
+  font-weight: bold;
+  font-size: 20px;
+  color: #333; }
+
+.tableConfig {
+  background-color: #888; }
+
+.tableInfo {
+  background-color: #999; }
+
+tr, td, table {
+  border: 1px solid white; }
 
 #resetControls {
-	position: absolute;
-	top: 225px;
-	width: 161px;
-	height: 30px;
-	color: 333;
-}
+  position: absolute;
+  top: 225px;
+  width: 161px;
+  height: 30px;
+  color: 333; }
 
 #loginTypes {
-	position: absolute;
-	width: 100%;
-}
+  position: absolute;
+  width: 100%; }
 
 #loginButton {
-	width: 173px;
-}
+  width: 173px; }
 
 #back {
-	left: 55px;
-	top: 55px;
-}
+  left: 55px;
+  top: 55px; }
 
 #forward {
-	left: 55px;
-}
+  left: 55px; }
 
 #left {
-	top: 55px;
-}
+  top: 55px; }
 
 #right {
-	top: 55px;
-	left: 112px;
-}
+  top: 55px;
+  left: 112px; }
 
 #up {
-	left: 30px;
-	top: 110px;;
-}
+  left: 30px;
+  top: 110px; }
 
 #down {
-	top: 110px;
-	left: 85px;
-}
+  top: 110px;
+  left: 85px; }
 
 #reset {
-	top: 165px;
-}
+  top: 165px; }
 
 #chat {
-	top: 165px;
-	left: 55px;
-}
+  top: 165px;
+  left: 55px; }
 
 #inventory {
-	top: 165px;
-	left: 112px;
-}
+  top: 165px;
+  left: 112px; }
+
+#close {
+  top: 335px; }
+
+/*# sourceMappingURL=stylesheet.css.map */
