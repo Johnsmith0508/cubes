@@ -1,10 +1,11 @@
 /**
 @construtor
-@param {socket} socket - socket.io connection to use
+@param {socket.io} socket - socket.io connection to use
 */
 var Chat = function(socket, keyCode, opts) {
   opts = opts || {};
   opts.hideDelay = opts.hideDelay || 5;
+  opts.closeKey = opts.closeKey || 27;
   var timeout;
   this.element = createElement("div").setClass("chat").createElement("ul", {
     id: "messages"

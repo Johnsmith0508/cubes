@@ -13,23 +13,34 @@ GUI.origin = new THREE.Vector3(0, 0, 0);
 default control scheme
 */
 GUI.CONTROL_SCHEME_DEFAULT = {
+	/**
+	
+	*/
 	leftClick: function(inventory, x, y) {
-		if (typeof inventory.items[x][y] === "undefined" && typeof inventory.itemOnMouse !== "undefined") {
+		var itemInSlot = typeof inventory.items[x][y] !== "undefined";
+		var itemOnMouse = typeof inventory.mouseItem !== "undefined";
+		if (itemOnMouse && !itemInSlot) {
 			inventory.addItemToSlot(inventory.mouseItem, x, y);
-			delete inventory.itemOnMouse;
+			delete inventory.mouseItem;
 		}
-		if (typeof inventory.items[x][y] !== "undefined" && typeof inventory.itemOnMouse === "undefined") {
+		if (itemInSlot && !itemOnMouse) {
 			inventory.mouseItem = inventory.removeItem(x, y);
+			delete inventory.items[x][y];
 		}
-		if (typeof inventory.items[x][y] !== "undefined" && typeof inventory.itemOnMouse !== "undefined") {
+		if (itemInSlot && itemOnMouse) {
+			if(inventory.items[x][y].itemName == inventory.mouseItem.itemName) {
+				inventory.items[x][y].ammount += inventory.mouseItem.ammount;
+				delete inventory.mouseItem;
+				return;
+			}
 			var standby = inventory.removeItem(x, y);
 			inventory.addItemToSlot(inventory.itemOnMouse, x, y);
 			inventory.itemOnMouse = standby;
 		}
-
 	},
-	rightClick: function(inventory, itemStack, x, y) {
-
+	rightClick: function(inventory, x, y) {
+		var itemInSlot = typeof inventory.items[x][y] !== "undefined";
+		var itemOnMouse = typeof inventory.itemOnMouse !== "undefined";
 	}
 };
 /**
@@ -175,8 +186,9 @@ GUI.guiScene = function() {
 		this.addItemToSlot = function(itemStack, x, y) {
 			this.items[x][y] = itemStack.model.clone();
 			this.items[x][y].ammount = itemStack.ammount;
+			this.items[x][y].oldAmt = itemStack.ammount;
 			this.items[x][y].itemName = itemStack.name;
-			this.items[x][y].itemStack = itemStack.itemStack;
+			this.items[x][y].itemStack = itemStack;
 			var xPos = ((this.width / -2) + (x * 100) + 50);
 			var yPos = ((this.height / 2) - (y * 100) - 50);
 			this.items[x][y].position.set(xPos, yPos, 0);
@@ -196,7 +208,13 @@ GUI.guiScene = function() {
 		this.removeItem = function(x, y) {
 			if (typeof this.items[x][y] === "undefined") return false;
 			this.containerObject.remove(this.items[x][y]);
-			return this.items[x][y].itemStack;
+			var ret = this.items[x][y].itemStack.clone();
+			ret.ammount = this.items[x][y].ammount;
+			this.grid.fillStyle = opts.backgroundColor;
+			this.grid.fillText(this.items[x][y].oldAmt,x * 100 + 5, y * 100 + 30);
+			delete this.items[x][y].ammount;
+			
+			return ret;
 		}
 		this.show = function() {
 			self.scene.add(this.containerObject);
@@ -240,13 +258,15 @@ GUI.guiScene = function() {
 			return ret.length > 1 ? ret : ret[0];
 		}
 		window.addEventListener('mousedown', function(e) {
-			if (!invSelf.hidden) {
+			var row = Math.floor((window.innerHeight / -2 + invSelf.height / 2 + e.clientY) / 100);
+			var col =  Math.floor((window.innerWidth / -2 + invSelf.width / 2 + e.clientX) / 100);
+			if (!invSelf.hidden &&  col <= invSelf.columns - 1 && row <= invSelf.rows - 1 && row >= 0 && col >= 0) {
 				switch (e.button) {
 					case 0:
-						invSelf.ctrlScheme.leftClick(invSelf, Math.floor((window.innerWidth / -2 + invSelf.width / 2 + e.clientX) / 100), Math.floor((window.innerHeight / -2 + invSelf.height / 2 + e.clientY) / 100));
+						invSelf.ctrlScheme.leftClick(invSelf, col, row);
 						break;
 					case 1:
-						invSelf.ctrlScheme.rightClick(invSelf,Math.floor((window.innerWidth / -2 + invSelf.width / 2 + e.clientX) / 100), Math.floor((window.innerHeight / -2 + invSelf.height / 2 + e.clientY) / 100));
+						invSelf.ctrlScheme.rightClick(invSelf, col, row);
 						break;
 				}
 			}

@@ -288,7 +288,6 @@ var registerSubmitButton = function() {
 
 //function that contains all logic for various things
 var mainLoop = function() {
-	$("#items").empty();
 	if (typeof user[userName] === "undefined") return;
 	key.angle = controls.getAzimuthalAngle();
 	inventory.update();
@@ -319,8 +318,6 @@ var mainLoop = function() {
 	}
 	if (key.down) directonalForce.add(0, -0.25, 0);
 	directonalForce.normalize();
-	for (var j in user[userName].items) $("#items").append($("<li>").text(j + " - " + user[userName].items[j]));
-
 	if (key.forward || key.back || key.left || key.right || key.q || key.e || key.up || key.down) {
 		user[userName].phisObj.applyImpulse(directonalForce, user[userName].phisObj.position);
 		sendUpdateNoKey = true;
