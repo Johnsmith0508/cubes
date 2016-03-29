@@ -28,14 +28,14 @@ GUI.CONTROL_SCHEME_DEFAULT = {
 			delete inventory.items[x][y];
 		}
 		if (itemInSlot && itemOnMouse) {
-			if(inventory.items[x][y].itemName == inventory.mouseItem.itemName) {
+			if(inventory.items[x][y].itemName == inventory.mouseItem.name) {
 				inventory.items[x][y].ammount += inventory.mouseItem.ammount;
 				delete inventory.mouseItem;
 				return;
 			}
 			var standby = inventory.removeItem(x, y);
-			inventory.addItemToSlot(inventory.itemOnMouse, x, y);
-			inventory.itemOnMouse = standby;
+			inventory.addItemToSlot(inventory.mouseItem, x, y);
+			inventory.mouseItem = standby;
 		}
 	},
 	rightClick: function(inventory, x, y) {
