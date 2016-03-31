@@ -3,7 +3,7 @@ if (typeof THREE === "undefined") throw "THREE.JS not found";
 
 /** @namespace */
 var GUI = {
-	version: '0.0.1'
+	version: '1.0.1'
 };
 /**
 center of the scene
@@ -13,8 +13,11 @@ GUI.origin = new THREE.Vector3(0, 0, 0);
 default control scheme
 */
 GUI.CONTROL_SCHEME_DEFAULT = {
-	/**
-	
+	/*
+	intended behavior:
+		if user has item on mouse and none in the selected slot, place item in slot
+		if user has no item on mouse and one in selected slot, pick up item
+		if user has item on mouse and in selected slot, switch items. unless they are the same item, then combine
 	*/
 	leftClick: function(inventory, x, y) {
 		var itemInSlot = typeof inventory.items[x][y] !== "undefined";
@@ -38,9 +41,38 @@ GUI.CONTROL_SCHEME_DEFAULT = {
 			inventory.mouseItem = standby;
 		}
 	},
+	/*
+	intended behavior:
+		if user has item on mouse and none in slot, add one to slot; remove one from mouse
+		if user has item no item on mouse and one in slot, remove half from the slot (floor num in slot, celing num on mouse)
+		if user has item on mouse and item in hand, switch them. unless they are the same, then add one to slot & remove one from mouse
+	*/
 	rightClick: function(inventory, x, y) {
 		var itemInSlot = typeof inventory.items[x][y] !== "undefined";
-		var itemOnMouse = typeof inventory.itemOnMouse !== "undefined";
+		var itemOnMouse = typeof inventory.mouseItem !== "undefined";
+		if(itemOnMouse && !itemInSlot) {
+			inventory.mouseItem.ammount--;
+			var addedItem = inventory.mouseItem.clone();
+			addedItem.ammount = 1;
+			inventory.addItemToSlot(addedItem,x,y);
+		}
+		if(!itemOnMouse && itemInSlot) {
+			var stackAmnt = inventory.items[x][y].ammount / 2;
+			inventory.items[x][y].ammount = Math.floor(stackAmnt);
+			inventory.mouseItem  = inventory.items[x][y].itemStack.clone();
+			inventory.mouseItem.ammount = inventory.items[x][y].ammount;
+			inventory.mouseItem.ammount = Math.ceil(stackAmnt);
+		}
+		if(itemInSlot && itemOnMouse) {
+			if(inventory.items[x][y].itemName == inventory.mouseItem.name) {
+				inventory.items[x][y].ammount++;
+				inventory.mouseItem.ammount--;
+				return;
+			}
+			var standby = inventory.removeItem(x, y);
+			inventory.addItemToSlot(inventory.mouseItem, x, y);
+			inventory.mouseItem = standby;
+		}
 	}
 };
 /**
@@ -168,7 +200,7 @@ GUI.guiScene = function() {
 		this.grid.fillStyle = opts.lineColor;
 		//document.body.appendChild(this.canvas);
 		this.texture = new THREE.Texture(this.canvas);
-		this.texture.minFilter = THREE.LinearFilter
+		this.texture.minFilter = THREE.LinearFilter;
 		this.texture.needsUpdate = true;
 		this.material = new THREE.SpriteMaterial({
 			map: this.texture
@@ -265,7 +297,7 @@ GUI.guiScene = function() {
 					case 0:
 						invSelf.ctrlScheme.leftClick(invSelf, col, row);
 						break;
-					case 1:
+					case 2:
 						invSelf.ctrlScheme.rightClick(invSelf, col, row);
 						break;
 				}
@@ -286,3 +318,74 @@ GUI.guiScene = function() {
 		self.camera.updateProjectionMatrix();
 	}, false);
 }
+
+/**
+@constructor
+@param {String} name - name of item
+@param {THREE.Mesh} model - model to use for the item
+@param {int} [id] - id of the item
+@param {function} [onUse] - callback when item is used
+@param {function} [onSecondary] - callback for second ability
+@return - new Item
+*/
+var Item = function(name, model, id, onUse, onSecondary) {
+	this._unclonedModel = model;
+	this.model = model.clone();
+	this.name = name;
+	this.id = id || Math.floor(Math.random * 10000);
+	this.onUse = onUse || function() {};
+	this.onSecondary = onSecondary || function() {};
+	this.clone = function() {
+		return new Item(this.name, this.model, this.id, this.onUse, this.onSecondary);
+	}
+	this.use = function() {
+		return onUse();
+	}
+	this.secondary = function() {
+		return onSecondary();
+	}
+	Item.allInstances.push(this);
+	return this;
+}
+Item.allInstances = [];
+
+/**
+@constructor
+@param {Item} item - what item the stack contains
+@param {int} id - uuid of itemstack
+@param {int} [ammount] - ammount of items in the stack
+@return {ItemStack} - the new ItemStack
+*/
+var ItemStack = function(item, id, ammount) {
+	this._unclonedItem = item;
+	this.id = id;
+	this.item = item;
+	this.name = item.name;
+	this.ammount = ammount || 1;
+	this.model = this.item.model;
+	this.addItem = function(num) {
+		num = num || 1;
+		this.ammount += num;
+		return this;
+	}
+	this.removeItem = function(num) {
+		num = num || 1;
+		this.ammount -= num;
+		return this;
+	}
+	this.use = function() {
+		return this.item.use();
+	}
+	this.secondary = function() {
+		return this.item.secondary();
+	}
+	this.getAmmount = function() {
+		return this.ammount;
+	}
+	this.clone = function() {
+		return new ItemStack(this._unclonedItem, this.ammount);
+	}
+	ItemStack.allInstances.push(this);
+	return this;
+}
+ItemStack.allInstances = [];
