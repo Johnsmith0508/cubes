@@ -154,7 +154,15 @@ GUI.guiScene = function() {
 			return sprite;
 		}
 		/**
-		@construtor
+		@constructor
+		@param {int} rows - number of rows in the gui
+		@param {int} columns - number of columns in gui
+		@param {object} [opts] - options
+		@param {color} [opts.backgroundColor] - background UI color
+		@param {color} [opts.lineColor] - color of lines in UI
+		@param {object} [opts.ctrlScheme] - functions to be called when various buttons are clicked
+		@memberof GUI
+		@alias guiScene.Inventory
 		*/
 	this.Inventory = function(rows, columns, opts) {
 		var invSelf = this;
@@ -211,9 +219,11 @@ GUI.guiScene = function() {
 		this.containerObject = new THREE.Object3D();
 		this.containerObject.add(this.sprite);
 		/**
+		adds an item to the selected Slot
 		@param {ItemStack} itemStack - Itemstack to add to the inv
 		@param {int} x - column to place item in (0 is far left)
 		@param {int} y - row to place item in (0 is top)
+		@return {Array} coordinates that the item were added to
 		*/
 		this.addItemToSlot = function(itemStack, x, y) {
 			this.items[x][y] = itemStack.model.clone();
@@ -228,15 +238,29 @@ GUI.guiScene = function() {
 			this.containerObject.add(this.items[x][y]);
 			return [x, y];
 		}
+		/**
+		find the next empty slot in the inventory
+		@return {Array} next empty slot
+		*/
 		this.getEmptySlot = function() {
 			for(var j = 0; j < this.rows; j++){for(var i = 0; i < this.columns; i++){
 				if(typeof this.items[i][j] === "undefined"){ return [i,j];}
 			}}
 		}
+		/**
+		add item to the next slot
+		@param {ItemStack} itemStack - the ItemStack to be added
+		*/
 		this.addItemToEmptySlot = function(itemStack) {
 			var pos = this.getEmptySlot();
 			this.addItemToSlot(itemStack,pos[0],pos[1]);
 		}
+		/**
+		removes item from slot
+		@param {int} x - x-coord of slot to be removed from
+		@param {int} y - y-coord of slot to be removed from
+		@return {ItemStack} removed ItemStack
+		*/
 		this.removeItem = function(x, y) {
 			if (typeof this.items[x][y] === "undefined") return false;
 			this.containerObject.remove(this.items[x][y]);
@@ -248,14 +272,24 @@ GUI.guiScene = function() {
 			
 			return ret;
 		}
+		/**
+		shows the Inventory
+		*/
 		this.show = function() {
 			self.scene.add(this.containerObject);
 			this.hidden = false;
 		}
+		/**
+		hides the inventory
+		*/
 		this.hide = function() {
 			self.scene.remove(this.containerObject);
 			this.hidden = true;
 		}
+		/**
+		toggles the inventory visiblity
+		@return this
+		*/
 		this.toggle = function() {
 			if (this.hidden) {
 				this.show();
@@ -264,6 +298,9 @@ GUI.guiScene = function() {
 			}
 			return this;
 		}
+		/**
+		update function to be called every frame
+		*/
 		this.update = function() {
 			for (var i = 0; i < this.items.length; i++) {
 				for (var j = 0; j < this.items[i].length; j++) {
@@ -280,6 +317,11 @@ GUI.guiScene = function() {
 				}
 			}
 		}
+		/**
+		find first occurence of item in inventory
+		@param {string} itemName - name of item to find
+		@return {Array} coordinates of first occurance of the item
+		*/
 		this.locateItem = function(itemName) {
 			var ret = [];
 			for(var i = 0; i < this.items.length; i++){ for(var j = 0; j < this.items[i].length; j++) {
