@@ -6,6 +6,7 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var bodyParser = require('body-parser');
 var THREE = require('three');
 var CANNON = require('cannon');
 var mysql = require('mysql');
@@ -92,18 +93,14 @@ var ItemStack = function(item, ammount) {
 	}
 	return this;
 }
-
-
-
-
-
-
 exports.start = function(port) {
 	if (config.enableRedis) redisClient.on("error", function(err) {
 		console.error(err);
 	});
 	physics.initCannon();
-	app.all('/config.json', function(req,res) {
+	app.use(bodyParser.json());
+	app.use(bodyParser.urlencoded());
+	app.all('/config.json', function(req, res) {
 		res.end(JSON.stringify(clientConfig));
 	});
 	app.use(express.static(__dirname + '/'));

@@ -368,9 +368,32 @@ GUI.guiScene = function() {
 @param {int} [id] - id of the item
 @param {function} [onUse] - callback when item is used
 @param {function} [onSecondary] - callback for second ability
+@param {Array} [lore] - flavor text to be displayed when hovering over an object in the inventory
 @return - new Item
 */
-var Item = function(name, model, id, onUse, onSecondary) {
+var Item = function(name, model, id, onUse, onSecondary, lore) {
+	lore = lore || [];
+	var maxLength = 0;
+	
+	//there is something there
+	if(maxLength > 0) {
+		this.lore = document.createElement("canvas");
+		this.lore.height = lore.length * 100;
+		var ctx = this.lore.getContext("2d");
+		ctx.font = "30px Arial";
+		for(var i = 0; i < lore.length; i++) {
+			if(ctx.measureText(lore[i]).width > maxLength) maxLength = ctx.measureText(lore[i]).width;
+		}
+		this.lore.width = maxLength;
+		ctx.fillStyle = "#fefefe";
+		ctx.fillRect(0,0,maxLength,lore.length *100);
+		ctx.fillStyle = "black";
+		
+		for(var i = 0; i < lore.length; i++) {
+			ctx.fillText(lore[i],0,(i+1)* 100);
+			ctx.stroke();
+		}
+	}
 	this._unclonedModel = model;
 	this.model = model.clone();
 	this.name = name;

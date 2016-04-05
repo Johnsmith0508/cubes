@@ -48,87 +48,6 @@ var canJump = true;
 var config = loadJson('./config.json');
 
 
-
-
-
-
-
-
-/**
-@constructor
-@param {String} name - name of item
-@param {THREE.Mesh} model - model to use for the item
-@param {int} [id] - id of the item
-@param {function} [onUse] - callback when item is used
-@param {function} [onSecondary] - callback for second ability
-@return - new Item
-*/
-var Item = function(name, model, id, onUse, onSecondary) {
-	this._unclonedModel = model;
-	this.model = model.clone();
-	this.name = name;
-	this.id = id || Math.floor(Math.random * 10000);
-	this.onUse = onUse || function() {};
-	this.onSecondary = onSecondary || function() {};
-	this.clone = function() {
-		return new Item(this.name, this.model, this.id, this.onUse, this.onSecondary);
-	}
-	this.use = function() {
-		return onUse();
-	}
-	this.secondary = function() {
-		return onSecondary();
-	}
-	Item.allInstances.push(this);
-	return this;
-}
-Item.allInstances = [];
-
-/**
-@constructor
-@param {Item} item - what item the stack contains
-@param {int} id - uuid of itemstack
-@param {int} [ammount] - ammount of items in the stack
-@return {ItemStack} - the new ItemStack
-*/
-var ItemStack = function(item, id, ammount) {
-	this._unclonedItem = item;
-	this.id = id;
-	this.item = item;
-	this.name = item.name;
-	this.ammount = ammount || 1;
-	this.model = this.item.model;
-	this.addItem = function(num) {
-		num = num || 1;
-		this.ammount += num;
-		return this;
-	}
-	this.removeItem = function(num) {
-		num = num || 1;
-		this.ammount -= num;
-		return this;
-	}
-	this.use = function() {
-		return this.item.use();
-	}
-	this.secondary = function() {
-		return this.item.secondary();
-	}
-	this.getAmmount = function() {
-		return this.ammount;
-	}
-	this.clone = function() {
-		return new ItemStack(this._unclonedItem, this.ammount);
-	}
-	ItemStack.allInstances.push(this);
-	return this;
-}
-ItemStack.allInstances = [];
-
-
-
-
-
 //handles the sending of keys to the server
 var buttonHandler = function(keyPressed, status) {
 	if (keyPressed.target === $(".chat")) return;
@@ -478,7 +397,7 @@ function init() {
 		var material = new THREE.MultiMaterial(materials);
 		debugModel = new THREE.Mesh(geometry, material);
 		debugModel.scale.set(0.1, 0.1, 0.1);
-		debugItem = new Item("debugItem", debugModel);
+		debugItem = new Item("debugItem", debugModel,7,function(){return true;},function(){return true;}, ["hello","test"]);
 		//scene.add( object );
 	});
 	blendMesh.load('model/marine_anims.js', function() {
