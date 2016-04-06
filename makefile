@@ -2,6 +2,7 @@ default: install
 install:
 	npm install
 	node ./quickstart.js
+	if [ -a /etc/arch-release ]; then sudo cp ./cubeserver.service /etc/systemd/system; fi;
 docs:
 	rm -rf ./out
 	jsdoc -R ./README.md js
@@ -22,4 +23,3 @@ list:
 	@echo " - clean"
 	@echo " - css"
 	@echo " - list"
-

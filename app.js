@@ -101,6 +101,7 @@ exports.start = function(port) {
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded());
 	app.all('/config.json', function(req, res) {
+		res.setHeader("Content-Type","application/json");
 		res.end(JSON.stringify(clientConfig));
 	});
 	app.use(express.static(__dirname + '/'));

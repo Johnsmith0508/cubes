@@ -1,0 +1,6 @@
+[Unit]
+Description=Node.js server for 'cubes'
+
+[Service]
+Type=simple
+ExecStart=/usr/node /var/www/node1/main.js

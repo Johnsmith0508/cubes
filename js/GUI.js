@@ -162,7 +162,7 @@ GUI.guiScene = function() {
 		@param {color} [opts.lineColor] - color of lines in UI
 		@param {object} [opts.ctrlScheme] - functions to be called when various buttons are clicked
 		@memberof GUI
-		@alias guiScene.Inventory
+		@alias guiScene#Inventory
 		*/
 	this.Inventory = function(rows, columns, opts) {
 		var invSelf = this;
@@ -306,13 +306,14 @@ GUI.guiScene = function() {
 				for (var j = 0; j < this.items[i].length; j++) {
 					if (typeof this.items[i][j] !== "undefined") {
 						this.items[i][j].rotation.y += 0.05;
-						this.grid.fillStyle = opts.backgroundColor;
-						this.grid.fillText(this.items[i][j].oldAmt,i * 100 + 5, j * 100 + 30);
-						this.grid.fillStyle = opts.lineColor;
-						this.grid.fillText(this.items[i][j].ammount,i * 100 + 5, j * 100 + 30);
-						this.items[i][j].oldAmt = this.items[i][j].ammount;
-						
-		this.texture.needsUpdate = true;
+						if(this.items[i][j].oldAmt != this.items[i][j].ammount) {
+							this.grid.fillStyle = opts.backgroundColor;
+							this.grid.fillText(this.items[i][j].oldAmt,i * 100 + 5, j * 100 + 30);
+							this.grid.fillStyle = opts.lineColor;
+							this.grid.fillText(this.items[i][j].ammount,i * 100 + 5, j * 100 + 30);
+							this.items[i][j].oldAmt = this.items[i][j].ammount;
+							this.texture.needsUpdate = true;
+						}
 					}
 				}
 			}
