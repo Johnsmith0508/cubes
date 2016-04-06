@@ -366,48 +366,59 @@ GUI.guiScene = function() {
 @param {String} name - name of item
 @param {THREE.Mesh} model - model to use for the item
 @param {int} [id] - id of the item
-@param {function} [onUse] - callback when item is used
-@param {function} [onSecondary] - callback for second ability
+@param {object} [functions] - functions that are bound to spesific events
+@param {function} [functions.onUse] - callback when item is used
+@param {function} [functions.onSecondary] - callback for second ability
+@param {function} [functions.onHover] - callback for when cursor is over the item in the inventory (first are is true when mouse goes over, false when mouse leaves)
 @param {Array} [lore] - flavor text to be displayed when hovering over an object in the inventory
 @return - new Item
 */
-var Item = function(name, model, id, onUse, onSecondary, lore) {
+var Item = function(name, model, id, functions, lore) {
 	lore = lore || [];
-	var maxLength = 0;
-	
+	functions = functions || {};
 	//there is something there
-	if(maxLength > 0) {
-		this.lore = document.createElement("canvas");
-		this.lore.height = lore.length * 100;
-		var ctx = this.lore.getContext("2d");
-		ctx.font = "30px Arial";
+	if(lore.length > 0) {
+		var maxLength = 0;
+		this.loreCanvas = document.createElement("canvas");
+		var ctx = this.loreCanvas.getContext("2d");
+		ctx.font = "100px Arial";
 		for(var i = 0; i < lore.length; i++) {
 			if(ctx.measureText(lore[i]).width > maxLength) maxLength = ctx.measureText(lore[i]).width;
 		}
-		this.lore.width = maxLength;
+		this.loreCanvas.height = lore.length * 105;
+		this.loreCanvas.width = maxLength;
 		ctx.fillStyle = "#fefefe";
-		ctx.fillRect(0,0,maxLength,lore.length *100);
+		ctx.fillRect(0,0,maxLength,lore.length *105);
 		ctx.fillStyle = "black";
 		
+		ctx.font = "100px Arial";
 		for(var i = 0; i < lore.length; i++) {
-			ctx.fillText(lore[i],0,(i+1)* 100);
+			ctx.fillText(lore[i],0,(i + 1) * 100);
 			ctx.stroke();
 		}
+		var texture = new THREE.Texture(this.loreCanvas);
+		texture.needsUpdate = true;
+		var loreMaterial = new THREE.SpriteMaterial({map:texture});
+		this.lore = new THREE.Sprite(loreMaterial);
+		this.lore.scale.set(maxLength / 7, lore.length * 15,1);
 	}
 	this._unclonedModel = model;
 	this.model = model.clone();
 	this.name = name;
 	this.id = id || Math.floor(Math.random * 10000);
-	this.onUse = onUse || function() {};
-	this.onSecondary = onSecondary || function() {};
+	this.onUse = functions.onUse || function() {};
+	this.onSecondary = functions.onSecondary || function() {};
 	this.clone = function() {
 		return new Item(this.name, this.model, this.id, this.onUse, this.onSecondary);
 	}
 	this.use = function() {
-		return onUse();
+		return functions.onUse();
 	}
 	this.secondary = function() {
-		return onSecondary();
+		return functions.onSecondary();
+	}
+	this.hover = function() {
+		return functions.onHover();
 	}
 	Item.allInstances.push(this);
 	return this;

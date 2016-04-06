@@ -397,7 +397,7 @@ function init() {
 		var material = new THREE.MultiMaterial(materials);
 		debugModel = new THREE.Mesh(geometry, material);
 		debugModel.scale.set(0.1, 0.1, 0.1);
-		debugItem = new Item("debugItem", debugModel,7,function(){return true;},function(){return true;}, ["hello","test"]);
+		debugItem = new Item("debugItem", debugModel,7,{}, ["hello","test","This is some default flavor text to be displayed","bleow the item","(I hate this project)"]);
 		//scene.add( object );
 	});
 	blendMesh.load('model/marine_anims.js', function() {
