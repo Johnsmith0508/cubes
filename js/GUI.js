@@ -31,7 +31,7 @@ GUI.CONTROL_SCHEME_DEFAULT = {
 			delete inventory.items[x][y];
 		}
 		if (itemInSlot && itemOnMouse) {
-			if(inventory.items[x][y].itemName == inventory.mouseItem.name) {
+			if (inventory.items[x][y].itemName == inventory.mouseItem.name) {
 				inventory.items[x][y].ammount += inventory.mouseItem.ammount;
 				delete inventory.mouseItem;
 				return;
@@ -50,21 +50,21 @@ GUI.CONTROL_SCHEME_DEFAULT = {
 	rightClick: function(inventory, x, y) {
 		var itemInSlot = typeof inventory.items[x][y] !== "undefined";
 		var itemOnMouse = typeof inventory.mouseItem !== "undefined";
-		if(itemOnMouse && !itemInSlot) {
+		if (itemOnMouse && !itemInSlot) {
 			inventory.mouseItem.ammount--;
 			var addedItem = inventory.mouseItem.clone();
 			addedItem.ammount = 1;
-			inventory.addItemToSlot(addedItem,x,y);
+			inventory.addItemToSlot(addedItem, x, y);
 		}
-		if(!itemOnMouse && itemInSlot) {
+		if (!itemOnMouse && itemInSlot) {
 			var stackAmnt = inventory.items[x][y].ammount / 2;
 			inventory.items[x][y].ammount = Math.floor(stackAmnt);
-			inventory.mouseItem  = inventory.items[x][y].itemStack.clone();
+			inventory.mouseItem = inventory.items[x][y].itemStack.clone();
 			inventory.mouseItem.ammount = inventory.items[x][y].ammount;
 			inventory.mouseItem.ammount = Math.ceil(stackAmnt);
 		}
-		if(itemInSlot && itemOnMouse) {
-			if(inventory.items[x][y].itemName == inventory.mouseItem.name) {
+		if (itemInSlot && itemOnMouse) {
+			if (inventory.items[x][y].itemName == inventory.mouseItem.name) {
 				inventory.items[x][y].ammount++;
 				inventory.mouseItem.ammount--;
 				return;
@@ -226,116 +226,123 @@ GUI.guiScene = function() {
 		@return {Array} coordinates that the item were added to
 		*/
 		this.addItemToSlot = function(itemStack, x, y) {
-			this.items[x][y] = itemStack.model.clone();
-			this.items[x][y].ammount = itemStack.ammount;
-			this.items[x][y].oldAmt = itemStack.ammount;
-			this.items[x][y].itemName = itemStack.name;
-			this.items[x][y].itemStack = itemStack;
-			var xPos = ((this.width / -2) + (x * 100) + 50);
-			var yPos = ((this.height / 2) - (y * 100) - 50);
-			this.items[x][y].position.set(xPos, yPos, 0);
-			this.items[x][y].scale.multiplyScalar(50);
-			this.containerObject.add(this.items[x][y]);
-			return [x, y];
-		}
-		/**
-		find the next empty slot in the inventory
-		@return {Array} next empty slot
-		*/
-		this.getEmptySlot = function() {
-			for(var j = 0; j < this.rows; j++){for(var i = 0; i < this.columns; i++){
-				if(typeof this.items[i][j] === "undefined"){ return [i,j];}
-			}}
-		}
-		/**
-		add item to the next slot
-		@param {ItemStack} itemStack - the ItemStack to be added
-		*/
-		this.addItemToEmptySlot = function(itemStack) {
-			var pos = this.getEmptySlot();
-			this.addItemToSlot(itemStack,pos[0],pos[1]);
-		}
-		/**
-		removes item from slot
-		@param {int} x - x-coord of slot to be removed from
-		@param {int} y - y-coord of slot to be removed from
-		@return {ItemStack} removed ItemStack
-		*/
-		this.removeItem = function(x, y) {
-			if (typeof this.items[x][y] === "undefined") return false;
-			this.containerObject.remove(this.items[x][y]);
-			var ret = this.items[x][y].itemStack.clone();
-			ret.ammount = this.items[x][y].ammount;
-			this.grid.fillStyle = opts.backgroundColor;
-			this.grid.fillText(this.items[x][y].oldAmt,x * 100 + 5, y * 100 + 30);
-			delete this.items[x][y].ammount;
-			
-			return ret;
-		}
-		/**
-		shows the Inventory
-		*/
-		this.show = function() {
-			self.scene.add(this.containerObject);
-			this.hidden = false;
-		}
-		/**
-		hides the inventory
-		*/
-		this.hide = function() {
-			self.scene.remove(this.containerObject);
-			this.hidden = true;
-		}
-		/**
-		toggles the inventory visiblity
-		@return this
-		*/
-		this.toggle = function() {
-			if (this.hidden) {
-				this.show();
-			} else {
-				this.hide();
+				this.items[x][y] = itemStack.model.clone();
+				this.items[x][y].ammount = itemStack.ammount;
+				this.items[x][y].oldAmt = itemStack.ammount;
+				this.items[x][y].itemName = itemStack.name;
+				this.items[x][y].itemStack = itemStack;
+				this.items[x][y].lore = itemStack.lore;
+				var xPos = ((this.width / -2) + (x * 100) + 50);
+				var yPos = ((this.height / 2) - (y * 100) - 50);
+				this.items[x][y].position.set(xPos, yPos, 0);
+				this.items[x][y].scale.multiplyScalar(50);
+				this.containerObject.add(this.items[x][y]);
+				return [x, y];
 			}
-			return this;
-		}
-		/**
-		update function to be called every frame
-		*/
-		this.update = function() {
-			for (var i = 0; i < this.items.length; i++) {
-				for (var j = 0; j < this.items[i].length; j++) {
-					if (typeof this.items[i][j] !== "undefined") {
-						this.items[i][j].rotation.y += 0.05;
-						if(this.items[i][j].oldAmt != this.items[i][j].ammount) {
-							this.grid.fillStyle = opts.backgroundColor;
-							this.grid.fillText(this.items[i][j].oldAmt,i * 100 + 5, j * 100 + 30);
-							this.grid.fillStyle = opts.lineColor;
-							this.grid.fillText(this.items[i][j].ammount,i * 100 + 5, j * 100 + 30);
-							this.items[i][j].oldAmt = this.items[i][j].ammount;
-							this.texture.needsUpdate = true;
+			/**
+			find the next empty slot in the inventory
+			@return {Array} next empty slot
+			*/
+		this.getEmptySlot = function() {
+				for (var j = 0; j < this.rows; j++) {
+					for (var i = 0; i < this.columns; i++) {
+						if (typeof this.items[i][j] === "undefined") {
+							return [i, j];
 						}
 					}
 				}
 			}
-		}
-		/**
-		find first occurence of item in inventory
-		@param {string} itemName - name of item to find
-		@return {Array} coordinates of first occurance of the item
-		*/
+			/**
+			add item to the next slot
+			@param {ItemStack} itemStack - the ItemStack to be added
+			*/
+		this.addItemToEmptySlot = function(itemStack) {
+				var pos = this.getEmptySlot();
+				this.addItemToSlot(itemStack, pos[0], pos[1]);
+			}
+			/**
+			removes item from slot
+			@param {int} x - x-coord of slot to be removed from
+			@param {int} y - y-coord of slot to be removed from
+			@return {ItemStack} removed ItemStack
+			*/
+		this.removeItem = function(x, y) {
+				if (typeof this.items[x][y] === "undefined") return false;
+				this.containerObject.remove(this.items[x][y]);
+				var ret = this.items[x][y].itemStack.clone();
+				ret.ammount = this.items[x][y].ammount;
+				this.grid.fillStyle = opts.backgroundColor;
+				this.grid.fillText(this.items[x][y].oldAmt, x * 100 + 5, y * 100 + 30);
+				delete this.items[x][y].ammount;
+
+				return ret;
+			}
+			/**
+			shows the Inventory
+			*/
+		this.show = function() {
+				self.scene.add(this.containerObject);
+				this.hidden = false;
+			}
+			/**
+			hides the inventory
+			*/
+		this.hide = function() {
+				self.scene.remove(this.containerObject);
+				this.hidden = true;
+			}
+			/**
+			toggles the inventory visiblity
+			@return this
+			*/
+		this.toggle = function() {
+				if (this.hidden) {
+					this.show();
+				} else {
+					this.hide();
+				}
+				return this;
+			}
+			/**
+			update function to be called every frame
+			*/
+		this.update = function() {
+				for (var i = 0; i < this.items.length; i++) {
+					for (var j = 0; j < this.items[i].length; j++) {
+						if (typeof this.items[i][j] !== "undefined") {
+							this.items[i][j].rotation.y += 0.05;
+							if (this.items[i][j].oldAmt != this.items[i][j].ammount) {
+								this.grid.fillStyle = opts.backgroundColor;
+								this.grid.fillText(this.items[i][j].oldAmt, i * 100 + 5, j * 100 + 30);
+								this.grid.fillStyle = opts.lineColor;
+								this.grid.fillText(this.items[i][j].ammount, i * 100 + 5, j * 100 + 30);
+								this.items[i][j].oldAmt = this.items[i][j].ammount;
+								this.texture.needsUpdate = true;
+							}
+						}
+					}
+				}
+			}
+			/**
+			find first occurence of item in inventory
+			@param {string} itemName - name of item to find
+			@return {Array} coordinates of first occurance of the item
+			*/
 		this.locateItem = function(itemName) {
 			var ret = [];
-			for(var i = 0; i < this.items.length; i++){ for(var j = 0; j < this.items[i].length; j++) {
-				if(typeof this.items[i][j] !== "undefined" && this.items[i][j].itemName == itemName) {
-					return [i,j];
+			for (var i = 0; i < this.items.length; i++) {
+				for (var j = 0; j < this.items[i].length; j++) {
+					if (typeof this.items[i][j] !== "undefined" && this.items[i][j].itemName == itemName) {
+						return [i, j];
+					}
 				}
-			}}
+			}
 			return ret.length > 1 ? ret : ret[0];
 		}
 		window.addEventListener('mousedown', function(e) {
 			var row = Math.floor((window.innerHeight / -2 + invSelf.height / 2 + e.clientY) / 100);
-			var col =  Math.floor((window.innerWidth / -2 + invSelf.width / 2 + e.clientX) / 100);
-			if (!invSelf.hidden &&  col <= invSelf.columns - 1 && row <= invSelf.rows - 1 && row >= 0 && col >= 0) {
+			var col = Math.floor((window.innerWidth / -2 + invSelf.width / 2 + e.clientX) / 100);
+			if (!invSelf.hidden && col <= invSelf.columns - 1 && row <= invSelf.rows - 1 && row >= 0 && col >= 0) {
 				switch (e.button) {
 					case 0:
 						invSelf.ctrlScheme.leftClick(invSelf, col, row);
@@ -346,11 +353,30 @@ GUI.guiScene = function() {
 				}
 			}
 		}, false);
-		window.addEventListener('resize', function() {
+		var loreOpen = [-1,-1];
+		$('body').on('mousemove', function(e) {
+			if (/*!invSelf.hidden*/ true) {
+				var row = Math.floor((window.innerHeight / -2 + invSelf.height / 2 + e.clientY) / 100);
+				var col = Math.floor((window.innerWidth / -2 + invSelf.width / 2 + e.clientX) / 100);
+				var xPos = window.innerWidth / -2 + e.clientX;
+				var yPos = window.innerHeight / 2 - e.clientY;
+				if (col <= invSelf.columns - 1 && row <= invSelf.rows - 1 && row >= 0 && col >= 0) {
+					if (loreOpen[0] >= 0 && loreOpen[1] >= 0 && (loreOpen[0] != col || loreOpen[1] != row)) {
+						self.scene.remove(invSelf.items[loreOpen[0]][loreOpen[1]].lore);
+					}
+					if (typeof invSelf.items[col][row] !== "undefined" && typeof invSelf.items[col][row].lore !== "undefined") {
+						self.scene.add(invSelf.items[col][row].lore);
+						invSelf.items[col][row].lore.position.set(xPos + invSelf.items[col][row].lore.scale.x / 2, yPos - invSelf.items[col][row].lore.scale.y / 2, 150);
+						loreOpen = [col,row];
+					}
+				}
+			}
+		});
+		//iwindow.addEventListener('resize', function() {
 			//invSelf.containerObject.scale.set(3 * window.innerHeight / window.innerWidth, 3 * window.innerHeight / window.innerWidth, 1);
 			//invSelf.sprite.scale.set(invSelf.width * (window.innerHeight / window.innerWidth), invSelf.height * (window.innerHeight / window.innerWidth), invSelf.height);
 			//console.info(invSelf.containerObject.scale);
-		}, false);
+		//}, false);
 		return this;
 	}
 	window.addEventListener('resize', function() {
@@ -378,30 +404,32 @@ var Item = function(name, model, id, functions, lore) {
 	lore = lore || [];
 	functions = functions || {};
 	//there is something there
-	if(lore.length > 0) {
+	if (lore.length > 0) {
 		var maxLength = 0;
 		this.loreCanvas = document.createElement("canvas");
 		var ctx = this.loreCanvas.getContext("2d");
 		ctx.font = "100px Arial";
-		for(var i = 0; i < lore.length; i++) {
-			if(ctx.measureText(lore[i]).width > maxLength) maxLength = ctx.measureText(lore[i]).width;
+		for (var i = 0; i < lore.length; i++) {
+			if (ctx.measureText(lore[i]).width > maxLength) maxLength = ctx.measureText(lore[i]).width;
 		}
 		this.loreCanvas.height = lore.length * 105;
 		this.loreCanvas.width = maxLength;
 		ctx.fillStyle = "#fefefe";
-		ctx.fillRect(0,0,maxLength,lore.length *105);
+		ctx.fillRect(0, 0, maxLength, lore.length * 105);
 		ctx.fillStyle = "black";
-		
+
 		ctx.font = "100px Arial";
-		for(var i = 0; i < lore.length; i++) {
-			ctx.fillText(lore[i],0,(i + 1) * 100);
+		for (var i = 0; i < lore.length; i++) {
+			ctx.fillText(lore[i], 0, (i + 1) * 100);
 			ctx.stroke();
 		}
 		var texture = new THREE.Texture(this.loreCanvas);
 		texture.needsUpdate = true;
-		var loreMaterial = new THREE.SpriteMaterial({map:texture});
+		var loreMaterial = new THREE.SpriteMaterial({
+			map: texture
+		});
 		this.lore = new THREE.Sprite(loreMaterial);
-		this.lore.scale.set(maxLength / 7, lore.length * 15,1);
+		this.lore.scale.set(maxLength / 7, lore.length * 15, 1);
 	}
 	this._unclonedModel = model;
 	this.model = model.clone();
@@ -440,6 +468,7 @@ var ItemStack = function(item, id, ammount) {
 	this.name = item.name;
 	this.ammount = ammount || 1;
 	this.model = this.item.model;
+	this.lore = this.item.lore;
 	this.addItem = function(num) {
 		num = num || 1;
 		this.ammount += num;

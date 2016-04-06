@@ -64,12 +64,6 @@ var buttonHandler = function(keyPressed, status) {
 		case keycode.right:
 			key.right = status;
 			break;
-		case 81:
-			key.q = status;
-			break;
-		case 69:
-			key.e = status;
-			break;
 		case keycode.up:
 			key.up = status;
 			break;
