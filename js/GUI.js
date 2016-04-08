@@ -343,6 +343,9 @@ GUI.guiScene = function() {
 			var row = Math.floor((window.innerHeight / -2 + invSelf.height / 2 + e.clientY) / 100);
 			var col = Math.floor((window.innerWidth / -2 + invSelf.width / 2 + e.clientX) / 100);
 			if (!invSelf.hidden && col <= invSelf.columns - 1 && row <= invSelf.rows - 1 && row >= 0 && col >= 0) {
+				if(typeof invSelf.items[col][row] !== "undefined" && typeof invSelf.items[col][row].lore !== "undefined") {
+					self.scene.remove(invSelf.items[col][row].lore);
+				}
 				switch (e.button) {
 					case 0:
 						invSelf.ctrlScheme.leftClick(invSelf, col, row);
@@ -360,8 +363,9 @@ GUI.guiScene = function() {
 				var col = Math.floor((window.innerWidth / -2 + invSelf.width / 2 + e.clientX) / 100);
 				var xPos = window.innerWidth / -2 + e.clientX;
 				var yPos = window.innerHeight / 2 - e.clientY;
-				if (loreOpen[0] >= 0 && loreOpen[1] >= 0 && (loreOpen[0] != col || loreOpen[1] != row)) {
+				if (loreOpen[0] >= 0 && loreOpen[1] >= 0 && (loreOpen[0] != col || loreOpen[1] != row) && typeof invSelf.items[loreOpen[0]][loreOpen[1]] !== "undefined") {
 					self.scene.remove(invSelf.items[loreOpen[0]][loreOpen[1]].lore);
+					loreOpen = [col,row];
 				}
 				if (col <= invSelf.columns - 1 && row <= invSelf.rows - 1 && row >= 0 && col >= 0 && !invSelf.hidden) {
 					if (typeof invSelf.items[col][row] !== "undefined" && typeof invSelf.items[col][row].lore !== "undefined") {
