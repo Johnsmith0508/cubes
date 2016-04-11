@@ -24,6 +24,7 @@ GUI.CONTROL_SCHEME_DEFAULT = {
 		var itemOnMouse = typeof inventory.mouseItem !== "undefined";
 		if (itemOnMouse && !itemInSlot) {
 			inventory.addItemToSlot(inventory.mouseItem, x, y);
+			inventory.items[x][y].oldAmt = 0;
 			delete inventory.mouseItem;
 		}
 		if (itemInSlot && !itemOnMouse) {
@@ -55,6 +56,7 @@ GUI.CONTROL_SCHEME_DEFAULT = {
 			var addedItem = inventory.mouseItem.clone();
 			addedItem.ammount = 1;
 			inventory.addItemToSlot(addedItem, x, y);
+			inventory.items[x][y].oldAmt = 0;
 		}
 		if (!itemOnMouse && itemInSlot) {
 			var stackAmnt = inventory.items[x][y].ammount / 2;

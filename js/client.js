@@ -76,6 +76,8 @@ var buttonHandler = function(keyPressed, status) {
 		case keycode.inventory:
 			if (status) inventory.toggle();
 			break;
+		case keycode.close:
+			inventory.hide();
 	}
 	if (keyPressed.shiftKey) {
 		key.down = true;
