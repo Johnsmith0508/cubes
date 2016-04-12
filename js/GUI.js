@@ -61,8 +61,12 @@ GUI.CONTROL_SCHEME_DEFAULT = {
 		if (!itemOnMouse && itemInSlot) {
 			var stackAmnt = inventory.items[x][y].ammount / 2;
 			inventory.items[x][y].ammount = Math.floor(stackAmnt);
-			inventory.mouseItem = inventory.items[x][y].itemStack.clone();
-			inventory.mouseItem.ammount = inventory.items[x][y].ammount;
+			if(inventory.items[x][y].ammount <= 0) {
+				inventory.mouseItem = inventory.removeItem(x,y);
+			} else {
+				inventory.mouseItem = inventory.items[x][y].itemStack.clone();
+// 			inventory.mouseItem.ammount = inventory.items[x][y].ammount;
+			}
 			inventory.mouseItem.ammount = Math.ceil(stackAmnt);
 		}
 		if (itemInSlot && itemOnMouse) {
@@ -276,7 +280,7 @@ GUI.guiScene = function() {
 				this.grid.fillStyle = opts.backgroundColor;
 				this.grid.fillText(this.items[x][y].oldAmt, x * 100 + 5, y * 100 + 30);
 				delete this.items[x][y].ammount;
-
+				delete this.items[x][y];
 				return ret;
 			}
 			/**
@@ -313,7 +317,7 @@ GUI.guiScene = function() {
 					for (var j = 0; j < this.items[i].length; j++) {
 						if (typeof this.items[i][j] !== "undefined") {
 							this.items[i][j].rotation.y += 0.05;
-							if (this.items[i][j].oldAmt != this.items[i][j].ammount) {
+								if (this.items[i][j].oldAmt != this.items[i][j].ammount) {
 								this.grid.fillStyle = opts.backgroundColor;
 								this.grid.fillText(this.items[i][j].oldAmt, i * 100 + 5, j * 100 + 30);
 								this.grid.fillStyle = opts.lineColor;
