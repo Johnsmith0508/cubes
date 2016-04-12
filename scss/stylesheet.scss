@@ -1,11 +1,6 @@
 body {
 	overflow: hidden;
 }
-div.chat {
-	position: absolute;
-	right: 0;
-	top: 0;
-}
 
 div.inventory {
 	position: absolute;
@@ -17,19 +12,22 @@ div.inventory {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
-}
-
-#messages li {
-	opacity: .5;
-	padding: 5px 10px;
-}
-
-#messages li:nth-child(odd) {
-	background-color: #4c4c4c;
-}
-
-#messages li:nth-child(even) {
-	background-color: #707070;
+	overflow: auto;
+	height: 95%;
+	
+	li {
+		opacity: .5;
+		padding: 5px 10px;
+	}
+	
+	li:nth-child(odd) {
+		background-color: #4c4c4c;
+	}
+	
+	li:nth-child(even) {
+		background-color: #707070;
+	}
+	
 }
 
 div.chat {
@@ -38,11 +36,6 @@ div.chat {
 	right: 0;
 	width: 350px;
 	height: 500px;
-}
-
-ul#messages {
-	overflow: auto;
-	height: 95%;
 }
 
 input#msgIn {
@@ -113,7 +106,11 @@ button#send {
 	top: 10px;
 	left: 10px;
 }
-
+#keyTable {
+	table-layout:fixed;
+	width:160px;
+	height:160px;
+}
 div.buttonConfig {
 	position: absolute;
 	height: 50px;
@@ -166,48 +163,6 @@ tr, td, table {
 	width: 173px;
 }
 
-#back {
-	left: 55px;
-	top: 55px;
-}
-
-#forward {
-	left: 55px;
-}
-
-#left {
-	top: 55px;
-}
-
-#right {
-	top: 55px;
-	left: 112px;
-}
-
-#up {
-	left: 30px;
-	top: 110px;;
-}
-
-#down {
-	top: 110px;
-	left: 85px;
-}
-
 #reset {
 	top: 165px;
-}
-
-#chat {
-	top: 165px;
-	left: 55px;
-}
-
-#inventory {
-	top: 165px;
-	left: 112px;
-}
-
-#close {
-	top: 335px;
 }

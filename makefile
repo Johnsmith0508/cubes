@@ -12,6 +12,7 @@ docker:
 	sudo docker build -t johnsmith0508/cubes .
 clean:
 	rm -rf ./.sass-cache ./out
+.PHONY: css
 css:
 	sass ./scss/stylesheet.scss ./css/stylesheet.css
 list:
