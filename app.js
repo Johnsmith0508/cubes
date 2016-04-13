@@ -10,6 +10,7 @@ var bodyParser = require('body-parser');
 var THREE = require('three');
 var CANNON = require('cannon');
 var mysql = require('mysql');
+var mongoose = require('mongoose');
 var _istackid = 0;
 var redis = config.enableRedis ? require('redis') : null;
 var redisClient = config.enableRedis ? redis.createClient() : null;
@@ -24,23 +25,24 @@ var connection = config.enableMysql ? mysql.createConnection({
 	database: config.mysql.database
 }) : null;
 
-Object.prototype.size = function() {
+mongoose.connect('mongodb://localhost/game');
+var db = mongoose.connection;
+
+Object.size = function(obj) {
 	var size = 0,
 		key;
-	for (key in this) {
-		if (this.hasOwnProperty(key)) size++;
+	for (key in obj) {
+		if (obj.hasOwnProperty(key)) size++;
 	}
 	return size;
 };
-Object.prototype.allFalse = function() {
-	for (var i in this) {
+Object.allFalse = function(obj) {
+	for (var i in obj) {
 		if (i === 'angle') continue;
-		if (this[i] === true) return false;
+		if (obj[i] === true) return false;
 	}
 	return true;
 }
-
-
 
 
 var Item = function(name, id, onUse, onSecondary) {
@@ -113,7 +115,7 @@ exports.start = function(port) {
 	io.on('connection', function(socket) {
 		var userName = "";
 		var keysBeingPressed = false;
-		socket.emit('user count', User.size());
+		socket.emit('user count', Object.size(User));
 		socket.on('getKeyConfig', function(name) {
 			redisClient.hgetall("cubeuser:" + name, function(err, obj) {
 				if (obj !== null) {
@@ -205,7 +207,7 @@ exports.start = function(port) {
 			if (typeof User[userName] !== "undefined") {
 				User[userName].keysBeingPressed = true;
 				User[userName].key = keys;
-				User[userName].keysBeingPressed = keys.allFalse();
+				User[userName].keysBeingPressed = Object.allFalse(keys);
 			}
 		});
 		socket.on('chat message', function(message) {
