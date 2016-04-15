@@ -44,7 +44,28 @@ Object.allFalse = function(obj) {
 	return true;
 }
 
-
+var dbUserSchema = mongoose.Schema({
+	name: String,
+	position: {
+		x: {type : Number, default : 0},
+		y: {type : Number, default : 0},
+		z: {type : Number, default : 0}
+	},
+	health: {type : Number, default : 100},
+	keyConfig: {
+		forward: {type : Number, default : 0},
+		back: {type : Number, default : 0},
+		left: {type : Number, default : 0},
+		right: {type : Number, default : 0},
+		up: {type : Number, default : 0},
+		down: {type : Number, default : 0},
+		reset: {type : Number, default : 0},
+		chat: {type : Number, default : 0},
+		inventory: {type : Number, default : 0}
+	},
+	items: mongoose.Schema.Types.Mixed
+});
+var dbUser = db.model('User', dbUserSchema);
 var Item = function(name, id, onUse, onSecondary) {
 	this.id = id || Math.floor(Math.random() * 1000);
 	this.name = name;
@@ -103,7 +124,7 @@ exports.start = function(port) {
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded());
 	app.all('/config.json', function(req, res) {
-		res.setHeader("Content-Type","application/json");
+		res.setHeader("Content-Type", "application/json");
 		res.end(JSON.stringify(clientConfig));
 	});
 	app.use(express.static(__dirname + '/'));
@@ -117,6 +138,10 @@ exports.start = function(port) {
 		var keysBeingPressed = false;
 		socket.emit('user count', Object.size(User));
 		socket.on('getKeyConfig', function(name) {
+			dbUser.findOne({'name':name},function(err,data) {
+				if(err) return console.err(err);
+				io.emit('keyConfig',{name:name,config:data.keyConfig})
+			});
 			redisClient.hgetall("cubeuser:" + name, function(err, obj) {
 				if (obj !== null) {
 					io.emit('keyConfig', {
@@ -147,11 +172,25 @@ exports.start = function(port) {
 							break;
 						}
 					}
+					dbUser.findOne({name:userName},function(err,data){
+						if(err) return console.error(err);
+						console.log(data);
+						if(User[userName].posSaved) {
+							if(!data) {
+								User[userName].db = new dbUser({name:userName});
+							} else {
+								User[userName].db = data;
+							}
+							User[userName].keyConfig = user.keyConfig;
+							User[userName].phisObj.position.copy(User[userName].db.position);
+							User[userName].position.copy(User[userName].db.position);
+						}
+					});
 					if (config.enableRedis && User[userName].posSaved) {
 						redisClient.hset("cubeuser:" + userName, 'keyConfig', user.keyConfig);
 						redisClient.hgetall("cubeuser:" + userName, function(err, obj) {
 							if (obj !== null) {
-								User[userName].phisObj.position.set(parseInt(obj.x), parseInt(obj.y), parseInt(obj.z));
+								//User[userName].phisObj.position.set(parseInt(obj.x), parseInt(obj.y), parseInt(obj.z));
 								User[userName].health = obj.health || 100;
 								try {
 									User[userName].items = JSON.parse(obj.items);
@@ -230,6 +269,15 @@ exports.start = function(port) {
 
 		socket.on('disconnect', function() {
 			if (typeof User[userName] !== "undefined") {
+				// 				if(User[userName].posSaved) {
+				// 				}
+				if(User[userName].posSaved) {
+					console.info("saving userData");
+					User[userName].db.position = { x :User[userName].position.x, y: User[userName].position.y, z : User[userName].position.z};
+					User[userName].db.keyConfig = User[userName].keyConfig;
+					User[userName].db.items = User[userName].items;
+					User[userName].db.save();
+				}
 				if (config.enableRedis && User[userName].posSaved) {
 					redisClient.hset("cubeuser:" + userName, 'x', User[userName].position.x);
 					redisClient.hset("cubeuser:" + userName, 'y', User[userName].position.y);
