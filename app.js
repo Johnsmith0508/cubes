@@ -12,8 +12,6 @@ var CANNON = require('cannon');
 var mysql = require('mysql');
 var mongoose = require('mongoose');
 var _istackid = 0;
-var redis = config.enableRedis ? require('redis') : null;
-var redisClient = config.enableRedis ? redis.createClient() : null;
 var debugItem, itemName, cubeItem;
 var User = {};
 var groundItems = [];
@@ -117,9 +115,6 @@ var ItemStack = function(item, ammount) {
 	return this;
 }
 exports.start = function(port) {
-	if (config.enableRedis) redisClient.on("error", function(err) {
-		console.error(err);
-	});
 	physics.initCannon();
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded());
@@ -141,14 +136,6 @@ exports.start = function(port) {
 			dbUser.findOne({'name':name},function(err,data) {
 				if(err) return console.err(err);
 				io.emit('keyConfig',{name:name,config:data.keyConfig})
-			});
-			redisClient.hgetall("cubeuser:" + name, function(err, obj) {
-				if (obj !== null) {
-					io.emit('keyConfig', {
-						name: name,
-						config: obj.keyConfig
-					});
-				}
 			});
 		});
 		socket.on('create user', function(user) {
@@ -186,22 +173,6 @@ exports.start = function(port) {
 							User[userName].position.copy(User[userName].db.position);
 						}
 					});
-					if (config.enableRedis && User[userName].posSaved) {
-						redisClient.hset("cubeuser:" + userName, 'keyConfig', user.keyConfig);
-						redisClient.hgetall("cubeuser:" + userName, function(err, obj) {
-							if (obj !== null) {
-								//User[userName].phisObj.position.set(parseInt(obj.x), parseInt(obj.y), parseInt(obj.z));
-								User[userName].health = obj.health || 100;
-								try {
-									User[userName].items = JSON.parse(obj.items);
-								} catch (e) {
-									console.info("Can't read empty array");
-									console.warn(e);
-									console.warn(e.stack);
-								}
-							}
-						});
-					}
 				});
 			}
 			User[userName].sid = socket.id;
@@ -277,13 +248,6 @@ exports.start = function(port) {
 					User[userName].db.keyConfig = User[userName].keyConfig;
 					User[userName].db.items = User[userName].items;
 					User[userName].db.save();
-				}
-				if (config.enableRedis && User[userName].posSaved) {
-					redisClient.hset("cubeuser:" + userName, 'x', User[userName].position.x);
-					redisClient.hset("cubeuser:" + userName, 'y', User[userName].position.y);
-					redisClient.hset("cubeuser:" + userName, 'z', User[userName].position.z);
-					redisClient.hset("cubeuser:" + userName, 'items', JSON.stringify(User[userName].items));
-					redisClient.hset("cubeuser:" + userName, 'health', User[userName].health);
 				}
 				physics.world.removeBody(User[userName].phisObj);
 				delete User[userName];
