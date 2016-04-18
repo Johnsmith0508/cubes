@@ -305,7 +305,7 @@ var preInit = function() {
 		registerSubmitButton();
 	}
 	var chat = new Chat(socket,keycode.chat, {closeKey:keycode.close, hideDelay: $("#chatDelay").val()});
-	document.getElementById("main_window").appendChild(chat);
+	//document.getElementById("main_window").appendChild(chat);
 }
 
 var addGroundItem = function(name, location, model, index) {

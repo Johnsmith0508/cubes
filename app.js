@@ -168,7 +168,7 @@ exports.start = function(port) {
 							} else {
 								User[userName].db = data;
 							}
-							User[userName].keyConfig = user.keyConfig;
+							User[userName].keyConfig = JSON.parse(user.keyConfig);
 							User[userName].phisObj.position.copy(User[userName].db.position);
 							User[userName].position.copy(User[userName].db.position);
 						}
