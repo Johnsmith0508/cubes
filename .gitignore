@@ -3,6 +3,7 @@ node_modules/*
 js/three.js
 js/three.min.js
 out/*
+docs/*
 CannonDebugRenderer.js
 config.json
 hamsters.min.js

@@ -211,6 +211,7 @@ GUI.guiScene = function() {
 			this.grid.lineTo(this.width, i);
 		}
 		this.grid.stroke();
+		self.mouseItem = {};
 		this.grid.fillStyle = opts.lineColor;
 		//document.body.appendChild(this.canvas);
 		this.texture = new THREE.Texture(this.canvas);

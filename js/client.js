@@ -2,7 +2,7 @@
 var test, debugModel, cubeItem;
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
 var scene, guiScene, camera, renderer, objMtlLoader, JsonLoader, gui, chatHideDelay, userName = "",
-	debugItem, inventory,
+	debugItem, inventory,hotbar,
 	isShifted, blendMesh, testsprite, cannonDebugRenderer, cubeGeometry, cubeMaterial, clientCubeMaterial, carGeometry, carMaterial, controls, floorMaterial, wallsMaterial, light, ambientLight;
 var color;
 //create socket.io connection to server
@@ -336,6 +336,11 @@ function init() {
 	gui = new GUI.guiScene();
 	
 	inventory = new gui.Inventory(5,9);
+	hotbar = new gui.Inventory(1,10);
+	
+	hotbar.containerObject.position.y -= 300;
+	hotbar.toggle();
+	hotbar.mouseItem = inventory.mouseItem;
 	
 	//configure stats
 	stats.setMode(0);
