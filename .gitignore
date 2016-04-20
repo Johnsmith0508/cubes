@@ -1,5 +1,5 @@
 node_modules/*
-*.py
+#*.py
 js/three.js
 js/three.min.js
 out/*
