@@ -1,5 +1,10 @@
 {
   "GUI.guiScene#Inventory" : {
-    "title" : "test"
+    "title" : "GUI.guiScene#Inventory",
+    "children" : {
+      "InventoryBasics" : {
+        "title" : "Inventory Basics"
+      }
+    }
   }
 }
