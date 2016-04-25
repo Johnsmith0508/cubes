@@ -5,7 +5,7 @@ install:
 	if [ -a /etc/arch-release ]; then sudo cp ./cubeserver.service /etc/systemd/system; fi;
 docs:
 	rm -rf ./docs
-	jsdoc -R ./README.md js -d ./docs/
+	jsdoc -u ./tutorial -R ./README.md js -d ./docs/
 temp:
 	if [ -a /etc/arch-release ]; then echo hi; fi;
 docker:
@@ -15,6 +15,8 @@ clean:
 .PHONY: css docs
 css:
 	sass ./scss/stylesheet.scss ./css/stylesheet.css
+coverage:
+	./test/coverage.py ./js/GUI.js
 targets:
 	@echo "##### make options #####"
 	@echo "run make ___ :"
@@ -24,3 +26,4 @@ targets:
 	@echo " - clean"
 	@echo " - css"
 	@echo " - targets"
+	@echo " - coverage"

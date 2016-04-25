@@ -1,7 +1,7 @@
 #!/bin/python
 import re
-
-file = open('/var/www/node1/js/GUI.js','r').read().splitlines()
+import sys
+file = open(sys.argv[1],'r').read().splitlines()
 i = 0
 for element in file:
   documentedArgs = []

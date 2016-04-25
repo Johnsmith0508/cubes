@@ -485,6 +485,10 @@ var ItemStack = function(item, id, ammount) {
 		this.ammount += num;
 		return this;
 	}
+	/**
+	remove a number of items from the item stack
+	@param {int} num - number of items to be removed
+	*/
 	this.removeItem = function(num) {
 		num = num || 1;
 		this.ammount -= num;
