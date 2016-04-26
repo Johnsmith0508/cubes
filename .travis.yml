@@ -1,7 +1,13 @@
-language: node_js
-node_js:
-  - "4.1"
+install:
+	- npm install --only=dev
 
-"scripts": {
-  "test": "vows --spec"
-  }
+script:
+	- ./node_modules/.bin/jsdoc -u ./tutorial -R ./README.md js -d ./docs/
+	
+after_success:
+	- cd docs
+	- git init
+	- git config user.name "${GITHUB_USERNAME}"
+	- git config user.email "${GITHUB_EMAIL}"
+	- git add .; git commit -m "Deploy to gh-pages"
+	- git push --force --quiet "https://${GITHUB_TOKEN}@${GIT_URL}" master:gh-pages > /dev/null 2>&1

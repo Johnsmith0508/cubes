@@ -25,7 +25,7 @@
     "three.js": "^0.73.2"
   },
   "devDependencies": {
-    "zombie": "^4.1.0"
+    "jsdoc": "^3.4.0"
   },
   "private": true
 }

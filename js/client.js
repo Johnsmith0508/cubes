@@ -338,7 +338,7 @@ function init() {
 	inventory = new gui.Inventory(5,9);
 	hotbar = new gui.Inventory(1,10);
 	
-	hotbar.containerObject.position.y -= 300;
+	hotbar.containerObject.position.y = window.innerHeight/-2 + 100;
 	hotbar.toggle();
 	hotbar.mouseItem = inventory.mouseItem;
 	
