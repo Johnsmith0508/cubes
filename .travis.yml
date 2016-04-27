@@ -4,7 +4,7 @@ install:
 
 script:
   - ./node_modules/.bin/jsdoc -u ./tutorial -R ./README.md js -d ./docs/
-	
+
 after_success:
   - cd docs
   - git init
