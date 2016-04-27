@@ -1,0 +1,26 @@
+{
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc", "closure"]
+  },
+  "source": {
+    "include" : ["./js","./README.md"],
+    "includePattern": ".+\\.js(doc)?$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+  "plugins": [],
+  "templates": {
+    "systemName" : "GUI.js",
+    "outputSourceFiles" : true,
+    "linenums" : true,
+    "syntaxTheme" : "dark",
+    "theme" : "slate",
+    "cleverLinks": true,
+    "monospaceLinks": true
+  },
+  "opts": {
+    "destination" : "./docs/",
+    "tutorials" : "./tutorial"
+  }
+
+}

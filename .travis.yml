@@ -3,7 +3,7 @@ install:
   - npm install --only=dev
 
 script:
-  - ./node_modules/.bin/jsdoc -u ./tutorial -R ./README.md js -d ./docs/
+  - ./node_modules/.bin/jsdoc -c docConf.json -t ./node_modules/ink-docstrap/template/
 
 after_success:
   - cd docs

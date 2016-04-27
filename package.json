@@ -25,6 +25,7 @@
     "three.js": "^0.73.2"
   },
   "devDependencies": {
+    "ink-docstrap": "^1.1.4",
     "jsdoc": "^3.4.0"
   },
   "private": true

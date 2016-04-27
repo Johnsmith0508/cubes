@@ -5,7 +5,7 @@ install:
 	if [ -a /etc/arch-release ]; then sudo cp ./cubeserver.service /etc/systemd/system; fi;
 docs:
 	rm -rf ./docs
-	jsdoc -u ./tutorial -R ./README.md js -d ./docs/
+	jsdoc -c docConf.json -t ./node_modules/ink-docstrap/template/
 temp:
 	if [ -a /etc/arch-release ]; then echo hi; fi;
 docker:
