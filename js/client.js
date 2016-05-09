@@ -1,5 +1,5 @@
 /*global $ THREE force initThree updatePhysics world CapsuleColider*/
-var test, debugModel, cubeItem;
+var test, debugModel, cubeItem,effect,enableVr = false;
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
 var scene, guiScene, camera, renderer, objMtlLoader, JsonLoader, gui, chatHideDelay, userName = "",
 	debugItem, inventory,hotbar,
@@ -46,8 +46,9 @@ var directonalForce = new CANNON.Vec3(0, 0, 0);
 var jumpForce = new CANNON.Vec3(0, 10, 0);
 var canJump = true;
 var config = loadJson('./config.json');
-
-
+var itemInfo = loadJson('./items.json');
+loadJavascript("./items.js");
+var items = [];
 //handles the sending of keys to the server
 var buttonHandler = function(keyPressed, status) {
 	if (keyPressed.target === $(".chat")) return;
@@ -255,11 +256,14 @@ var mainLoop = function() {
 }
 
 var preInit = function() {
+
+	
 	userName = $("#name").val();
 	$('#login').hide();
 	$("#threeJsRenderWindow").append(renderer.domElement);
 	$('#main_window').show();
 	chatHideDelay = $("#chatDelay").val();
+	
 	//addText("test",camera);
 	$(document).on('keydown', function(e) {
 		if(e.target.id != "msgIn") buttonHandler(e, true);
@@ -298,7 +302,10 @@ var preInit = function() {
 	});
 
 	nameGuiElement.position.x += nameGuiElement.scale.x / 2;
-	
+	if($("#vrEnable").is(":checked")) {
+		enableVr = true;
+		
+	}
 	if ($("#fpsShow").is(":checked")) {
 		document.body.appendChild(stats.domElement);
 	} else {
@@ -391,6 +398,46 @@ function init() {
 	plane.rotation.x = Math.PI / 2;
 	plane.reciveShadow = true;
 	//scene.add(plane);
+	
+	
+	
+	
+	
+	
+	$.getScript('./items.js',function(data, textStatus, jqxhr)
+		{
+		var j = 0;
+			for(var i in itemInfo) {
+				var id = itemInfo[i].id;
+				console.log(j);
+				items[id] = itemScripts[itemInfo[i].name] || {};
+				itemInfo[i].modelLoader = itemInfo[i].modelLoader || "";
+				switch(itemInfo[i].modelLoader.toLowerCase()) {
+					case "objmtl":
+						objMtlLoader.load(itemInfo[i].model,itemInfo[i].mtl,function(object){items[id].model = object;});
+						break;
+					case "json":
+						JsonLoader.load(itemInfo[i].model,function(geom,materials){
+							var material = new THREE.MultiMaterial(materials);
+							items[id].model = new THREE.Mesh(geom,material);
+						});
+						break;
+					default:
+						 items[id].model = new THREE.Mesh(cubeGeometry, cubeMaterial);
+				}
+				
+				items[id].item = new Item(itemInfo[i].name,id,items[id].leftClick,items[id].rightClick);
+				j++;
+		}
+	});
+	
+	
+	
+	
+	
+	
+	
+	
 
 	test = new THREE.Mesh(cubeGeometry, cubeMaterial);
 	//load externals
@@ -417,6 +464,8 @@ function init() {
 	});
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.autoClear = false;
+	effect = new THREE.StereoEffect( renderer/* , { worldScale: 1} */);
+	effect.setSize( window.innerWidth, window.innerHeight );
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
 	controls.enableDamping = true;
 	controls.dampingFactor = 0.25;
@@ -437,6 +486,10 @@ function animate() {
 
 	requestAnimationFrame(animate);
 	renderer.render(scene, camera);
+	if(enableVr) {
+		effect.render( scene, camera );
+		//effect.render(gui.scene, gui.camera);
+	}
 	gui.render(renderer);
 }
 //does the 'players online' bit

@@ -75,6 +75,13 @@ var loadJson = function(url) {
   return $.getJSON(url).responseJSON;
 }
 
+var loadJavascript = function(url) {
+  var element = document.createElement('script');
+  element.setAttribute('type','text/javascript');
+  element.setAttribute('src',url);
+  document.getElementsByTagName("head")[0].appendChild(element);
+}
+
 var createElement = function(name,opts) {
   opts = opts || {};
   var element = document.createElement(name);

@@ -88,25 +88,25 @@ GUI.guiScene = function() {
 	var self = this;
 	/** the camera that is used
 	@private */
-	this.camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, -500, 1000);
-	this.light = new THREE.AmbientLight(0xffffff);
+	self.camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, -500, 1000);
+	self.light = new THREE.AmbientLight(0xffffff);
 	/** 
 	the actual scene that is rendered
 	@deprecated use {@link GUI.guiScene.addElement} instead
 	*/
-	this.scene = new THREE.Scene();
-	this.scene.add(this.camera);
-	this.scene.add(this.light);
-	this.camera.position.z = 50;
-	this.camera.lookAt(GUI.origin);
+	self.scene = new THREE.Scene();
+	self.scene.add(self.camera);
+	self.scene.add(self.light);
+	self.camera.position.z = 50;
+	self.camera.lookAt(GUI.origin);
 	/**
 	add an element to the gui
 	@function
 	@param {Object3D} object - object to add to the scene
 	@returns {Object3D} the passed object
 	*/
-	this.addElement = function(object) {
-			this.scene.add(object);
+	self.addElement = function(object) {
+			self.scene.add(object);
 			return object;
 		}
 		/**
@@ -114,8 +114,8 @@ GUI.guiScene = function() {
 		@function
 		@param {THREE.renderer} renderer - the THREE.js renderer that is used to render this
 		*/
-	this.render = function(renderer) {
-			renderer.render(this.scene, this.camera);
+	self.render = function(renderer) {
+			renderer.render(self.scene, self.camera);
 		}
 		/**
 		add text to the gui
@@ -126,7 +126,7 @@ GUI.guiScene = function() {
 		@param {Int} [opts.z] - z-index of the object
 		@returns {Object3D} the object that contains the text
 		*/
-	this.addTextElement = function(text, x, y, opts) {
+	self.addTextElement = function(text, x, y, opts) {
 
 			if (typeof opts === "undefined") opts = {};
 			if (typeof opts.z === "undefined") opts.z = 0;
@@ -153,7 +153,7 @@ GUI.guiScene = function() {
 			var sprite = new THREE.Sprite(material);
 			sprite.scale.set(textWidth / 4, 25, 25);
 			sprite.position.set(x, y, opts.z);
-			this.scene.add(sprite);
+			self.scene.add(sprite);
 			//scene.add(sprite);
 			sprite.position.y += 1.5;
 			sprite.textWidth = textWidth;
@@ -170,7 +170,7 @@ GUI.guiScene = function() {
 		@memberof GUI
 		@alias guiScene#Inventory
 		*/
-	this.Inventory = function(rows, columns, opts) {
+	self.Inventory = function(rows, columns, opts) {
 		var invSelf = this;
 		opts = opts || {};
 		opts.backgroundColor = opts.backgroundColor || "#fff";

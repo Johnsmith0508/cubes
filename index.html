@@ -11,6 +11,8 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r74/three.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.4.4/randomColor.min.js"></script>
 	<script src="/js/OrbitControls.js"></script>
+	<!--script src="https://va3c.github.io/three.js/examples/js/effects/OculusRiftEffect.js"></script-->
+	<script src="//threejs.org/examples/js/effects/StereoEffect.js"></script>
 	<script src="//rawgit.com/mrdoob/stats.js/master/build/stats.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
 	<script src="./js/functions.js"></script>
@@ -23,7 +25,7 @@
 	<script src="/js/BlendCharacter.js"></script>
 	<script src="/js/dat.gui.min.js"></script>
 	<script src="./js/CannonDebugRenderer.js"></script>
-	<script src="./js/GUI.js"></script>
+	<script src="./js/GUI.min.js"></script>
 	<script>
 		var buttons = {
 			forward: 87,
@@ -231,7 +233,9 @@
 		</div>
 		<input id="opts" type="button" value="Options" />
 		<div id="options" hidden>
-			<input id="fpsShow" type="checkbox">Show FPS
+			<input id="fpsShow" type="checkbox"><label for="fpsShow">Show FPS</label>
+			<br />
+			<input id="vrEnable" type="checkbox"><label for="vrEnable">Enable Virtual Reality</label>
 			<br />
 			<input id="chatDelay" type="number" name="delay" min="1" max="20" value="5">Time that the Chat stays up
 			<br />

@@ -1,7 +1,12 @@
 {
-  "item":{
-    "name" : "item",
+  "debugItem":{
+    "name" : "debugItem",
     "id" : 7,
-    "model" : "textObject.js"
+    "modelLoader" : "json",
+    "model" : "./model/testObject.js"
+  },
+  "cubeItem":{
+    "name" : "cubeItem",
+    "id" : 1
   }
 }
