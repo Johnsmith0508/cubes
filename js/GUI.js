@@ -443,7 +443,11 @@ var Item = function(name, model, id, functions, lore) {
 		this.lore.scale.set(maxLength / 7, lore.length * 15, 1);
 	}
 	this._unclonedModel = model;
-	this.model = model.clone();
+	try {
+		this.model = model.clone();
+	} catch(e){
+		console.warn(e);
+	}
 	this.name = name;
 	this.id = id || Math.floor(Math.random * 10000);
 	this.onUse = functions.onUse || function() {};

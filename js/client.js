@@ -409,9 +409,10 @@ function init() {
 		var j = 0;
 			for(var i in itemInfo) {
 				var id = itemInfo[i].id;
-				console.log(j);
 				items[id] = itemScripts[itemInfo[i].name] || {};
 				itemInfo[i].modelLoader = itemInfo[i].modelLoader || "";
+				//This is soooo hacky, pls fix
+				items[id].model = {clone:function(){}};
 				switch(itemInfo[i].modelLoader.toLowerCase()) {
 					case "objmtl":
 						objMtlLoader.load(itemInfo[i].model,itemInfo[i].mtl,function(object){items[id].model = object;});
@@ -426,7 +427,7 @@ function init() {
 						 items[id].model = new THREE.Mesh(cubeGeometry, cubeMaterial);
 				}
 				
-				items[id].item = new Item(itemInfo[i].name,id,items[id].leftClick,items[id].rightClick);
+				items[id].item = new Item(itemInfo[i].name,items[id].model,id,items[id].leftClick,items[id].rightClick);
 				j++;
 		}
 	});
