@@ -3,7 +3,7 @@ if (typeof THREE === "undefined") throw "THREE.JS not found";
 
 /** @namespace */
 var GUI = {
-	version: '1.0.1'
+	version: '1.2.7'
 };
 /**
 center of the scene
