@@ -71,8 +71,11 @@ var addText = function(text, parentObject) {
 }
 
 var loadJson = function(url) {
-  $.ajaxSetup( { "async": false } );
-  return $.getJSON(url).responseJSON;
+  return new Promise(function(resolve,reject){
+    $.getJSON(url).done(function(data){
+      resolve(data);
+    });
+  });
 }
 
 var loadJavascript = function(url) {

@@ -1,4 +1,6 @@
 /*global $ THREE force initThree updatePhysics world CapsuleColider*/
+
+if(typeof Promise === "undefined" || Promise.toString().indexOf("[native code]") === -1){throw new TypeError("Browser does not support promises");}
 var test, debugModel, cubeItem, effect, enableVr = false;
 var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
 var scene, guiScene, camera, renderer, objMtlLoader, JsonLoader, gui, chatHideDelay, userName = "",
@@ -571,7 +573,7 @@ $(function() {
 			}
 		}
 	});
-	$("#server").val(config.defaultServer);
+	config.then(function(data){$("#server").val(data.defaultServer);});
 	if (getCookie('login')) {
 		$("#name").hide().val(getCookie('login'));
 		$("#loginTypes").hide();
