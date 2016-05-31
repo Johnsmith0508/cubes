@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>GUI.js Source: client.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.dark.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.slate.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top ">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">GUI.js</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="GUI.html">GUI</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="GUI.guiScene.html">GUI.guiScene</a></li><li><a href="GUI.guiScene_Inventory.html">GUI.guiScene#Inventory</a></li><li><a href="Item.html">Item</a></li><li><a href="ItemStack.html">ItemStack</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="tutorials.list.html" class="dropdown-toggle" data-toggle="dropdown">Tutorials<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="tutorial-GUI.guiScene_Inventory_.html">GUI.guiScene#Inventory</a></li><li><a href="tutorial-GUI.guiScene_.html">GUI.guiScene</a></li><li><a href="tutorial-Item_.html">Item</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="global.html#animate">animate</a></li><li><a href="global.html#Chat">Chat</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#key">key</a></li><li><a href="global.html#user">user</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-3">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: client.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript linenums">/*global $ THREE force initThree updatePhysics world CapsuleColider*/
+
+if(typeof Promise === "undefined" || Promise.toString().indexOf("[native code]") === -1){throw new TypeError("Browser does not support promises");}
+var test, debugModel, cubeItem, effect, enableVr = false;
+var usedConsoleLogs = /^((?!\/\/).)*console\.log*/gi;
+var scene, guiScene, camera, renderer, objMtlLoader, JsonLoader, gui, chatHideDelay, userName = "",
+	debugItem, inventory, hotbar,
+	isShifted, blendMesh, testsprite, cannonDebugRenderer, cubeGeometry, cubeMaterial, clientCubeMaterial, carGeometry, carMaterial, controls, floorMaterial, wallsMaterial, light, ambientLight;
+var color;
+//create socket.io connection to server
+var socket = new io('//dynalogic.org', {
+	path: '/node/socket.io'
+});
+//initiate stats.js
+var stats = new Stats();
+/** object that tracks the keys pressed */
+var key = {
+	forward: false,
+	left: false,
+	back: false,
+	right: false,
+	q: false,
+	e: false,
+	chat: false,
+	up: false,
+	down: false,
+	keyPressed: 0,
+	angle: 0
+};
+var keycode = {
+		forward: 87,
+		back: 83,
+		left: 65,
+		right: 68,
+		up: 32,
+		down: 16,
+		reset: 82,
+		chat: 84,
+		inventory: 73,
+		close: 27
+	}
+	/** Object of all users @private */
+var user = {};
+var groundItems = [];
+//so the server is only told about no keys being pressed once
+var sendUpdateNoKey = true;
+var directonalForce = new CANNON.Vec3(0, 0, 0);
+var jumpForce = new CANNON.Vec3(0, 10, 0);
+var canJump = true;
+var config = loadJson('./config.json');
+var itemInfo = loadJson('./items.json');
+loadJavascript("./items.js");
+var items = [];
+//handles the sending of keys to the server
+var buttonHandler = function(keyPressed, status) {
+	if (keyPressed.target === $(".chat")) return;
+	switch (keyPressed.which) {
+		case keycode.forward:
+			key.forward = status;
+			break;
+		case keycode.back:
+			key.back = status;
+			break;
+		case keycode.left:
+			key.left = status;
+			break;
+		case keycode.right:
+			key.right = status;
+			break;
+		case keycode.up:
+			key.up = status;
+			break;
+		case keycode.chat:
+			key.chat = status;
+			break;
+		case keycode.reset:
+			controls.reset();
+			break;
+		case keycode.inventory:
+			if (status) inventory.toggle();
+			break;
+		case keycode.close:
+			inventory.hide();
+	}
+	if (keyPressed.shiftKey) {
+		key.down = true;
+	} else {
+		key.down = false;
+	}
+}
+var registerEvents = function() {
+
+		//called when a user joins the server
+		socket.on('user joined', function(data) {
+			if (typeof user[data.name] == "undefined" &amp;&amp; typeof userName != "undefined") {
+				user[data.name] = new CapsuleColider(1, 4, data.name);
+				user[data.name].position.fromArray(data.position);
+				user[data.name].rotation.fromArray(data.rotation);
+				user[data.name].items = {};
+				world.addBody(user[data.name].phisObj);
+				scene.add(user[data.name].phisMesh);
+				scene.add(user[data.name]);
+			}
+		});
+		//sent when a user leaves
+		socket.on('user left', function(name) {
+			scene.remove(user[name]);
+			scene.remove(user[name].phisMesh);
+			world.removeBody(user[name].phisObj);
+			delete user[name];
+		});
+		//meh
+		socket.on('physics change', function(data) {
+			if (typeof user[userName] !== "undefined") {
+				user[data.name].realPosition.set(data.position.x, data.position.y, data.position.z);
+				user[data.name].phisObj.velocity.set(data.velocity.x, data.velocity.y, data.velocity.z);
+				user[data.name].phisObj.quaternion.set(data.quaternion.x, data.quaternion.y, data.quaternion.z, data.quaternion.w);
+			}
+		});
+		socket.on('error', function(error) {
+			if (error == "user exists") {
+				$("#ErrorMsg").val("Username is in use, Try annother");
+				$("#ErrorMsg").show();
+				registerSubmitButton();
+			}
+		});
+		socket.on('user created', function() {
+			preInit();
+		});
+		socket.on('item', function(data) {
+			var itemPosition = -1;
+			for (var i = 0; i &lt; groundItems.length; i++) {
+				if (groundItems[i].id == data.id) {
+					itemPosition = i;
+				}
+			}
+			if (itemPosition == -1) {
+				switch (data.name) {
+					case "debugItem":
+						groundItems.push(new ItemStack(debugItem, data.id, data.ammount));
+						groundItems[groundItems.length - 1].model.material.materials[0].color.setHex('0x' + randomColor().substring(1, 7))
+						break;
+					case "cubeItem":
+						groundItems.push(new ItemStack(cubeItem, data.id, data.ammount));
+						groundItems[groundItems.length - 1].model.material.color.setHex('0x' + randomColor().substring(1, 7));
+						break;
+				}
+				itemPosition = groundItems.length - 1;
+				scene.add(groundItems[itemPosition].model);
+			}
+			groundItems[itemPosition].model.position.copy(data.position);
+		});
+		socket.on('itemRemove', function(data) {
+			for (var i = 0; i &lt; groundItems.length; i++) {
+				if (groundItems[i].id == data.id) {
+					scene.remove(groundItems[i].model);
+					if (data.user === userName) {
+						if (typeof inventory.locateItem(data.itemName) !== "undefined") {
+							var itemLocation = inventory.locateItem(data.itemName);
+							inventory.items[itemLocation[0]][itemLocation[1]].ammount++;
+						} else {
+							inventory.addItemToEmptySlot(groundItems[i]);
+						}
+					}
+					groundItems.splice(i, 1);
+				}
+			}
+
+		});
+		socket.on('itemHeld', function(data) {
+			if (typeof user[data.name] !== "undefined") {
+				user[data.name].items = data.items;
+			}
+		});
+		socket.on('latencyCheck', function(oldTime) {
+			var time = new Date().getTime();
+			$("#pingDisplay").text(Math.floor((time - oldTime) / 2) + "ms");
+		});
+	}
+	//handles the logic behind the submit button on the login screen
+var submitHandler = function() {
+	$('#name').off('keyup');
+	registerEvents();
+	if ($("#name").val().length > 0) {
+		modelType = $(".model:checked").val();
+		socket.emit('create user', {
+			name: $("#name").val(),
+			model: modelType,
+			cookie: getCookie('login'),
+			hashedPassword: getCookie('hashpass'),
+			keyConfig: JSON.stringify(keycode)
+		});
+	}
+}
+
+//call to enable the submit button on the main page
+var registerSubmitButton = function() {
+	$("#sendName").one('click', submitHandler);
+	$('#name').on('keyup', function(e) {
+		if (e.keyCode === 13) {
+			$('#sendName').trigger('click');
+		}
+	});
+}
+
+//function that contains all logic for various things
+var mainLoop = function() {
+	if (typeof user[userName] === "undefined") return;
+	key.angle = controls.getAzimuthalAngle();
+	inventory.update();
+	directonalForce.setZero();
+	if (key.forward) {
+		directonalForce.add(-Math.sin(key.angle), 0, -Math.cos(key.angle));
+	} else {
+		directonalForce.add(Math.sin(key.angle), 0, Math.cos(key.angle));
+	}
+	if (key.back) {
+		directonalForce.add(Math.sin(key.angle), 0, Math.cos(key.angle));
+	} else {
+		directonalForce.add(-Math.sin(key.angle), 0, -Math.cos(key.angle));
+	}
+	if (key.left) {
+		directonalForce.add(-Math.sin(key.angle + Math.PI / 2), 0, -Math.cos(key.angle + Math.PI / 2));
+	} else {
+		directonalForce.add(Math.sin(key.angle + Math.PI / 2), 0, Math.cos(key.angle + Math.PI / 2));
+	}
+	if (key.right) {
+		directonalForce.add(Math.sin(key.angle + Math.PI / 2), 0, Math.cos(key.angle + Math.P / 2));
+	} else {
+		directonalForce.add(-Math.sin(key.angle + Math.PI / 2), 0, -Math.cos(key.angle + Math.P / 2));
+	}
+	if (key.up &amp;&amp; canJump) {
+		user[userName].phisObj.applyImpulse(jumpForce, user[userName].phisObj.position);
+		canJump = false;
+	}
+	if (key.down) directonalForce.add(0, -0.25, 0);
+	directonalForce.normalize();
+	if (key.forward || key.back || key.left || key.right || key.q || key.e || key.up || key.down) {
+		user[userName].phisObj.applyImpulse(directonalForce, user[userName].phisObj.position);
+		sendUpdateNoKey = true;
+		socket.emit('keys pressed', key);
+	} else if (userName.length > 0) {
+		user[userName].phisObj.velocity.x *= 0.75;
+		user[userName].phisObj.velocity.z *= 0.75;
+		if (sendUpdateNoKey) {
+			sendUpdateNoKey = false;
+			socket.emit('keys pressed', key);
+		}
+	}
+	for (var i in user) {
+		if (user[i].phisObj.position.distanceTo(user[i].realPosition) &lt; 4 || i === userName) {
+			user[i].phisObj.position.lerp2(user[i].realPosition, 0.1);
+		} else {
+			user[i].phisObj.position.copy(user[i].realPosition);
+		}
+	}
+}
+
+var preInit = function() {
+
+
+	userName = $("#name").val();
+	$('#login').hide();
+	$("#threeJsRenderWindow").append(renderer.domElement);
+	$('#main_window').show();
+	chatHideDelay = $("#chatDelay").val();
+
+	//addText("test",camera);
+	$(document).on('keydown', function(e) {
+		if (e.target.id != "msgIn") buttonHandler(e, true);
+	});
+	$(document).on('keyup', function(e) {
+		if (e.target.id != "msgIn") buttonHandler(e, false);
+	});
+	user[userName] = new CapsuleColider(1, 4, userName);
+
+	switch (modelType) {
+		case "car":
+			scene.add(camera);
+			user[userName].model = new THREE.Mesh(carGeometry, carMaterial);
+			user[userName].model.scale.set(0.6, 0.6, 0.6);
+			user[userName].model.rotateX(-Math.PI / 2);
+			user[userName].model.rotateZ(Math.PI);
+			user[userName].updateMatrixWorld();
+			user[userName].add(user[userName].model);
+			THREE.SceneUtils.attach(camera, scene, user[userName]);
+			break;
+		case "person":
+			user[userName] = new THREE.Mesh(blendMesh.geometry, blendMesh.material);
+			user[userName].scale.set(0.01, 0.01, 0.01);
+			scene.add(user[userName]);
+			user[userName].add(camera);
+			break;
+		default:
+			user[userName].add(camera);
+			user[userName].items = {};
+	}
+	scene.add(user[userName]);
+	world.addBody(user[userName].phisObj);
+	//scene.add(user[userName].phisMesh);
+	var nameGuiElement = gui.addTextElement(userName, window.innerWidth / -2, window.innerHeight / 2 - 20, {
+		textColor: "#262626"
+	});
+
+	nameGuiElement.position.x += nameGuiElement.scale.x / 2;
+	if ($("#vrEnable").is(":checked")) {
+		enableVr = true;
+
+	}
+	if ($("#fpsShow").is(":checked")) {
+		document.body.appendChild(stats.domElement);
+	} else {
+		registerSubmitButton();
+	}
+	var chat = new Chat(socket, keycode.chat, {
+		closeKey: keycode.close,
+		hideDelay: $("#chatDelay").val()
+	});
+	//document.getElementById("main_window").appendChild(chat);
+}
+
+var addGroundItem = function(name, location, model, index) {
+	var index1 = index || groundItems.length;
+	model = model.clone();
+	groundItems.splice(index1, 0, {
+		name: name,
+		position: location,
+		model: model,
+		update: function() {
+			this.model.position.copy(this.position);
+		}
+	});
+	scene.add(model);
+	return groundItems.length - 1;
+}
+
+//initilise all required variables
+/**
+ * Init function
+ * @function
+ */
+function init() {
+	//create three.js scene / init loaders
+	scene = new THREE.Scene();
+	JsonLoader = new THREE.JSONLoader();
+	blendMesh = new THREE.BlendCharacter();
+	gui = new GUI.guiScene();
+
+	inventory = new gui.Inventory(5, 9);
+	hotbar = new gui.Inventory(1, 10);
+
+	hotbar.containerObject.position.y = window.innerHeight / -2 + 100;
+	hotbar.toggle();
+	hotbar.mouseItem = inventory.mouseItem;
+
+	//configure stats
+	stats.setMode(0);
+	stats.domElement.style.position = "absolute";
+	stats.domElement.style.left = '0px';
+	stats.domElement.style.top = '0px';
+
+	//init camera
+	camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+	scene.add(camera);
+	camera.position.x = -7;
+	camera.position.y = 5;
+	camera.lookAt(force.zero);
+	//init geometries
+	planeGeom = new THREE.PlaneGeometry(30, 30);
+	cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+
+	//lights
+	light = new THREE.PointLight(0xffffff, 1, 100);
+	light.position.y = 15;
+	light.position.z = 5;
+	light.position.x = -7;
+	scene.add(light);
+	ambientLight = new THREE.AmbientLight(0x404040); // soft white light
+	scene.add(ambientLight);
+	//scene.add(new THREE.AmbientLight( 0xaaaaaa ));
+
+	//init materials
+	carMaterial = new THREE.MeshPhongMaterial();
+	carMaterial.shading = THREE.FlatShading;
+	planeMaterial = new THREE.MeshBasicMaterial({
+		color: 0x9966ff,
+		side: THREE.DoubleSide
+	});
+
+	cubeMaterial = new THREE.MeshBasicMaterial({
+		color: 0xffa000,
+		wireframe: false
+	});
+
+	clientMaterial = new THREE.MeshBasicMaterial({
+		color: 0x003366,
+		wireframe: false
+	});
+
+	//add static scene objects
+	plane = new THREE.Mesh(planeGeom, planeMaterial);
+	plane.rotation.x = Math.PI / 2;
+	plane.reciveShadow = true;
+	//scene.add(plane);
+
+
+
+
+
+
+	$.getScript('./items.js', function(data, textStatus, jqxhr) {
+		var j = 0;
+		for (var i in itemInfo) {
+			var id = itemInfo[i].id;
+			items[id] = itemScripts[itemInfo[i].name] || {};
+			itemInfo[i].modelLoader = itemInfo[i].modelLoader || "";
+			switch (itemInfo[i].modelLoader.toLowerCase()) {
+				case "objmtl":
+					items[id].promisedModel = new Promise(function(resolve, reject) {
+						objMtlLoader.load(itemInfo[i].model, itemInfo[i].mtl, function(object) {
+							items[id].model = object;
+							resolve(object);
+						});
+					});
+					break;
+				case "json":
+					items[id].promisedModel = new Promise(function(resolve, reject) {
+						JsonLoader.load(itemInfo[i].model, function(geom, materials) {
+							var material = new THREE.MultiMaterial(materials);
+							items[id].model = new THREE.Mesh(geom, material);
+							resolve(items[id].model);
+						});
+					});
+					break;
+				default:
+					items[id].promisedModel = new Promise(function(resolve, reject) {
+						items[id].model = new THREE.Mesh(cubeGeometry, cubeMaterial);
+						resolve(items[id].model);
+					});
+			}
+			items[id].promisedModel.then(function(model) {
+				items[id].item = new Item(itemInfo[i].name, model, id, items[id].leftClick, items[id].rightClick);
+			});
+			j++;
+		}
+	});
+
+
+
+
+
+
+
+
+
+	test = new THREE.Mesh(cubeGeometry, cubeMaterial);
+	//load externals
+	JsonLoader.load('/node/model/testObject.js', function(geometry, materials) {
+		var material = new THREE.MultiMaterial(materials);
+		debugModel = new THREE.Mesh(geometry, material);
+		debugModel.scale.set(0.1, 0.1, 0.1);
+		debugItem = new Item("debugItem", debugModel, 7, {}, ["hello", "test", "This is some default flavor text to be displayed", "bleow the item", "(I hate this project)"]);
+		//scene.add( object );
+	});
+	blendMesh.load('model/marine_anims.js', function() {
+		blendMesh.scale.set(0.01, 0.01, 0.01);
+		//guiScene.add(blendMesh);
+	});
+
+	initThree(scene);
+	initCannon();
+
+	cubeItem = new Item("cubeItem", test);
+	cannonDebugRenderer = new THREE.CannonDebugRenderer(scene, world);
+	//init renderer
+	renderer = new THREE.WebGLRenderer({
+		alpha: true
+	});
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.autoClear = false;
+	effect = new THREE.StereoEffect(renderer /* , { worldScale: 1} */ );
+	effect.setSize(window.innerWidth, window.innerHeight);
+	controls = new THREE.OrbitControls(camera, renderer.domElement);
+	controls.enableDamping = true;
+	controls.dampingFactor = 0.25;
+	controls.enablePan = false;
+	registerSubmitButton();
+
+}
+/**
+ * Function to render the scene(s)
+ */
+function animate() {
+	stats.begin();
+	mainLoop();
+	upadtePhysics();
+	controls.update();
+	cannonDebugRenderer.update();
+	stats.end();
+
+	requestAnimationFrame(animate);
+	renderer.render(scene, camera);
+	if (enableVr) {
+		effect.render(scene, camera);
+		//effect.render(gui.scene, gui.camera);
+	}
+	gui.render(renderer);
+}
+//does the 'players online' bit
+socket.on('user count', function(users) {
+	$("#usersOnline").text(users + " online currently");
+});
+//socket.on(*), part of a failed project
+
+//run init
+init();
+//begin rendering
+animate();
+//toggles hiding/showing options pannel
+$(function() {
+	socket.on('keyConfig', function(data) {
+		if (data.name === getCookie('login')) {
+			try {
+				var parsedConfig = JSON.parse(data.config);
+				keycode = parsedConfig;
+				for (var i in keycode) {
+					switch (keycode[i]) {
+						case 37:
+							$("#" + i).html("&amp;larr;");
+							break;
+						case 38:
+							$("#" + i).html("&amp;uarr;");
+							break;
+						case 39:
+							$("#" + i).html("&amp;rarr;");
+							break;
+						case 40:
+							$("#" + i).html("&amp;darr;");
+							break;
+						case 17:
+							$("#" + i).text("ctrl");
+							break;
+						case 16:
+							$("#" + i).text("shift");
+							break;
+						case 32:
+							$("#" + i).text("space");
+							break;
+						case 20:
+							$("#" + i).text("caps");
+							break;
+						case 9:
+							$("#" + i).text("tab");
+							break;
+						case 13:
+							$("#" + i).text("enter");
+							break;
+						case 18:
+							$("#" + i).text("alt");
+							break;
+						case 93:
+							$("#" + i).text("menu");
+							break;
+						case 91:
+							$("#" + i).text("win key");
+							break;
+						default:
+							$("#" + i).text(String.fromCharCode(keycode[i]).toLowerCase());
+					}
+				}
+			} catch (e) {
+				console.log(e);
+			}
+		}
+	});
+	config.then(function(data){$("#server").val(data.defaultServer);});
+	if (getCookie('login')) {
+		$("#name").hide().val(getCookie('login'));
+		$("#loginTypes").hide();
+		$("#logoutButton").show();
+		socket.emit('getKeyConfig', getCookie('login'));
+	}
+	$("#opts").on('click', function() {
+		$("#options").toggle();
+	});
+});
+setInterval(function() {
+	socket.emit('latencyCheck', new Date().getTime());
+}, 1000);
+
+//handle window changing size
+function onWindowResize() {
+	windowHalfX = window.innerWidth / 2;
+	windowHalfY = window.innerHeight / 2;
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+
+	//GUI.camera.updateProjectionMatrix();
+	renderer.setSize(window.innerWidth, window.innerHeight);
+}
+//register previous function
+window.addEventListener('resize', onWindowResize, false);
+
+CANNON.Vec3.prototype.lerp2 = function(v, t) {
+	this.x = this.x + (v.x - this.x) * t;
+	this.y = this.y + (v.y - this.y) * t;
+	this.z = this.z + (v.z - this.z) * t;
+	return this;
+}
+CANNON.Vec3.prototype.lerp3 = function(x, y, z, t) {
+	this.x = this.x + (x - this.x) * t;
+	this.y = this.y + (y - this.y) * t;
+	this.z = this.z + (z - this.z) * t;
+	return this;
+}</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
+	
+		on 2016-05-31T11:24:01+00:00
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>GUI.js Source: GUI.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.dark.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.slate.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top ">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">GUI.js</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="GUI.html">GUI</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="GUI.guiScene.html">GUI.guiScene</a></li><li><a href="GUI.guiScene_Inventory.html">GUI.guiScene#Inventory</a></li><li><a href="Item.html">Item</a></li><li><a href="ItemStack.html">ItemStack</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="tutorials.list.html" class="dropdown-toggle" data-toggle="dropdown">Tutorials<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="tutorial-GUI.guiScene_Inventory_.html">GUI.guiScene#Inventory</a></li><li><a href="tutorial-GUI.guiScene_.html">GUI.guiScene</a></li><li><a href="tutorial-Item_.html">Item</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="global.html#animate">animate</a></li><li><a href="global.html#Chat">Chat</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#key">key</a></li><li><a href="global.html#user">user</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-3">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: GUI.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript linenums">/*global THREE */
+if (typeof THREE === "undefined") throw "THREE.JS not found";
+
+/** @namespace */
+var GUI = {
+	version: '1.2.7'
+};
+/**
+center of the scene
+*/
+GUI.origin = new THREE.Vector3(0, 0, 0);
+/**
+default control scheme
+*/
+GUI.CONTROL_SCHEME_DEFAULT = {
+	/*
+	intended behavior:
+		if user has item on mouse and none in the selected slot, place item in slot
+		if user has no item on mouse and one in selected slot, pick up item
+		if user has item on mouse and in selected slot, switch items. unless they are the same item, then combine
+	*/
+	leftClick: function(inventory, x, y) {
+		var itemInSlot = typeof inventory.items[x][y] !== "undefined";
+		var itemOnMouse = typeof inventory.mouseItem !== "undefined";
+		if (itemOnMouse &amp;&amp; !itemInSlot) {
+			inventory.addItemToSlot(inventory.mouseItem, x, y);
+			inventory.items[x][y].oldAmt = 0;
+			delete inventory.mouseItem;
+		}
+		if (itemInSlot &amp;&amp; !itemOnMouse) {
+			inventory.mouseItem = inventory.removeItem(x, y);
+			delete inventory.items[x][y];
+		}
+		if (itemInSlot &amp;&amp; itemOnMouse) {
+			if (inventory.items[x][y].itemName == inventory.mouseItem.name) {
+				inventory.items[x][y].ammount += inventory.mouseItem.ammount;
+				delete inventory.mouseItem;
+				return;
+			}
+			var standby = inventory.removeItem(x, y);
+			inventory.addItemToSlot(inventory.mouseItem, x, y);
+			inventory.mouseItem = standby;
+		}
+	},
+	/*
+	intended behavior:
+		if user has item on mouse and none in slot, add one to slot; remove one from mouse
+		if user has item no item on mouse and one in slot, remove half from the slot (floor num in slot, celing num on mouse)
+		if user has item on mouse and item in hand, switch them. unless they are the same, then add one to slot &amp; remove one from mouse
+	*/
+	rightClick: function(inventory, x, y) {
+		var itemInSlot = typeof inventory.items[x][y] !== "undefined";
+		var itemOnMouse = typeof inventory.mouseItem !== "undefined";
+		if (itemOnMouse &amp;&amp; !itemInSlot) {
+			inventory.mouseItem.ammount--;
+			var addedItem = inventory.mouseItem.clone();
+			addedItem.ammount = 1;
+			inventory.addItemToSlot(addedItem, x, y);
+			inventory.items[x][y].oldAmt = 0;
+		}
+		if (!itemOnMouse &amp;&amp; itemInSlot) {
+			var stackAmnt = inventory.items[x][y].ammount / 2;
+			inventory.items[x][y].ammount = Math.floor(stackAmnt);
+			if(inventory.items[x][y].ammount &lt;= 0) {
+				inventory.mouseItem = inventory.removeItem(x,y);
+			} else {
+				inventory.mouseItem = inventory.items[x][y].itemStack.clone();
+// 			inventory.mouseItem.ammount = inventory.items[x][y].ammount;
+			}
+			inventory.mouseItem.ammount = Math.ceil(stackAmnt);
+		}
+		if (itemInSlot &amp;&amp; itemOnMouse) {
+			if (inventory.items[x][y].itemName == inventory.mouseItem.name) {
+				inventory.items[x][y].ammount++;
+				inventory.mouseItem.ammount--;
+				return;
+			}
+			var standby = inventory.removeItem(x, y);
+			inventory.addItemToSlot(inventory.mouseItem, x, y);
+			inventory.mouseItem = standby;
+		}
+	}
+};
+/**
+@constructor
+*/
+GUI.guiScene = function() {
+	var self = this;
+	/** the camera that is used
+	@private */
+	self.camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, -500, 1000);
+	self.light = new THREE.AmbientLight(0xffffff);
+	/** 
+	the actual scene that is rendered
+	@deprecated use {@link GUI.guiScene.addElement} instead
+	*/
+	self.scene = new THREE.Scene();
+	self.scene.add(self.camera);
+	self.scene.add(self.light);
+	self.camera.position.z = 50;
+	self.camera.lookAt(GUI.origin);
+	/**
+	add an element to the gui
+	@function
+	@param {Object3D} object - object to add to the scene
+	@returns {Object3D} the passed object
+	*/
+	self.addElement = function(object) {
+			self.scene.add(object);
+			return object;
+		}
+		/**
+		render the scene
+		@function
+		@param {THREE.renderer} renderer - the THREE.js renderer that is used to render this
+		*/
+	self.render = function(renderer) {
+			renderer.render(self.scene, self.camera);
+		}
+		/**
+		add text to the gui
+		@param {String} text - the text to be added
+		@param {Int} x - x position (0,0 is center of screen)
+		@param {Int} y - y position (0,0 is center of screen)
+		@param {Object} [opts] - extra options to be passed
+		@param {Int} [opts.z] - z-index of the object
+		@returns {Object3D} the object that contains the text
+		*/
+	self.addTextElement = function(text, x, y, opts) {
+
+			if (typeof opts === "undefined") opts = {};
+			if (typeof opts.z === "undefined") opts.z = 0;
+			if (typeof opts.textColor === "undefined") opts.textColor = "#000";
+
+			var canvas = document.createElement('canvas'),
+				canvasContext = canvas.getContext('2d');
+			canvas.style.border = '3px solid #000';
+			canvas.style.borderRadius = '15px';
+			canvas.height = 105;
+			canvasContext.font = "100px Arial";
+			var textWidth = canvasContext.measureText(text).width;
+			canvas.width = textWidth;
+			canvasContext.font = "normal 100px Arial";
+			//canvasContext.fillStyle = "#f06";
+			//roundRect(canvasContext, 1, 1, (textWidth - 2), 100, 8);
+			canvasContext.fillStyle = opts.textColor;
+			canvasContext.fillText(text, 0, 85);
+			var texture = new THREE.Texture(canvas);
+			texture.needsUpdate = true;
+			var material = new THREE.SpriteMaterial({
+				map: texture
+			});
+			var sprite = new THREE.Sprite(material);
+			sprite.scale.set(textWidth / 4, 25, 25);
+			sprite.position.set(x, y, opts.z);
+			self.scene.add(sprite);
+			//scene.add(sprite);
+			sprite.position.y += 1.5;
+			sprite.textWidth = textWidth;
+			return sprite;
+		}
+		/**
+		@constructor
+		@param {int} rows - number of rows in the gui
+		@param {int} columns - number of columns in gui
+		@param {object} [opts] - options
+		@param {color} [opts.backgroundColor] - background UI color
+		@param {color} [opts.lineColor] - color of lines in UI
+		@param {object} [opts.ctrlScheme] - functions to be called when various buttons are clicked
+		@memberof GUI
+		@alias guiScene#Inventory
+		*/
+	self.Inventory = function(rows, columns, opts) {
+		var invSelf = this;
+		opts = opts || {};
+		opts.backgroundColor = opts.backgroundColor || "#fff";
+		opts.lineColor = opts.lineColor || "#000";
+		this.ctrlScheme = opts.ctrlScheme || GUI.CONTROL_SCHEME_DEFAULT;
+		this.height = rows * 100 + 1;
+		this.width = columns * 100 + 1;
+		this.rows = rows;
+		this.columns = columns;
+		this.items = new Array(columns);
+		for (var i = 0; i &lt; this.items.length; i++) {
+			this.items[i] = new Array(rows);
+		}
+		this.canvas = document.createElement("canvas");
+		this.canvas.height = this.height;
+		this.canvas.width = this.width;
+		this.grid = this.canvas.getContext("2d");
+		this.grid.beginPath();
+		this.grid.rect(0, 0, this.width, this.height);
+		this.grid.fillStyle = opts.backgroundColor;
+		this.grid.font = "30px Arial";
+		this.grid.fill();
+		this.grid.lineWidth = 5;
+		this.grid.strokeStyle = opts.lineColor;
+		this.grid.moveTo(0, 0);
+		this.grid.lineTo(0, this.height);
+		this.grid.lineTo(this.width, this.height);
+		this.grid.lineTo(this.width, 0);
+		this.grid.lineTo(0, 0);
+		this.grid.stroke();
+		this.grid.lineWidth = 2;
+		for (var i = 0; i &lt;= this.width; i += 100) {
+			this.grid.moveTo(i, 0);
+			this.grid.lineTo(i, this.height);
+		}
+		for (var i = 0; i &lt;= this.height; i += 100) {
+			this.grid.moveTo(0, i);
+			this.grid.lineTo(this.width, i);
+		}
+		this.grid.stroke();
+		self.mouseItem = {};
+		this.grid.fillStyle = opts.lineColor;
+		//document.body.appendChild(this.canvas);
+		this.texture = new THREE.Texture(this.canvas);
+		this.texture.minFilter = THREE.LinearFilter;
+		this.texture.needsUpdate = true;
+		this.material = new THREE.SpriteMaterial({
+			map: this.texture
+		});
+		this.sprite = new THREE.Sprite(this.material);
+		this.sprite.scale.set(this.width, this.height, 1);
+		this.hidden = true;
+		this.containerObject = new THREE.Object3D();
+		this.containerObject.add(this.sprite);
+		/**
+		adds an item to the selected Slot
+		@param {ItemStack} itemStack - Itemstack to add to the inv
+		@param {int} x - column to place item in (0 is far left)
+		@param {int} y - row to place item in (0 is top)
+		@return {Array} coordinates that the item were added to
+		*/
+		this.addItemToSlot = function(itemStack, x, y) {
+				this.items[x][y] = itemStack.model.clone();
+				this.items[x][y].ammount = itemStack.ammount;
+				this.items[x][y].oldAmt = itemStack.ammount;
+				this.items[x][y].itemName = itemStack.name;
+				this.items[x][y].itemStack = itemStack;
+				this.items[x][y].lore = itemStack.lore;
+				var xPos = ((this.width / -2) + (x * 100) + 50);
+				var yPos = ((this.height / 2) - (y * 100) - 50);
+				this.items[x][y].position.set(xPos, yPos, 0);
+				this.items[x][y].scale.multiplyScalar(50);
+				this.containerObject.add(this.items[x][y]);
+				return [x, y];
+			}
+			/**
+			find the next empty slot in the inventory
+			@return {Array} next empty slot
+			*/
+		this.getEmptySlot = function() {
+				for (var j = 0; j &lt; this.rows; j++) {
+					for (var i = 0; i &lt; this.columns; i++) {
+						if (typeof this.items[i][j] === "undefined") {
+							return [i, j];
+						}
+					}
+				}
+			}
+			/**
+			add item to the next slot
+			@param {ItemStack} itemStack - the ItemStack to be added
+			*/
+		this.addItemToEmptySlot = function(itemStack) {
+				var pos = this.getEmptySlot();
+				this.addItemToSlot(itemStack, pos[0], pos[1]);
+			}
+			/**
+			removes item from slot
+			@param {int} x - x-coord of slot to be removed from
+			@param {int} y - y-coord of slot to be removed from
+			@return {ItemStack} removed ItemStack
+			*/
+		this.removeItem = function(x, y) {
+				if (typeof this.items[x][y] === "undefined") return false;
+				this.containerObject.remove(this.items[x][y]);
+				var ret = this.items[x][y].itemStack.clone();
+				ret.ammount = this.items[x][y].ammount;
+				this.grid.fillStyle = opts.backgroundColor;
+				this.grid.fillText(this.items[x][y].oldAmt, x * 100 + 5, y * 100 + 30);
+				delete this.items[x][y].ammount;
+				delete this.items[x][y];
+				return ret;
+			}
+			/**
+			shows the Inventory
+			*/
+		this.show = function() {
+				self.scene.add(this.containerObject);
+				this.hidden = false;
+			}
+			/**
+			hides the inventory
+			*/
+		this.hide = function() {
+				self.scene.remove(this.containerObject);
+				this.hidden = true;
+			}
+			/**
+			toggles the inventory visiblity
+			@return this
+			*/
+		this.toggle = function() {
+				if (this.hidden) {
+					this.show();
+				} else {
+					this.hide();
+				}
+				return this;
+			}
+			/**
+			update function to be called every frame
+			*/
+		this.update = function() {
+				for (var i = 0; i &lt; this.items.length; i++) {
+					for (var j = 0; j &lt; this.items[i].length; j++) {
+						if (typeof this.items[i][j] !== "undefined") {
+							this.items[i][j].rotation.y += 0.05;
+								if (this.items[i][j].oldAmt != this.items[i][j].ammount) {
+								this.grid.fillStyle = opts.backgroundColor;
+								this.grid.fillText(this.items[i][j].oldAmt, i * 100 + 5, j * 100 + 30);
+								this.grid.fillStyle = opts.lineColor;
+								this.grid.fillText(this.items[i][j].ammount, i * 100 + 5, j * 100 + 30);
+								this.items[i][j].oldAmt = this.items[i][j].ammount;
+								this.texture.needsUpdate = true;
+							}
+						}
+					}
+				}
+			}
+			/**
+			find first occurence of item in inventory
+			@param {string} itemName - name of item to find
+			@return {Array} coordinates of first occurance of the item
+			*/
+		this.locateItem = function(itemName) {
+			var ret = [];
+			for (var i = 0; i &lt; this.items.length; i++) {
+				for (var j = 0; j &lt; this.items[i].length; j++) {
+					if (typeof this.items[i][j] !== "undefined" &amp;&amp; this.items[i][j].itemName == itemName) {
+						return [i, j];
+					}
+				}
+			}
+			return ret.length > 1 ? ret : ret[0];
+		}
+		window.addEventListener('mousedown', function(e) {
+			var row = Math.floor((window.innerHeight / -2 + invSelf.height / 2 + e.clientY) / 100);
+			var col = Math.floor((window.innerWidth / -2 + invSelf.width / 2 + e.clientX) / 100);
+			if (!invSelf.hidden &amp;&amp; col &lt;= invSelf.columns - 1 &amp;&amp; row &lt;= invSelf.rows - 1 &amp;&amp; row >= 0 &amp;&amp; col >= 0) {
+				if(typeof invSelf.items[col][row] !== "undefined" &amp;&amp; typeof invSelf.items[col][row].lore !== "undefined") {
+					self.scene.remove(invSelf.items[col][row].lore);
+				}
+				switch (e.button) {
+					case 0:
+						invSelf.ctrlScheme.leftClick(invSelf, col, row);
+						break;
+					case 2:
+						invSelf.ctrlScheme.rightClick(invSelf, col, row);
+						break;
+				}
+			}
+		}, false);
+		var loreOpen = [-1,-1];
+		$('body').on('mousemove', function(e) {
+			if (/*!invSelf.hidden*/ true) {
+				var row = Math.floor((window.innerHeight / -2 + invSelf.height / 2 + e.clientY) / 100);
+				var col = Math.floor((window.innerWidth / -2 + invSelf.width / 2 + e.clientX) / 100);
+				var xPos = window.innerWidth / -2 + e.clientX;
+				var yPos = window.innerHeight / 2 - e.clientY;
+				if (loreOpen[0] >= 0 &amp;&amp; loreOpen[1] >= 0 &amp;&amp; (loreOpen[0] != col || loreOpen[1] != row) &amp;&amp; typeof invSelf.items[loreOpen[0]][loreOpen[1]] !== "undefined") {
+					self.scene.remove(invSelf.items[loreOpen[0]][loreOpen[1]].lore);
+					loreOpen = [col,row];
+				}
+				if (col &lt;= invSelf.columns - 1 &amp;&amp; row &lt;= invSelf.rows - 1 &amp;&amp; row >= 0 &amp;&amp; col >= 0 &amp;&amp; !invSelf.hidden) {
+					if (typeof invSelf.items[col][row] !== "undefined" &amp;&amp; typeof invSelf.items[col][row].lore !== "undefined") {
+						self.scene.add(invSelf.items[col][row].lore);
+						invSelf.items[col][row].lore.position.set(xPos + invSelf.items[col][row].lore.scale.x / 2, yPos - invSelf.items[col][row].lore.scale.y / 2, 150);
+						loreOpen = [col,row];
+					}
+				}
+			}
+		});
+		//iwindow.addEventListener('resize', function() {
+			//invSelf.containerObject.scale.set(3 * window.innerHeight / window.innerWidth, 3 * window.innerHeight / window.innerWidth, 1);
+			//invSelf.sprite.scale.set(invSelf.width * (window.innerHeight / window.innerWidth), invSelf.height * (window.innerHeight / window.innerWidth), invSelf.height);
+			//console.info(invSelf.containerObject.scale);
+		//}, false);
+		return this;
+	}
+	window.addEventListener('resize', function() {
+		self.camera.left = window.innerWidth / -2;
+		self.camera.right = window.innerWidth / 2;
+		self.camera.top = window.innerHeight / 2;
+		self.camera.bottom = window.innerHeight / -2;
+		self.camera.updateProjectionMatrix();
+	}, false);
+}
+
+/**
+@constructor
+@param {String} name - name of item
+@param {THREE.Mesh} model - model to use for the item
+@param {int} [id] - id of the item
+@param {object} [functions] - functions that are bound to spesific events
+@param {function} [functions.onUse] - callback when item is used
+@param {function} [functions.onSecondary] - callback for second ability
+@param {function} [functions.onHover] - callback for when cursor is over the item in the inventory (first are is true when mouse goes over, false when mouse leaves)
+@param {Array} [lore] - flavor text to be displayed when hovering over an object in the inventory
+@return - new Item
+*/
+var Item = function(name, model, id, functions, lore) {
+	lore = lore || [];
+	functions = functions || {};
+	//there is something there
+	if (lore.length > 0) {
+		var maxLength = 0;
+		this.loreCanvas = document.createElement("canvas");
+		var ctx = this.loreCanvas.getContext("2d");
+		ctx.font = "100px Arial";
+		for (var i = 0; i &lt; lore.length; i++) {
+			if (ctx.measureText(lore[i]).width > maxLength) maxLength = ctx.measureText(lore[i]).width;
+		}
+		this.loreCanvas.height = lore.length * 105;
+		this.loreCanvas.width = maxLength;
+		ctx.fillStyle = "#fefefe";
+		ctx.fillRect(0, 0, maxLength, lore.length * 105);
+		ctx.fillStyle = "black";
+
+		ctx.font = "100px Arial";
+		for (var i = 0; i &lt; lore.length; i++) {
+			ctx.fillText(lore[i], 0, (i + 1) * 100);
+			ctx.stroke();
+		}
+		var texture = new THREE.Texture(this.loreCanvas);
+		texture.needsUpdate = true;
+		var loreMaterial = new THREE.SpriteMaterial({
+			map: texture
+		});
+		this.lore = new THREE.Sprite(loreMaterial);
+		this.lore.scale.set(maxLength / 7, lore.length * 15, 1);
+	}
+	this._unclonedModel = model;
+	try {
+		this.model = model.clone();
+	} catch(e){
+		console.warn(e);
+	}
+	this.name = name;
+	this.id = id || Math.floor(Math.random * 10000);
+	this.onUse = functions.onUse || function() {};
+	this.onSecondary = functions.onSecondary || function() {};
+	this.clone = function() {
+		return new Item(this.name, this.model, this.id, this.onUse, this.onSecondary);
+	}
+	this.use = function() {
+		return functions.onUse();
+	}
+	this.secondary = function() {
+		return functions.onSecondary();
+	}
+	this.hover = function() {
+		return functions.onHover();
+	}
+	Item.allInstances.push(this);
+	return this;
+}
+Item.allInstances = [];
+
+/**
+@constructor
+@param {Item} item - what item the stack contains
+@param {int} id - uuid of itemstack
+@param {int} [ammount] - ammount of items in the stack
+@return {ItemStack} - the new ItemStack
+*/
+var ItemStack = function(item, id, ammount) {
+	this._unclonedItem = item;
+	this.id = id;
+	this.item = item;
+	this.name = item.name;
+	this.ammount = ammount || 1;
+	this.model = this.item.model;
+	this.lore = this.item.lore;
+	this.addItem = function(num) {
+		num = num || 1;
+		this.ammount += num;
+		return this;
+	}
+	/**
+	remove a number of items from the item stack
+	@param {int} num - number of items to be removed
+	*/
+	this.removeItem = function(num) {
+		num = num || 1;
+		this.ammount -= num;
+		return this;
+	}
+	this.use = function() {
+		return this.item.use();
+	}
+	this.secondary = function() {
+		return this.item.secondary();
+	}
+	this.getAmmount = function() {
+		return this.ammount;
+	}
+	this.clone = function() {
+		return new ItemStack(this._unclonedItem, this.ammount);
+	}
+	ItemStack.allInstances.push(this);
+	return this;
+}
+ItemStack.allInstances = [];</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
+	
+		on 2016-05-31T11:24:02+00:00
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>
