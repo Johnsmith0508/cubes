@@ -9,11 +9,19 @@ var io = require('socket.io')(http);
 var bodyParser = require('body-parser');
 var THREE = require('three');
 var CANNON = require('cannon');
+var mysql = require('mysql');
 var mongoose = require('mongoose');
 var _istackid = 0;
 var debugItem, itemName, cubeItem;
 var User = {};
 var groundItems = [];
+
+var connection = config.enableMysql ? mysql.createConnection({
+	host: config.mysql.hostname,
+	user: config.mysql.username,
+	password: config.mysql.password,
+	database: config.mysql.database
+}) : null;
 
 mongoose.connect('mongodb://localhost/game');
 var db = mongoose.connection;
@@ -110,12 +118,6 @@ exports.start = function(port) {
 	physics.initCannon();
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded());
-	app.use(function(req,res,next){
-		if(req.url.indexOf(".json") > -1) {
-			res.setHeader("Content-Type", "application/json");
-		}
-		next();
-	});
 	app.all('/config.json', function(req, res) {
 		res.setHeader("Content-Type", "application/json");
 		res.end(JSON.stringify(clientConfig));
@@ -148,7 +150,31 @@ exports.start = function(port) {
 			console.info(user.name + " joined ");
 			userName = user.name;
 			User[userName] = new THREE.Object3D();
-			
+			if (config.enableMysql) {
+				connection.query('SELECT * FROM ' + config.mysql.table, function(err, rows, fields) {
+					for (var i = 0; i < rows.length; i++) {
+						if (rows[i].Username == user.cookie && rows[i].Password == user.hashedPassword) {
+							userName = user.cookie;
+							User[userName].posSaved = true;
+							break;
+						}
+					}
+					dbUser.findOne({name:userName},function(err,data){
+						if(err) return console.error(err);
+						console.log(data);
+						if(User[userName].posSaved) {
+							if(!data) {
+								User[userName].db = new dbUser({name:userName});
+							} else {
+								User[userName].db = data;
+							}
+							User[userName].keyConfig = JSON.parse(user.keyConfig);
+							User[userName].phisObj.position.copy(User[userName].db.position);
+							User[userName].position.copy(User[userName].db.position);
+						}
+					});
+				});
+			}
 			User[userName].sid = socket.id;
 			User[userName].model = user.model;
 			User[userName].items = {};
